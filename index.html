@@ -462,6 +462,135 @@
   .sq mark,.sq-res mark{background:var(--lime);color:#000;border-radius:4px;padding:0 2px;}
   .sq-none{padding:22px 16px;text-align:center;font-size:13px;line-height:1.5;color:var(--ink-soft);}
   .sq-on > .sq-rest{display:none;}
+
+  /* Баллы за месяц, аттестация, игра «Банк» */
+  .at-score{border-radius:22px;padding:16px;background:var(--glass);border:1px solid var(--glass-border);-webkit-backdrop-filter:blur(26px) saturate(170%);backdrop-filter:blur(26px) saturate(170%);margin-bottom:12px;}
+  .at-cols{display:flex;align-items:stretch;gap:6px;margin-top:8px;}
+  .at-col{flex:1;min-width:0;border-radius:16px;padding:12px 6px;text-align:center;background:rgba(0,0,0,.04);}
+  .at-col.tot{background:#000;color:#fff;}
+  .at-n{font-family:var(--font-display);font-size:26px;font-weight:700;line-height:1.1;}
+  .at-l{margin-top:4px;font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-dim);}
+  .at-col.tot .at-l{color:rgba(255,255,255,.7);}
+  .at-op{align-self:center;font-family:var(--font-display);font-size:18px;font-weight:700;color:var(--ink-dim);}
+  .at-zone{display:flex;align-items:center;gap:12px;margin-top:14px;}
+  .at-zt{font-size:12px;line-height:1.45;color:var(--ink-soft);}
+  .at-note{margin-top:10px;font-size:11.5px;line-height:1.45;color:var(--ink-dim);}
+  .at-cta{display:flex;align-items:center;justify-content:center;width:100%;min-height:50px;margin-top:14px;border:0;border-radius:99px;background:#000;color:#fff;font:800 13px var(--font-body);cursor:pointer;}
+  .at-cta[disabled]{background:rgba(0,0,0,.08);color:var(--ink-dim);cursor:default;}
+  .at-card{border-radius:22px;padding:16px;background:var(--glass);border:1px solid var(--glass-border);-webkit-backdrop-filter:blur(26px) saturate(170%);backdrop-filter:blur(26px) saturate(170%);margin-bottom:12px;}
+  .at-h{margin-top:6px;font-family:var(--font-display);font-size:16px;font-weight:700;line-height:1.3;}
+  .at-p{margin:6px 0 0;font-size:12.5px;line-height:1.5;color:var(--ink-soft);}
+  .at-sm{margin:8px 0 0;font-size:11.5px;line-height:1.45;color:var(--ink-dim);}
+  .at-ban{margin:12px 0 0;padding:12px 14px;border-radius:16px;background:#000;color:#fff;font-size:12px;line-height:1.5;}
+  .at-ban b{color:var(--orange-2);}
+  .at-blocks{display:flex;flex-direction:column;gap:8px;margin-top:12px;}
+  .at-sec{margin-top:12px;}
+  .at-lab{font-size:10.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--orange-2);}
+  .at-tx{margin-top:4px;font-size:12.5px;line-height:1.5;}
+  .at-task{margin-top:12px;padding:12px;border-radius:16px;background:rgba(255,255,255,.08);}
+  .at-th{display:flex;align-items:center;gap:8px;}
+  .at-tid{font-family:var(--font-display);font-size:12px;font-weight:700;}
+  .at-tt{font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;border-radius:99px;padding:3px 9px;}
+  .at-tt.p{background:var(--lime);color:var(--lime-ink);} .at-tt.w{background:#fff;color:#000;}
+  .at-chk{display:flex;align-items:center;gap:10px;margin-top:10px;font-size:12.5px;font-weight:600;}
+  .at-chk input{width:20px;height:20px;accent-color:var(--lime);flex:0 0 auto;}
+  .at-ta{display:block;width:100%;box-sizing:border-box;margin-top:10px;padding:10px 12px;border-radius:12px;border:0;background:#fff;color:#000;font:500 14px/1.4 var(--font-body);resize:vertical;outline:none;}
+  .at-ta[disabled]{background:rgba(255,255,255,.14);color:rgba(255,255,255,.85);}
+  .at-prog{display:flex;align-items:center;justify-content:space-between;margin-top:14px;font-size:12px;font-weight:700;}
+  .at-save{font-size:11px;font-weight:600;color:var(--ink-dim);}
+  .at-two{display:flex;gap:8px;margin-top:10px;}
+  .at-two button{flex:1;min-height:48px;border-radius:99px;font:800 13px var(--font-body);cursor:pointer;border:1px solid #000;background:transparent;color:#000;}
+  .at-two button.pri{background:#000;color:#fff;}
+  .at-verd{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;}
+  .at-row{display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:18px;background:var(--glass);border:1px solid var(--glass-border);margin-bottom:8px;cursor:pointer;width:100%;box-sizing:border-box;text-align:left;font-family:var(--font-body);color:var(--ink);}
+  .at-row .nm{flex:1;min-width:0;font-size:14px;font-weight:700;} .at-row .sb{display:block;margin-top:2px;font-size:11.5px;font-weight:500;color:var(--ink-dim);}
+  .at-row .ov{min-width:0;padding:7px 12px;font-size:11.5px;}
+  .at-chkbox{display:flex;align-items:flex-start;gap:10px;margin-top:8px;font-size:13px;line-height:1.4;}
+  .at-chkbox input{width:20px;height:20px;margin-top:1px;accent-color:#000;flex:0 0 auto;}
+  .at-chkbox.red{color:var(--danger);font-weight:700;}
+  .at-choose{display:flex;gap:8px;margin-top:12px;}
+  .at-choose label{flex:1;}
+  .at-choose input{position:absolute;opacity:0;pointer-events:none;}
+  .at-choose span{display:flex;align-items:center;justify-content:center;min-height:46px;border-radius:99px;border:1px solid #000;font-size:13px;font-weight:800;cursor:pointer;}
+  .at-choose input:checked + span.pass{background:var(--lime);border-color:var(--lime);color:var(--lime-ink);}
+  .at-choose input:checked + span.fail{background:#ff5544;border-color:#ff5544;color:#1a0500;}
+  .at-ans{margin-top:8px;padding:10px 12px;border-radius:12px;background:rgba(0,0,0,.05);font-size:13px;line-height:1.45;white-space:pre-wrap;}
+  .at-ans.no{color:var(--ink-dim);font-style:italic;}
+  .gm-sw{display:flex;gap:6px;margin:0 0 12px;}
+  .gm-sw button{flex:1;text-align:center;padding:11px 6px;border-radius:99px;font:700 12.5px var(--font-body);background:var(--glass);border:1px solid var(--glass-border);color:var(--ink-soft);cursor:pointer;}
+  .gm-sw button.on{background:#000;color:#fff;border-color:#000;}
+  .gm-q{font-family:var(--font-display);font-size:16px;font-weight:700;line-height:1.35;margin-top:8px;}
+  .gm-opts{display:flex;flex-direction:column;gap:8px;margin-top:14px;}
+  .gm-opt{display:flex;align-items:center;gap:12px;text-align:left;width:100%;padding:13px 14px;border-radius:18px;background:var(--glass);border:1px solid var(--glass-border);font:600 13.5px/1.4 var(--font-body);color:var(--ink);cursor:pointer;}
+  .gm-opt:disabled{cursor:default;}
+  .gm-opt .k{flex:0 0 auto;width:26px;height:26px;border-radius:50%;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:11px;font-weight:700;}
+  .gm-opt.right{background:var(--lime);border-color:var(--lime);color:var(--lime-ink);}
+  .gm-opt.wrong{background:#ff5544;border-color:#ff5544;color:#1a0500;}
+  .gm-fb{margin-top:12px;padding:12px 14px;border-radius:16px;background:#000;color:#fff;font-size:12.5px;line-height:1.5;}
+  .gm-fb b{color:var(--orange-2);}
+  .gm-prog{display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:700;color:var(--ink-soft);}
+  .gm-off{font-family:var(--font-display);font-weight:700;color:var(--ink);}
+
+  /* Два раздельных счёта: «Ошибки» (минус) и «Рост» (плюс) */
+  .ge-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:6px;}
+  .ge-n{font-family:var(--font-display);font-size:38px;font-weight:700;line-height:1.05;}
+  .ge-sub{margin-top:6px;font-size:12px;line-height:1.45;color:var(--ink-soft);}
+  .ge-zones{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+  .ge-zones .ov{min-width:0;padding:8px 12px;font-size:11.5px;opacity:.28;}
+  .ge-zones .ov.now{opacity:1;box-shadow:0 0 0 2px var(--paper),0 0 0 4px #000;}
+  .ge-lv{margin-top:14px;display:flex;flex-direction:column;gap:6px;}
+  .ge-lv div{display:flex;gap:10px;font-size:12px;line-height:1.4;color:var(--ink-soft);}
+  .ge-lv b{flex:0 0 34px;font-family:var(--font-display);font-size:13px;color:var(--ink);}
+  .gp-head{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+  .gp-draft{font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--orange);border:1px dashed var(--orange);border-radius:99px;padding:4px 10px;}
+  .gp-rows{margin-top:14px;border-top:1px solid var(--line);}
+  .gp-row{display:flex;align-items:baseline;gap:10px;padding:11px 0;border-bottom:1px solid var(--line);font-size:13px;}
+  .gp-row .l{flex:1;min-width:0;font-weight:600;}
+  .gp-row .m{color:var(--ink-dim);font-size:12px;font-variant-numeric:tabular-nums;}
+  .gp-row .v{min-width:44px;text-align:right;font-family:var(--font-display);font-weight:700;font-variant-numeric:tabular-nums;}
+  .gp-seg{display:flex;gap:6px;margin-top:12px;}
+  .gp-seg i{flex:1;height:12px;border-radius:99px;background:rgba(0,0,0,.1);}
+  .gp-seg i.on{background:var(--lime);box-shadow:inset 0 0 0 2px #000;}
+
+  /* Тёмные блоки (акцент важного): «Рост», «Аттестация», карточки игры */
+  .at-score.dk,.at-card.dk{background:#000;color:#fff;border-color:#000;box-shadow:0 14px 30px -16px rgba(0,0,0,.5);-webkit-backdrop-filter:none;backdrop-filter:none;}
+  .dk .cz-cap{color:var(--orange-2);}
+  .dk .ge-n{color:var(--lime);}
+  .dk .ge-sub,.dk .at-p,.dk .at-sm,.dk .at-note,.dk .at-zt{color:rgba(255,255,255,.72);}
+  .dk .at-h{color:#fff;}
+  .dk .gp-rows,.dk .gp-row{border-color:rgba(255,255,255,.18);}
+  .dk .gp-row .m{color:rgba(255,255,255,.6);}
+  .dk .gp-row .v{color:#fff;}
+  .dk .at-cta{background:var(--lime);color:var(--lime-ink);}
+  .dk .at-cta[disabled]{background:rgba(255,255,255,.12);color:rgba(255,255,255,.55);}
+  .dk .at-ban{background:rgba(255,255,255,.1);}
+  .dk .cz-step{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.16);color:#fff;-webkit-backdrop-filter:none;backdrop-filter:none;}
+  .dk .cz-step .dd{color:rgba(255,255,255,.62);}
+  .dk .cz-step .num{background:rgba(255,255,255,.18);color:#fff;}
+  .dk .cz-step .chv{color:rgba(255,255,255,.7);}
+  .dk .cz-step.open{background:#1e1e1e;border-color:rgba(255,255,255,.22);box-shadow:none;}
+  .dk .gm-q{color:#fff;}
+  .dk .gm-prog{color:rgba(255,255,255,.7);}
+  .dk .gm-off{color:var(--lime);}
+  .dk .gm-opt{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:#fff;}
+  .dk .gm-opt .k{background:rgba(255,255,255,.22);color:#fff;}
+  .dk .gm-opt.sel{background:var(--lime);border-color:var(--lime);color:var(--lime-ink);}
+  .dk .gm-opt.sel .k{background:var(--lime-ink);color:var(--lime);}
+  .dk .gm-opt.right{background:var(--lime);border-color:var(--lime);color:var(--lime-ink);}
+  .dk .gm-opt.right .k{background:var(--lime-ink);color:var(--lime);}
+  .dk .gm-opt.wrong{background:#ff5544;border-color:#ff5544;color:#1a0500;}
+  .dk .gm-fb{background:rgba(255,255,255,.1);}
+  .dk .at-ans{background:rgba(255,255,255,.08);color:#fff;}
+  .dk .at-ans.no{color:rgba(255,255,255,.6);}
+
+  .gp-bar{margin-top:14px;height:12px;border-radius:99px;background:rgba(0,0,0,.1);overflow:hidden;}
+  .gp-bar i{display:block;height:100%;border-radius:99px;background:var(--lime);box-shadow:inset 0 0 0 2px #000;}
+  #atScore.dk .ge-n{color:#fff;}
+  .dk .ge-lv div{color:rgba(255,255,255,.72);}
+  .dk .ge-lv b{color:#fff;}
+  .dk .ge-zones .ov.now{box-shadow:0 0 0 2px #000,0 0 0 4px #fff;}
+  .dk .ge-zones .ov{opacity:.35;}
+  .dk .ge-zones .ov.now{opacity:1;}
 </style>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bounded:wght@400;500;700;800&family=Montserrat:wght@400;500;600;700&display=swap">
 </head>
@@ -1150,7 +1279,8 @@ function renderGrowth(u){
 
   const g = GROWTH[u.key];
   if(!g){ el.innerHTML = `<div class="empty">Раздел доступен после определения пользователя.</div>`; return; }
-  el.innerHTML = CZ_HEAD('Мой рост','Счёт идёт с 21.09, у всех с нуля. Ваши баллы появятся здесь после запуска экрана.')+`<div id="czScale"></div>${important}`;
+  const newScreen = !!(window.ERR_SCORE || window.GROW_SCORE);
+  el.innerHTML = CZ_HEAD('Мой рост', newScreen ? 'Счёт идёт с 21.09, у всех с нуля' : 'Счёт идёт с 21.09, у всех с нуля. Ваши баллы появятся здесь после запуска экрана.')+`<div id="czScale"></div>${important}`;
   const parts = [
     {t:'Эта неделя', s:g.week+' балл.', icon:IC.step, body:'<div class="cz-fact"><p style="margin:0;font-size:12.5px;line-height:1.5;">'+g.weekBreak+'</p></div>'},
     {t:'Ретроспектива', s:g.retro+' балл.', icon:IC.chart, body:'<div class="cz-fact"><p style="margin:0;font-size:12.5px;line-height:1.5;">'+g.retroBreak+'</p></div>'},
@@ -1304,7 +1434,7 @@ function renderGame(u){
   var root = document.getElementById('s-game');
   if (!root) return;
   root.innerHTML = '<div class="lime-heading">Тренажёр</div>'+
-    '<div class="honest" style="margin:-4px 0 12px 4px;">Правило дня и документы. Свайп вправо — знаю, влево — повторить.</div>'+
+    '<div class="honest" style="margin:-4px 0 12px 4px;">Правило дня, документы и правила из игры «Банк». Свайп вправо — знаю, влево — повторить.</div>'+
     '<div class="g-stats"><span class="g-pill g-know" id="gPKnow"></span><span class="g-pill g-left" id="gPLeft"></span><span class="g-bar" aria-hidden="true"><i id="gBar"></i></span></div>'+
     '<div class="g-deck" id="gDeck" aria-label="Колода карточек"><div class="g-done" id="gDone" hidden><div class="g-ok">'+ic('<polyline points="4 12 10 18 20 6"/>',34)+'</div><h3>Все карточки — знаю!</h3><p id="gDoneText"></p><button class="g-again" id="gBtnAgain">Пройти снова</button></div></div>'+
     '<div class="g-consent">'+ic('<circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16"/><line x1="12" y1="7.6" x2="12" y2="7.7"/>',18)+'<span>Нажимая «Знаю», вы подтверждаете, что знаете это правило. Ошибка по нему после этого считается повторной.</span></div>'+
@@ -1334,7 +1464,7 @@ function renderGame(u){
   /* Правило дня — из наших запретов, по дате */
   var RULES_OF_DAY = [];
   BANS.forEach(function(b){ b.items.forEach(function(t){
-    if (/нулев/i.test(t) || t.length > 150) return;
+    if (/нулев/i.test(t) || t.length > 105) return;
     RULES_OF_DAY.push({tag:b.title, key:'Нельзя '+t.charAt(0).toLowerCase()+t.slice(1)+'.'});
   }); });
   var rod = RULES_OF_DAY[(today.getFullYear()*372 + today.getMonth()*31 + today.getDate()) % RULES_OF_DAY.length];
@@ -1350,6 +1480,10 @@ function renderGame(u){
     {id:'move', title:'Перемещение', tag:'Склад', art:'move', bg:'rgba(0,0,0,.07)', key:'Только по расчёту «Снабжения». Правка факта — обязательна.', more:'Печать, две подписи, физическое перемещение, потом фото в чат «Документы».'},
     {id:'inventory', title:'Инвентаризация', tag:'Склад', art:'inv', bg:'rgba(0,0,0,.07)', key:'Допуск 5% — по каждой позиции отдельно.', more:'Последний день месяца — полная. Оприходование и списание — только при инвентаризации.'}
   ];
+
+  /* Правила из игры «Банк»: то, что спрашивают в аттестации и игре */
+  var EXTRA = [{"id": "r-move1", "title": "Передача — только по перемещению", "tag": "Движение материалов и бумаги", "art": "move", "bg": "rgba(0,0,0,.07)", "key": "Сначала перемещение в программе, печать и две подписи — потом передача.", "more": "Источник: Документ «Перемещение»."}, {"id": "r-move2", "title": "Фото — после перемещения, в день движения", "tag": "Движение материалов и бумаги", "art": "move", "bg": "rgba(0,0,0,.07)", "key": "Фото уходит после физического перемещения, в день движения.", "more": "Пока фото не отправлено, движение не считается закрытым. Источник: Общие правила «Бумажное сопровождение»."}, {"id": "r-move3", "title": "Факт перемещения — в программе", "tag": "Движение материалов и бумаги", "art": "move", "bg": "rgba(0,0,0,.07)", "key": "Факт правим в программе, иначе перемещение остаётся расчётным.", "more": "Источник: Документ «Перемещение»."}, {"id": "r-move4", "title": "Перемещаем на склад площадки, не на «СТМ»", "tag": "Движение материалов и бумаги", "art": "move", "bg": "rgba(0,0,0,.07)", "key": "«СТМ» в программе — группа складов площадок, а не склад.", "more": "Перемещаем на конкретный склад ХП или РЕЛЛ. Источник: Запреты по движению материалов."}, {"id": "r-move5", "title": "Перемещение — только по расчёту", "tag": "Движение материалов и бумаги", "art": "move", "bg": "rgba(0,0,0,.07)", "key": "Собирать перемещение «от себя» запрещено: только на основании расчёта в «Снабжении».", "more": "Источник: Запреты по движению материалов."}, {"id": "r-move6", "title": "«Заказать» = 0 перед отправкой", "tag": "Движение материалов и бумаги", "art": "move", "bg": "rgba(0,0,0,.07)", "key": "Пока «Заказать» не равно 0, на площадку не отправляем.", "more": "Источник: Документ «Перемещение»."}, {"id": "r-move7", "title": "Отгрузка — со склада площадки", "tag": "Движение материалов и бумаги", "art": "move", "bg": "rgba(0,0,0,.07)", "key": "Отгрузка идёт напрямую со склада ХП или РЕЛЛ.", "more": "ГП на основной склад не возвращается. Источник: Шаг 12."}, {"id": "r-move8", "title": "Фото с подписями, не PDF", "tag": "Движение материалов и бумаги", "art": "move", "bg": "rgba(0,0,0,.07)", "key": "PDF без подписей не заменяет фото подписанного документа.", "more": "Источник: Общие правила «Бумажное сопровождение»."}, {"id": "r-wo1", "title": "П/з — только после «Подтверждён»", "tag": "Производственное задание", "art": "wo", "bg": "rgba(255,171,94,.42)", "key": "П/з создаётся строго после «Подтверждён» и только на основании заказа, без исключений.", "more": "Источник: Документ «Производственное задание»."}, {"id": "r-wo2", "title": "Ошибка в п/з — не трогаем", "tag": "Производственное задание", "art": "wo", "bg": "rgba(255,171,94,.42)", "key": "П/з хранит в себе ошибки: не отменяем, не правим, ничего нового не создаём.", "more": "Сначала созвон с директором. Источник: Документ «Производственное задание»."}, {"id": "r-wo3", "title": "Проведение закрытого п/з не снимаем", "tag": "Производственное задание", "art": "wo", "bg": "rgba(255,171,94,.42)", "key": "Откат проведения закрытого задания стирает факт из истории.", "more": "Без зафиксированной причины это запрещено. Источник: Запреты по п/з."}, {"id": "r-wo4", "title": "Стоп-проверка состава п/з на ГП", "tag": "Производственное задание", "art": "wo", "bg": "rgba(255,171,94,.42)", "key": "Стоп-проверка состава, иначе ошибка задвоится в документах.", "more": "Источник: Шаг 4."}, {"id": "r-wo5", "title": "Склады в п/з на ГП совпадают", "tag": "Производственное задание", "art": "wo", "bg": "rgba(255,171,94,.42)", "key": "В п/з на ГП склады материалов, списания и выпуска совпадают и выставляются сразу.", "more": "Для п/ф это правило не действует. Источник: Документ «Производственное задание»."}, {"id": "r-wo6", "title": "Факт выпуска — в день отчёта", "tag": "Производственное задание", "art": "wo", "bg": "rgba(255,171,94,.42)", "key": "Факт вносится в день отчёта.", "more": "Источник: Шаг 11."}, {"id": "r-wo7", "title": "Без полного количества материалов — не в работу", "tag": "Производственное задание", "art": "wo", "bg": "rgba(255,171,94,.42)", "key": "Задание нельзя отдать в работу, если материалов нет в полном количестве.", "more": "Источник: Шаг 8."}, {"id": "r-wo8", "title": "Не больше 4 уровней п/з", "tag": "Производственное задание", "art": "wo", "bg": "rgba(255,171,94,.42)", "key": "ГП, премикс, концентрат, основа — максимум 4 уровня, каждый отдельным п/з.", "more": "Источник: Шаг 5."}, {"id": "r-dates1", "title": "Дата п/з — текущая", "tag": "Даты и сроки", "art": "rule", "bg": "rgba(219,255,61,.5)", "key": "Для п/з только текущая дата; ранняя — лишь с комментарием «исправление».", "more": "Источник: Общие правила «Даты и сроки»."}, {"id": "r-dates2", "title": "Больше суток назад — «восстановительный»", "tag": "Даты и сроки", "art": "rule", "bg": "rgba(219,255,61,.5)", "key": "Больше суток задним числом — только как «восстановительный документ» с явной пометкой.", "more": "Источник: Общие правила «Даты и сроки»."}, {"id": "r-dates3", "title": "Дату в будущем ставить нельзя", "tag": "Даты и сроки", "art": "rule", "bg": "rgba(219,255,61,.5)", "key": "Дата в будущем запрещена.", "more": "Источник: Запреты по датам и срокам."}, {"id": "r-dates4", "title": "Ранняя дата — с комментарием", "tag": "Даты и сроки", "art": "rule", "bg": "rgba(219,255,61,.5)", "key": "Для п/з ранняя дата — только с комментарием «исправление».", "more": "Источник: Общие правила «Даты и сроки»."}, {"id": "r-order1", "title": "Техкарты проверяем до п/з", "tag": "Заказ покупателя", "art": "order", "bg": "rgba(219,255,61,.45)", "key": "После «Подтверждён» заказ не меняется, правки не принимаются.", "more": "Корректировка — только дополнительным заказом покупателя. Источник: Шаг 1."}, {"id": "r-order2", "title": "Похожий товар — копия «(2)»", "tag": "Заказ покупателя", "art": "order", "bg": "rgba(219,255,61,.45)", "key": "До «Подтверждён» Михаил проверяет цены.", "more": "Заказ создаёт и подтверждает директор. Источник: Шаг 1."}, {"id": "r-order3", "title": "Карточка товара — сразу с ценой продажи", "tag": "Заказ покупателя", "art": "order", "bg": "rgba(219,255,61,.45)", "key": "Брать заказ в работу, пока он не «Подтверждён», запрещено.", "more": "Источник: Запреты по заказу."}, {"id": "r-tech1", "title": "Нет документов — считаем по факту", "tag": "Техкарты и номенклатура", "art": "tech", "bg": "rgba(255,171,94,.42)", "key": "Только Михаил, по согласованному запросу директору с письменным обоснованием.", "more": "Источник: Документ «Техкарта»."}, {"id": "r-tech2", "title": "Приёмка — дважды: УПД и пересчёт", "tag": "Техкарты и номенклатура", "art": "tech", "bg": "rgba(255,171,94,.42)", "key": "Порядок: запрос редактирования, правка, сверка изменений и согласование директором.", "more": "Источник: Документ «Техкарта»."}, {"id": "r-tech3", "title": "Выборочная проверка: 30%, Антон и Арсений", "tag": "Техкарты и номенклатура", "art": "tech", "bg": "rgba(255,171,94,.42)", "key": "Проверка идёт до создания п/з.", "more": "Источник: Шаг 2."}, {"id": "r-tech4", "title": "Допуск 5% — по каждой позиции", "tag": "Техкарты и номенклатура", "art": "tech", "bg": "rgba(255,171,94,.42)", "key": "Оригинал не правим: правится только копия с «(2)».", "more": "Источник: Документ «Техкарта»."}, {"id": "r-tech5", "title": "Расхождение больше 5% — стоп и разбор", "tag": "Техкарты и номенклатура", "art": "tech", "bg": "rgba(255,171,94,.42)", "key": "Карточка создаётся сразу с ценой продажи, по образцу существующей продукции.", "more": "Источник: Общие правила «Цены и номенклатура»."}, {"id": "r-recv1", "title": "Склад на инвентаризации не двигаем", "tag": "Приёмка", "art": "receipt", "bg": "rgba(219,255,61,.45)", "key": "Нет документов — количество строго по факту пересчёта.", "more": "Источник: Документ «Приёмка»."}, {"id": "r-recv2", "title": "Оприходование и списание — только при инвентаризации", "tag": "Приёмка", "art": "receipt", "bg": "rgba(219,255,61,.45)", "key": "Количество сверяется дважды — по УПД и физическим пересчётом.", "more": "Источник: Документ «Приёмка»."}, {"id": "r-inv1", "title": "Заявил сам — ноль баллов", "tag": "Инвентаризация и остатки", "art": "inv", "bg": "rgba(0,0,0,.07)", "key": "Перед каждым п/з, включая вложенные: 30% позиций этого п/з, проверяют Антон и Арсений.", "more": "Источник: Шаг 0."}, {"id": "r-inv2", "title": "Заявить о проблеме — за 2 дня", "tag": "Инвентаризация и остатки", "art": "inv", "bg": "rgba(0,0,0,.07)", "key": "Порог 5% считается по каждой позиции отдельно; избыток тоже нарушение.", "more": "Источник: Документ «Инвентаризация»."}, {"id": "r-inv3", "title": "Что такое сокрытие", "tag": "Инвентаризация и остатки", "art": "inv", "bg": "rgba(0,0,0,.07)", "key": "Больше 5% — стоп, разбор и внеплановая инвентаризация этих позиций.", "more": "Источник: Шаг 0."}, {"id": "r-inv4", "title": "Уровень 3 — всегда разговор", "tag": "Инвентаризация и остатки", "art": "inv", "bg": "rgba(0,0,0,.07)", "key": "Запрет действует до согласования инвентаризации директором и только по этому складу.", "more": "Источник: Общие правила «Даты и сроки»."}, {"id": "r-inv5", "title": "Счётчик обнуляют три чистые операции", "tag": "Инвентаризация и остатки", "art": "inv", "bg": "rgba(0,0,0,.07)", "key": "Оприходование и списание — только при инвентаризации.", "more": "Выпуск ГП идёт через «Выполнение этапа» в п/з. Источник: Документ «Инвентаризация»."}, {"id": "r-disc1", "title": "После «Подтверждён» — доп. заказ", "tag": "Дисциплина и баллы", "art": "rule", "bg": "rgba(255,171,94,.42)", "key": "Заявил сам — ноль баллов, всегда, без исключений.", "more": "Источник: Регламент KPI."}, {"id": "r-disc2", "title": "Цены в заказе проверяет Михаил", "tag": "Дисциплина и баллы", "art": "rule", "bg": "rgba(255,171,94,.42)", "key": "Норма эскалации — 2 дня.", "more": "Вскрылось позже и не было заявлено — уровень 3 как сокрытие. Источник: Регламент KPI."}, {"id": "r-disc3", "title": "Заказ до «Подтверждён» не берём", "tag": "Дисциплина и баллы", "art": "rule", "bg": "rgba(255,171,94,.42)", "key": "Сокрытие — это проблема, о которой не заявили в срок и которая вскрылась позже.", "more": "Это уровень 3. Источник: Регламент KPI."}, {"id": "r-disc4", "title": "Техкарты — только Михаил, по запросу", "tag": "Дисциплина и баллы", "art": "rule", "bg": "rgba(255,171,94,.42)", "key": "Любое нарушение уровня 3 тянет разговор независимо от суммы.", "more": "Скрыл проблему — обсуждаем, даже если в остальном чисто. Источник: Регламент KPI."}, {"id": "r-disc5", "title": "Порядок правки техкарты", "tag": "Дисциплина и баллы", "art": "rule", "bg": "rgba(255,171,94,.42)", "key": "Время счётчик не обнуляет.", "more": "Источник: Регламент KPI."}];
+  ALL = ALL.concat(EXTRA);
 
   var IMG = {rule:'01-calendar', tech:'02-flask', wo:'03-clipboard', goods:'04-box', order:'05-order', invoice:'06-invoice', receipt:'07-receipt-box', move:'08-pallet', inv:'09-shelf'};
   var POSE = {rule:{s:1.46,t:-9,x:10,y:-8}, tech:{s:1.46,t:10,x:-9,y:-9}, wo:{s:1.44,t:-11,x:10,y:-8}, goods:{s:1.42,t:8,x:-10,y:-6}, order:{s:1.44,t:-8,x:9,y:-8}, invoice:{s:1.44,t:9,x:-9,y:-8}, receipt:{s:1.52,t:-7,x:6,y:-10}, move:{s:1.46,t:7,x:-6,y:-4}, inv:{s:1.48,t:-8,x:8,y:-6}};
@@ -1560,6 +1694,7 @@ function renderAll(u){
   renderMoveMap();
   renderGame(u);
   renderScenarios(u);
+  atMountAll(u);
   sqMount('s-profile', u, {});
   sqMount('s-process', u, {ph:'Поиск по процессу и документам', skip:['Моя роль'], chips:['перемещение','приёмка','заказ покупателя','инвентаризация']});
   if(typeof refreshCarousels === 'function') refreshCarousels();
@@ -1687,6 +1822,267 @@ function sqMount(hostId, u, o){
   resEl.addEventListener('click', ev=>{ const r = ev.target.closest('.sq-row'); if(r) sqOpen(cur[+r.dataset.i]); });
 }
 
+// ===== Баллы за месяц, аттестация, игра «Банк» =====
+async function appApi(method, path, body){
+  const r = await fetch(API_URL.replace(/\/data$/, '') + path, {method, headers:Object.assign({Authorization:'tma '+((tg && tg.initData) || '')}, body ? {'Content-Type':'application/json'} : {}), body: body ? JSON.stringify(body) : undefined});
+  if(!r.ok){ const e = new Error('http '+r.status); e.status = r.status; throw e; }
+  return r.json();
+}
+const AT_ZONE = n => n <= 10 ? {k:'g', t:'Норма'} : n <= 25 ? {k:'y', t:'Внимание'} : {k:'r', t:'Последствие'};
+const AT_NEG = n => n > 0 ? '−'+n : '0';
+const AT_POS = n => n > 0 ? '+'+n : '0';
+const AT_DM = d => d ? String(d).split('-').reverse().slice(0,2).join('.') : '';
+const AT_PL = (n, a, b, c) => n % 10 === 1 && n % 100 !== 11 ? a : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? b : c;
+function atSlot(host, node, idx){ host.insertBefore(node, host.children[idx] || null); }
+
+// Кнопка «Назад» Telegram и Esc закрывают открытое окно (документ, проверка, результат поиска)
+let AT_BACK = false;
+function atHookBack(){
+  if(AT_BACK) return; AT_BACK = true;
+  const modal = document.getElementById('docModal'); if(!modal) return;
+  const bb = tg && tg.BackButton;
+  if(bb){
+    try{ bb.onClick(()=>{ if(modal.classList.contains('open')) closeDoc(); }); }catch(e){}
+    new MutationObserver(()=>{ try{ modal.classList.contains('open') ? bb.show() : bb.hide(); }catch(e){} }).observe(modal, {attributes:true, attributeFilter:['class']});
+  }
+  document.addEventListener('keydown', e=>{ if(e.key === 'Escape' && modal.classList.contains('open')) closeDoc(); });
+}
+function atMountAll(u){
+  if(!u) return;
+  atHookBack();
+  const g = document.getElementById('s-growth');
+  if(u.key === 'director'){ if(g) atMountQueue(g); return; }
+  if(g){ atMountScore(g); atMountEmployee(g); }
+  gmMount(u);
+}
+
+// --- Два счёта: «Ошибки» (минус, зоны) и «Рост» (плюс, накопительный), не суммируются
+const AT_MINUS = n => n > 0 ? '−'+n : '0';
+function atErrorsHtml(e){
+  const z = AT_ZONE(e.points);
+  const zn = [{k:'g', t:'0–10 · норма'}, {k:'y', t:'11–25 · внимание'}, {k:'r', t:'26 и больше · последствие'}];
+  return '<div class="cz-cap">Ошибки · '+e.month+'</div>'+
+    '<div class="ge-top"><div class="ge-n">'+AT_MINUS(e.points)+'</div><span class="ov '+z.k+'">'+z.t+'</span></div>'+
+    '<div class="ge-sub">Штрафные баллы за календарный месяц. Счёт идёт с 21.09.</div>'+
+    '<div class="ge-zones">'+zn.map(x=>'<span class="ov '+x.k+(x.k === z.k ? ' now' : '')+'">'+x.t+'</span>').join('')+'</div>'+
+    '<div class="ge-lv"><div><b>−1</b><span>формальное нарушение, повтор −5</span></div><div><b>−3</b><span>искажает остатки или себестоимость, повтор −6</span></div><div><b>−10</b><span>сокрытие, самодеятельность, повтор −20</span></div></div>'+
+    '<div class="at-note">Сообщили об ошибке сами в течение двух дней: ноль баллов, всегда.</div>';
+}
+function atGrowthHtml(g){
+  const it = [
+    {l:'Чистые недели', m:g.cleanWeeks+' × +3', v:g.cleanWeeks*3},
+    {l:'Месяц в зелёной зоне', m:g.greenMonths+' × +5', v:g.greenMonths*5},
+    {l:'Аттестация участка', m:g.sectionAttest+' × +10', v:g.sectionAttest*10},
+    {l:'Аттестация по всей зоне', m:g.zoneAttest+' × +25', v:g.zoneAttest*25},
+    {l:'Игра «Банк»', m:'до +4 в месяц', v:g.game || 0}
+  ];
+  const total = it.reduce((n,r)=>n + r.v, 0);
+  const need = g.needStreak || 3, st = Math.min(g.cleanStreak, need), left = need - st;
+  const seg = '<div class="gp-seg" role="img" aria-label="Чистых месяцев подряд: '+st+' из '+need+'">'+Array.from({length:need}, (_,i)=>'<i'+(i < st ? ' class="on"' : '')+'></i>').join('')+'</div>';
+  return {
+    score: '<div class="gp-head"><div class="cz-cap" style="margin:0;">Рост</div><span class="gp-draft">Черновик</span></div>'+
+      '<div class="ge-top"><div class="ge-n">'+(total > 0 ? '+'+total : '0')+'</div></div>'+
+      '<div class="ge-sub">Накопительный счёт. С ошибками не суммируется: плюс не отменяет минус.</div>'+
+      '<div class="gp-rows">'+it.map(r=>'<div class="gp-row"><span class="l">'+r.l+'</span><span class="m">'+r.m+'</span><span class="v">'+(r.v > 0 ? '+'+r.v : '0')+'</span></div>').join('')+'</div>'+
+      '<div class="at-note">Чистая неделя: ни одного штрафного балла. Ошибка, о которой вы сообщили сами, её не портит.</div>'+
+      '<div class="at-note">Очки за аттестации начисляются с 02–03.11, установочная 01–02.10 очков не даёт. Каждый участок засчитывается один раз, повторная сдача даёт 0. Аттестация по всей зоне: +25 один раз за сессию. Числа на согласовании у директора.</div>',
+    path: '<div class="gp-head"><div class="cz-cap" style="margin:0;">Путь к правам</div><span class="gp-draft">Черновик</span></div>'+
+      '<div class="at-h">Аттестация по всей зоне</div>'+seg+
+      '<p class="at-p">Чистых месяцев подряд: '+st+' из '+need+'. Чистый месяц — месяц в зелёной зоне, до 10 баллов включительно.</p>'+
+      '<p class="at-sm">'+(left > 0 ? 'Ещё '+left+' '+AT_PL(left,'чистый месяц','чистых месяца','чистых месяцев')+' подряд, и вы получите право выйти на аттестацию по всей зоне. ' : 'Право выйти на аттестацию по всей зоне у вас есть. ')+'Сдача добровольная, первого числа месяца. Уже сейчас чистый месяц снимает ручную проверку части операций.</p>'
+  };
+}
+async function atGameCta(box){
+  if(!window.GROW_SCORE) return;
+  let g; try{ g = await appApi('GET','/game'); }catch(e){ return; }
+  let h;
+  if(g.state === 'ready') h = '<button class="at-cta" type="button" data-go="play">Играть · до +4 в месяц</button>';
+  else if(g.state === 'done') h = '<button class="at-cta" type="button" disabled>Сыграно на этой неделе · следующая с '+AT_DM(g.nextAt)+'</button>';
+  else if(g.state === 'weekend') h = '<button class="at-cta" type="button" disabled>Игра открыта в будни · с '+AT_DM(g.nextAt)+'</button>';
+  else if(g.state === 'cap') h = '<button class="at-cta" type="button" disabled>Лимит месяца +4 набран</button>';
+  else h = '<button class="at-cta" type="button" disabled>Игра откроется после аттестации</button>';
+  const old = box.querySelector('.at-cta'); if(old) old.remove();
+  box.insertAdjacentHTML('beforeend', h);
+  const bt = box.querySelector('[data-go="play"]');
+  if(bt) bt.addEventListener('click', ()=>{ document.querySelector('.botnav .ni[data-s="game"]').click(); gmSet('play'); });
+}
+function atBonusHtml(b){
+  const fmt = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' ₽';
+  const st = b.steps.find(x=>x.k === b.step) || b.steps[0];
+  const ladder = b.steps.map(x=>'<div class="gp-row"><span class="l"><span class="ov '+x.k+(x.k === b.step ? ' now' : '')+'" style="min-width:0;padding:6px 10px;font-size:11px;">'+x.range+'</span></span><span class="v" style="min-width:90px;">'+fmt(x.amount)+'</span></div>').join('');
+  let prog = '';
+  if(b.concealed) prog = '<div class="at-note">Сокрытие (уровень 3): премия за месяц 0, ступень не повышается.</div>';
+  else if(b.step === 'g') prog = '<div class="at-note">Вы на высшей ступени.</div>';
+  else prog = '<div class="gp-bar" role="img" aria-label="Плюсов за месяц: '+b.plus+' из '+b.need+'"><i style="width:'+Math.min(100, Math.round(b.plus / b.need * 100))+'%"></i></div><div class="at-note">До ступени выше: '+b.plus+' из '+b.need+' плюсов за месяц. Повышение не больше чем на одну ступень.</div>';
+  return '<div class="gp-head"><div class="cz-cap" style="margin:0;">Премия · '+b.month+'</div><span class="gp-draft">'+(b.from ? 'С '+b.from : 'Ориентир')+'</span></div>'+
+    '<div class="ge-top"><div class="ge-n">'+fmt(b.amount)+'</div><span class="ov '+st.k+'">'+st.range+'</span></div>'+
+    '<div class="ge-sub">Ступень по баллам за календарный месяц.'+(b.from ? ' Премия работает с '+b.from+', до этого это ориентир.' : '')+'</div>'+
+    '<div class="gp-rows">'+ladder+'</div>'+prog;
+}
+function atMountScore(host){
+  let idx = 2;
+  const e = window.ERR_SCORE, g = window.GROW_SCORE;
+  if(e){ const b = document.createElement('div'); b.className = 'at-score dk'; b.id = 'atScore'; b.innerHTML = atErrorsHtml(e); atSlot(host, b, idx++); }
+  if(window.BONUS){ const bb = document.createElement('div'); bb.className = 'at-score'; bb.id = 'atBonus'; bb.innerHTML = atBonusHtml(window.BONUS); atSlot(host, bb, idx++); }
+  if(g){ const h = atGrowthHtml(g);
+    const b1 = document.createElement('div'); b1.className = 'at-score dk'; b1.id = 'atGrowth'; b1.innerHTML = h.score; atSlot(host, b1, idx++); atGameCta(b1);
+    const b2 = document.createElement('div'); b2.className = 'at-score'; b2.id = 'atPath'; b2.innerHTML = h.path; atSlot(host, b2, idx++); }
+}
+
+// --- Аттестация: сотрудник (тест «вопрос — 4 варианта — один верный»)
+function atPrepBlock(b){
+  const sec = (l, t) => '<div class="at-sec"><div class="at-lab">'+l+'</div><div class="at-tx">'+t+'</div></div>';
+  return accHtml(b.id, b.title, b.cases+' '+AT_PL(b.cases,'случай','случая','случаев')+' · уровень '+b.level+' · вопросов: '+b.n,
+    sec('Что было', b.was)+sec('Какое правило нарушено', b.rule)+sec('На каком шаге процесса', b.step)+sec('Что должно было получиться', b.expected));
+}
+function atWrongHtml(list){
+  if(!list || !list.length) return '<p class="at-sm">Ошибок нет.</p>';
+  return list.map(w=>'<div class="at-sec"><div class="at-lab" style="color:var(--orange)">Блок '+SQ_ESC(w.block)+'</div><div class="at-tx"><b>'+SQ_ESC(w.q)+'</b></div>'+
+    '<div class="at-ans no">Вы ответили: '+SQ_ESC(w.options[w.chosen])+'</div><div class="at-ans">Верно: '+SQ_ESC(w.options[w.right])+'<br>'+SQ_ESC(w.explain||'')+'</div></div>').join('');
+}
+function atResultChips(blocks){ return '<div class="at-verd">'+blocks.map(b=>'<span class="ov '+(b.pass?'g':'r')+'">'+b.id+' · '+(b.pass?'Зачтён':'Не зачтён')+' · '+b.correct+'/'+b.total+'</span>').join('')+'</div>'; }
+async function atMountEmployee(host){
+  const box = document.createElement('div'); box.className = 'at-card dk'; box.id = 'atBox'; box.hidden = true;
+  atSlot(host, box, 2 + (window.ERR_SCORE ? 1 : 0) + (window.BONUS ? 1 : 0) + (window.GROW_SCORE ? 2 : 0));
+  let A; try{ A = await appApi('GET','/attestation'); }catch(e){ return; }
+  atRenderEmployee(box, A); box.hidden = false;
+}
+function atRenderEmployee(box, A){
+  const w = A.window || {};
+  const head = '<div class="cz-cap">Аттестация'+(w.title ? ' · '+w.title : '')+'</div>';
+  if(!A.eligible){
+    box.innerHTML = head+'<div class="at-h">Сдача не нужна</div><p class="at-p">'+(A.reason || 'Повода нет: нет забранных операций и режима обязательной проверки.')+'</p><p class="at-sm">Сдача — право, а не обязанность. Ближайшая: '+AT_DM(w.submitOn)+'–'+AT_DM(w.checkOn)+'.</p>';
+    return;
+  }
+  const blocks = (A.prep && A.prep.blocks) || [];
+  const rule = w.pass ? 'Зачёт по блоку: '+w.pass.need+' верных из '+w.pass.of+'.' : '';
+  const ban = w.kind === 'setup' ? '<div class="at-ban"><b>Установочная, без последствий.</b> Первый раз видите формат и свой лист. Первая реальная аттестация — '+(w.nextReal || '02–03.11')+'.</div>' : '';
+  let status = '', action = '';
+  if(A.status === 'scheduled') status = '<div class="at-h">Ваш лист готов</div><p class="at-p">Тест откроется '+AT_DM(w.submitOn)+'. До этого изучите свои блоки: вопросы будут именно по ним. '+rule+'</p>';
+  else if(A.status === 'open' || A.status === 'inprogress'){
+    status = '<div class="at-h">Сдача открыта</div><p class="at-p">'+A.total+' '+AT_PL(A.total,'вопрос','вопроса','вопросов')+', у каждого 4 варианта и один верный. Вернуться к прошлому вопросу нельзя. Результат объявит директор '+AT_DM(w.checkOn)+'. '+rule+'</p>';
+    action = '<button class="at-cta" type="button" id="atStart">'+(A.status === 'inprogress' ? 'Продолжить · отвечено '+A.answered+' из '+A.total : 'Начать тест')+'</button>';
+  }
+  else if(A.status === 'submitted') status = '<div class="at-h">Тест сдан</div><p class="at-p">Результат объявит директор '+AT_DM(w.checkOn)+'. До этого итог не показывается.</p>';
+  else {
+    const r = A.result || {blocks:[], wrong:[]};
+    status = '<div class="at-h">Результат объявлен</div>'+atResultChips(r.blocks)+
+      '<p class="at-sm">'+(w.kind === 'setup' ? 'Установочная аттестация: без последствий, счётчики не менялись.' : 'Счётчик повторов по зачтённым блокам обнулён, забранные операции по ним возвращаются. Незачтённые блоки: следующая попытка через месяц.')+'</p>'+
+      '<div class="at-blocks">'+accHtml('!', 'Разбор ошибок', (r.wrong||[]).length+' '+AT_PL((r.wrong||[]).length,'вопрос','вопроса','вопросов'), atWrongHtml(r.wrong))+'</div>';
+  }
+  box.innerHTML = head+status+ban+action+(A.status === 'announced' ? '' : '<div class="at-blocks">'+blocks.map(atPrepBlock).join('')+'</div>');
+  bindAcc(box);
+  const st = document.getElementById('atStart');
+  if(st) st.addEventListener('click', async ()=>{
+    try{ const r = await appApi('POST','/attestation/start',{}); atQuestion(box, A, r.question, r.n, r.total); }
+    catch(e){ st.textContent = 'Не удалось начать. Повторить'; }
+  });
+}
+function atQuestion(box, A, q, n, total){
+  box.innerHTML = '<div class="cz-cap">Аттестация · '+(A.window && A.window.title || '')+'</div><div class="gm-prog"><span>Вопрос '+n+' из '+total+'</span><span class="gm-off">Блок '+SQ_ESC(q.block)+'</span></div><div class="gm-q">'+SQ_ESC(q.q)+'</div>'+
+    '<div class="gm-opts">'+q.options.map((o,i)=>'<button class="gm-opt" type="button" data-i="'+i+'"><span class="k">'+String.fromCharCode(65+i)+'</span><span>'+SQ_ESC(o)+'</span></button>').join('')+'</div>'+
+    '<p class="at-sm">Ответ можно выбрать заново до нажатия «'+(n === total ? 'Завершить' : 'Дальше')+'». Верный ответ сейчас не показывается.</p><button class="at-cta" type="button" id="atNext" disabled>'+(n === total ? 'Завершить' : 'Дальше')+'</button>';
+  let pick = -1;
+  box.querySelectorAll('.gm-opt').forEach(b=> b.addEventListener('click', ()=>{
+    pick = +b.dataset.i;
+    box.querySelectorAll('.gm-opt').forEach(x=>x.classList.remove('sel'));
+    b.classList.add('sel');
+    document.getElementById('atNext').disabled = false;
+  }));
+  document.getElementById('atNext').addEventListener('click', async ()=>{
+    const btn = document.getElementById('atNext'); btn.disabled = true;
+    let r; try{ r = await appApi('POST','/attestation/answer',{id:q.id, choice:pick}); }catch(e){ btn.disabled = false; btn.textContent = 'Не сохранилось. Повторить'; return; }
+    if(r.next) atQuestion(box, A, r.next, r.n, total);
+    else { A.status = 'submitted'; atRenderEmployee(box, A); }
+  });
+}
+
+// --- Аттестация: директор (результаты и объявление)
+async function atMountQueue(host){
+  const box = document.createElement('div'); box.id = 'atQueue'; box.hidden = true;
+  atSlot(host, box, 2);
+  let Q; try{ Q = await appApi('GET','/attestation/results'); }catch(e){ return; }
+  atRenderQueue(box, Q); box.hidden = false;
+}
+function atRenderQueue(box, Q){
+  const w = Q.window || {};
+  const label = st => st === 'submitted' ? '<span class="ov y">Ждёт объявления</span>' : st === 'announced' ? '<span class="ov g">Объявлено</span>' : st === 'inprogress' ? '<span class="ov">Проходит</span>' : '<span class="ov">Не начал</span>';
+  const rows = (Q.items||[]).map((it,i)=>{
+    const sum = it.blocks && it.blocks.length ? it.blocks.filter(b=>b.pass).length+' из '+it.blocks.length+' блоков зачтено' : 'Лист: '+((it.prep&&it.prep.blocks||[]).length)+' '+AT_PL((it.prep&&it.prep.blocks||[]).length,'блок','блока','блоков');
+    return '<button class="at-row" type="button" data-i="'+i+'"><span class="nm">'+SQ_ESC(it.name)+'<span class="sb">'+(it.submittedAt ? 'Сдал '+AT_DM(it.submittedAt)+' · ' : '')+sum+'</span></span>'+label(it.status)+'</button>';
+  }).join('');
+  box.innerHTML = CZ_HEAD('Аттестация', (w.title||'')+(w.kind==='setup' ? ' · установочная, без последствий' : ''))+(rows || '<div class="at-card"><p class="at-p">Сотрудников с поводом к сдаче нет.</p></div>');
+  box.querySelectorAll('.at-row').forEach(r=> r.addEventListener('click', ()=> atOpenResult(box, Q, Q.items[+r.dataset.i])));
+}
+function atOpenResult(box, Q, it){
+  const w = Q.window || {}, ready = it.status === 'submitted', has = it.blocks && it.blocks.length;
+  const body = has ? atResultChips(it.blocks)+'<div style="margin-top:18px;"><div class="cz-cap">Ошибки в ответах</div>'+atWrongHtml(it.wrong)+'</div>' : '<p class="at-p">Результатов пока нет: тест не сдан.</p>';
+  document.getElementById('docModalInner').innerHTML = `
+    <div class="dm-top"><button class="dm-back" id="docBack" aria-label="Назад">${ic('<polyline points="15 18 9 12 15 6"/>',20)}</button><div class="dm-cap">Результат</div><span style="width:44px;flex:0 0 auto;"></span></div>
+    <div class="dm-hero"><div class="dm-ic">${ic('<polyline points="4 12 10 18 20 6"/>',32)}</div><div class="dm-title">${SQ_ESC(it.name)}</div><div class="dm-sub">${SQ_ESC(w.title||'Аттестация')}${w.kind==='setup'?' · установочная':''}</div></div>
+    <div class="dm-sheet"><div class="cz-stack">${body}
+      ${ready ? '<p class="at-sm" id="atErr" style="color:var(--danger);"></p><button class="at-cta" type="button" id="atAnn">Объявить результат</button><p class="at-sm">Пока вы не объявите, сотрудник видит только «Тест сдан».</p>' : (it.status === 'announced' ? '<p class="at-sm">Результат объявлен сотруднику.</p>' : '')}
+    </div></div>`;
+  document.getElementById('docBack').addEventListener('click', closeDoc);
+  const modal = document.getElementById('docModal'); modal.classList.add('open'); modal.scrollTop = 0;
+  const btn = document.getElementById('atAnn'); if(!btn) return;
+  btn.addEventListener('click', async ()=>{
+    try{ await appApi('POST','/attestation/announce',{key:it.key}); }
+    catch(e){ document.getElementById('atErr').textContent = 'Не получилось. Проверьте связь и повторите.'; return; }
+    closeDoc();
+    try{ const Q2 = await appApi('GET','/attestation/results'); atRenderQueue(box, Q2); }catch(e){}
+  });
+}
+
+// --- Игра «Банк» (в «Тренажёре»): очки идут только в «Рост», «Ошибки» не меняются
+function gmSet(mode){
+  const root = document.getElementById('s-game'); if(!root) return;
+  root.querySelectorAll('.gm-sw button').forEach(b=> b.classList.toggle('on', b.dataset.m === mode));
+  const learn = root.querySelector('.gm-learn'), play = root.querySelector('.gm-play');
+  if(learn) learn.hidden = mode !== 'learn';
+  if(play){ play.hidden = mode !== 'play'; if(mode === 'play') gmStatus(play); }
+}
+function gmMount(u){
+  const root = document.getElementById('s-game'); if(!root || root.querySelector('.gm-sw')) return;
+  const kids = [...root.children].slice(2);
+  const learn = document.createElement('div'); learn.className = 'gm-learn'; kids.forEach(k=>learn.appendChild(k));
+  const play = document.createElement('div'); play.className = 'gm-play'; play.hidden = true;
+  const sw = document.createElement('div'); sw.className = 'gm-sw';
+  sw.innerHTML = '<button type="button" class="on" data-m="learn">Изучать</button><button type="button" data-m="play">Игра «Банк»</button>';
+  root.appendChild(sw); root.appendChild(learn); root.appendChild(play);
+  sw.querySelectorAll('button').forEach(b=> b.addEventListener('click', ()=> gmSet(b.dataset.m)));
+}
+async function gmStatus(play){
+  if(!window.GROW_SCORE){ play.innerHTML = '<div class="at-card dk"><div class="cz-cap">Игра «Банк»</div><div class="at-h">Игра откроется позже</div><p class="at-p">Играть смогут те, кто прошёл аттестацию. Очки пойдут в «Рост». Когда игра будет готова, мы скажем.</p></div>'; return; }
+  play.innerHTML = '<div class="at-card"><p class="at-p">Загрузка…</p></div>';
+  let g; try{ g = await appApi('GET','/game'); }catch(e){ play.innerHTML = '<div class="at-card"><div class="at-h">Нет связи</div><p class="at-p">Не удалось получить данные игры.</p><button class="at-cta" type="button" id="gmRe">Повторить</button></div>'; document.getElementById('gmRe').addEventListener('click', ()=>gmStatus(play)); return; }
+  const info = window.GROW_SCORE ? '<div class="at-score dk" style="margin-top:12px;">'+atGrowthHtml(window.GROW_SCORE).score+'</div>' : '';
+  if(g.state === 'locked') play.innerHTML = '<div class="at-card dk"><div class="cz-cap">Игра «Банк»</div><div class="at-h">Игра откроется после аттестации</div><p class="at-p">Играть могут те, кто прошёл аттестацию. Вопросы для игры берутся из ваших ошибок и правил, которые проверялись на ней.</p></div>'+info;
+  else if(g.state === 'weekend') play.innerHTML = '<div class="at-card dk"><div class="cz-cap">Игра «Банк»</div><div class="at-h">Сейчас выходной</div><p class="at-p">Игра открыта в рабочие дни, с понедельника по пятницу, и открывается один раз в неделю. Следующая возможность: '+AT_DM(g.nextAt)+'.</p></div>'+info;
+  else if(g.state === 'cap') play.innerHTML = '<div class="at-card dk"><div class="cz-cap">Игра «Банк»</div><div class="at-h">Лимит месяца набран</div><p class="at-p">Из игры засчитано +4 в «Рост», больше в этом месяце не добавится. Новый счёт с '+AT_DM(g.nextAt)+'.</p></div>'+info;
+  else if(g.state === 'done') play.innerHTML = '<div class="at-card dk"><div class="cz-cap">Игра «Банк»</div><div class="at-h">На этой неделе вы уже играли</div><p class="at-p">Следующая игра с '+AT_DM(g.nextAt)+'.</p></div>'+info;
+  else { play.innerHTML = '<div class="at-card dk"><div class="cz-cap">Игра «Банк»</div><div class="at-h">'+g.total+' '+AT_PL(g.total,'вопрос','вопроса','вопросов')+' из банка</div><p class="at-p">Каждый верный ответ даёт +1 в «Рост», но не больше +4 в месяц. Неверный ответ ничего не отнимает, но покажет правильный. Счёт «Ошибки» игра не меняет. Играть можно в любой рабочий день недели, но один раз за неделю. В банке сейчас '+g.bank+' '+AT_PL(g.bank,'вопрос','вопроса','вопросов')+'.</p><button class="at-cta" type="button" id="gmStart">Начать</button></div>'+info;
+    document.getElementById('gmStart').addEventListener('click', async ()=>{ try{ const r = await appApi('POST','/game/start',{}); gmQuestion(play, r.question, r.n || 1, r.total, r.won || 0); }catch(e){ gmStatus(play); } }); }
+}
+function gmQuestion(play, q, n, total, won){
+  play.innerHTML = '<div class="at-card"><div class="gm-prog"><span>Вопрос '+n+' из '+total+'</span><span class="gm-off">В «Рост» за месяц: '+((window.GROW_SCORE && window.GROW_SCORE.gameMonth) || 0)+' из 4</span></div><div class="gm-q">'+q.q+'</div><div class="gm-opts">'+q.options.map((o,i)=>'<button class="gm-opt" type="button" data-i="'+i+'"><span class="k">'+String.fromCharCode(65+i)+'</span><span>'+o+'</span></button>').join('')+'</div><div id="gmFb"></div></div>';
+  play.querySelectorAll('.gm-opt').forEach(b=> b.addEventListener('click', async ()=>{
+    play.querySelectorAll('.gm-opt').forEach(x=>x.disabled = true);
+    let r; try{ r = await appApi('POST','/game/answer',{id:q.id, choice:+b.dataset.i}); }catch(e){ play.querySelectorAll('.gm-opt').forEach(x=>x.disabled = false); return; }
+    play.querySelectorAll('.gm-opt')[r.right].classList.add('right');
+    if(!r.correct) b.classList.add('wrong');
+    const won2 = won + (r.correct && r.counted ? 1 : 0);
+    if(r.grow) window.GROW_SCORE = r.grow;
+    document.getElementById('gmFb').innerHTML = '<div class="gm-fb"><b>'+(r.correct ? (r.counted ? 'Верно. +1 в «Рост».' : 'Верно. Лимит месяца +4 уже набран.') : 'Неверно.')+'</b> '+(r.explain||'')+'</div><button class="at-cta" type="button" id="gmNext">'+(r.next ? 'Дальше' : 'Закончить')+'</button>';
+    document.getElementById('gmNext').addEventListener('click', ()=>{ if(r.next) gmQuestion(play, r.next, n+1, total, won2); else gmSummary(play, total, won2, r.summary && r.summary.nextAt); });
+  }));
+}
+function gmSummary(play, total, won, nextAt){
+  const g = window.GROW_SCORE;
+  play.innerHTML = '<div class="at-card dk"><div class="cz-cap">Игра «Банк»</div><div class="at-h">В «Рост» за игру: +'+won+'</div><p class="at-p">В этом месяце из игры: '+((g && g.gameMonth) || 0)+' из 4. Счёт «Ошибки» не изменился.</p><p class="at-sm">Следующая игра'+(nextAt ? ' с '+AT_DM(nextAt) : ' — на следующей неделе')+'.</p><button class="at-cta" type="button" id="gmDone">Готово</button></div>';
+  document.getElementById('gmDone').addEventListener('click', ()=>{ const gb = document.getElementById('atGrowth'); if(gb && g){ gb.innerHTML = atGrowthHtml(g).score; atGameCta(gb); } gmStatus(play); });
+}
+
 // Загрузка данных с сервера. Личных данных в этом файле нет.
 const tg = window.Telegram && window.Telegram.WebApp;
 let currentUser = null;
@@ -1703,6 +2099,10 @@ function applyRemote(d){
   if(d.docErrors) Object.keys(d.docErrors).forEach(k=>{ if(DOCS[k]) DOCS[k].errors = d.docErrors[k]; });
   ROSTER = d.roster || [];
   window.ERROR_STATS = d.errorStats || null;
+  window.SCORE = d.score || null;
+  window.ERR_SCORE = d.errScore || null;
+  window.GROW_SCORE = d.growScore || null;
+  window.BONUS = d.bonus || null;
 }
 
 const STATES = {
