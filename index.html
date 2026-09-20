@@ -1106,7 +1106,7 @@ function renderTasks(u){
 function renderGrowth(u){
   const el = document.getElementById('s-growth');
   if(!u){ el.innerHTML = `<div class="empty">Раздел доступен после определения пользователя.</div>`; return; }
-  const important = `<div class="attn"><div class="eb">Важно</div><p>Счёт по регламенту идёт с 21.09.2026, но денежный вес баллы получают только с 01.10.2026 — сентябрь считается «на сухую». Заявил проблему сам — ноль баллов всегда, без исключений.</p></div>`;
+  const important = `<div class="attn"><div class="eb">Важно</div><p>Счёт идёт с 21.09.2026, у всех с нуля. Заявил проблему сам — ноль баллов, всегда. Плюс не отменяет минус.</p></div>`;
   const detail = g => '<div class="cz-fact"><div class="muted">Из чего баллы этой недели</div><p style="margin:4px 0 0;font-size:12.5px;line-height:1.5;">'+g.weekBreak+'</p></div>'+
     '<div class="cz-fact"><div class="muted">Из чего баллы ретроспективы</div><p style="margin:4px 0 0;font-size:12.5px;line-height:1.5;">'+g.retroBreak+'</p></div>'+
     (g.note ? '<div class="cz-note"><div class="cz-cap">Уточнение</div><div class="cz-txt">'+g.note+'</div></div>' : '')+
@@ -1126,19 +1126,7 @@ function renderGrowth(u){
 
   const g = GROWTH[u.key];
   if(!g){ el.innerHTML = `<div class="empty">Раздел доступен после определения пользователя.</div>`; return; }
-  el.innerHTML = CZ_HEAD('Мой рост','Текущая неделя (15–21.09)')+`
-    <div class="glass">
-      <div class="between">
-        <div><div class="muted">Баллы за неделю</div><div class="huge" style="font-size:32px;">${g.week}</div></div>
-        ${zoneTag(g)}
-      </div>
-      <div class="bars"><div class="b" style="height:${Math.max(10,g.retro/1.2)}%;"></div><div class="b hi" style="height:${Math.max(10,g.week/1.2)}%;"></div></div>
-      <div class="row" style="justify-content:space-between;"><span class="muted" style="font-size:10px;">ретро 18.08–16.09 (${g.retroN} зап.)</span><span class="muted" style="font-size:10px;">тек. неделя (${g.weekN} зап.)</span></div>
-    </div>
-    ${CZ_HEAD('Разбор баллов','Из чего складывается ваш счёт')}
-    <div id="czGrowth"></div>
-    ${important}
-    <div id="czScale"></div>`;
+  el.innerHTML = CZ_HEAD('Мой рост','Счёт идёт с 21.09, у всех с нуля. Ваши баллы появятся здесь после запуска экрана.')+`<div id="czScale"></div>${important}`;
   const parts = [
     {t:'Эта неделя', s:g.week+' балл.', icon:IC.step, body:'<div class="cz-fact"><p style="margin:0;font-size:12.5px;line-height:1.5;">'+g.weekBreak+'</p></div>'},
     {t:'Ретроспектива', s:g.retro+' балл.', icon:IC.chart, body:'<div class="cz-fact"><p style="margin:0;font-size:12.5px;line-height:1.5;">'+g.retroBreak+'</p></div>'},
@@ -1158,7 +1146,7 @@ function scaleBlock(){
   host.innerHTML = CZ_HEAD('Как считаются баллы','Уровни, зоны месяца и пути обратно')+'<div id="czScaleC"></div>';
   const levels = SCALE.map(x=>'<div class="cz-fact"><div class="between"><b style="font-size:12.5px;">Уровень '+x.lvl+'</b><span class="row" style="gap:6px;"><span class="tag">1-й раз '+x.first+'</span><span class="tag" style="background:var(--pill);color:var(--pill-ink);border-color:var(--pill);">повтор '+x.repeat+'</span></span></div><div class="muted" style="margin-top:4px;font-size:11.5px;">'+x.meaning+'</div></div>').join('');
   const zones = '<div class="cz-note"><div class="cz-cap">Зоны месяца</div>'+
-    [['g','0–10','норма, ничего не происходит.'],['y','11–25','разговор один на один с директором.'],['r','выше 25','не проходит аттестацию, не получает расширения полномочий, с фондом — депремирование.']]
+    [['g','0–10','норма, ничего не происходит.'],['y','11–25','разговор один на один с директором.'],['r','выше 25','не проходит аттестацию и не получает расширения полномочий.']]
     .map(z=>'<div class="cz-zone"><span class="ov '+z[0]+'">'+z[1]+'</span><span class="cz-txt">'+z[2]+'</span></div>').join('')+'</div>';
   const ways = COMEBACK.map(c=>'<div class="cz-fact"><b style="font-size:12.5px;">'+c.way+'</b><div style="font-size:12px;margin-top:4px;"><span class="muted">Нужно:</span> '+c.need+'</div><div style="font-size:12px;margin-top:2px;"><span class="muted">Даёт:</span> '+c.gives+'</div></div>').join('');
   const att = '<div class="cz-note"><div class="cz-cap">Аттестация</div><div class="cz-txt">Ежемесячно, два дня: 01–02.10 (установочная, без последствий) · 02–03.11 · 01–02.12. Сдача — право, не обязанность: тратит время только тот, у кого есть повод вернуть операцию или снять проверку.</div></div>';
