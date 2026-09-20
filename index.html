@@ -588,7 +588,7 @@ const SCALE = [
 
 const COMEBACK = [
   {way:'Рутинный', need:'Три операции того же типа подряд без нарушений', gives:'Обнуляет счётчик повторов по этому виду. Аттестация не нужна'},
-  {way:'Аттестация', need:'Сдать участок — выполнить операцию и письменно объяснить каждое поле', gives:'Возвращаются забранные операции, снимается режим обязательной проверки'}
+  {way:'Аттестация', need:'Сдать участок: пройти тест по нему, зачёт при 3 верных из 4', gives:'Возвращаются забранные операции, снимается режим обязательной проверки'}
 ];
 
 let ERROR_LOG = [];
@@ -686,7 +686,7 @@ let DOCS = {
   inventory: {
     title:'Инвентаризация', subtitle:'Склад',
     icon:'<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>',
-    rule:'Последний день каждого месяца — полная инвентаризация склада. Отдельно, ближе к 15 числу — сверка Ответ-хранения. Допустимое отклонение — 5% по количеству, по каждой позиции отдельно, в любую сторону (избыток тоже нарушение). Движение товаров по складу, который инвентаризируется, запрещено до согласования инвентаризации директором; остальные склады работают как обычно.<br><br>Перед каждым новым п/з (включая вложенные) — выборочная проверка остатков: 30% позиций этого п/з, проверяют Антон и Арсений. План — остаток в программе, факт — ручной пересчёт, порог 5% по каждой позиции отдельно. Нет аномалий и не более 5% — инвентаризацию не проводим, в чат «Документы» не пишем. Аномалия или больше 5% — стоп и разбор, внеплановая инвентаризация этих позиций, затем процесс продолжается; в чат «Документы» — пометка «у нас расхождение план/факт». Проверять чаще — до положительной сдачи аттестации отделом, контрольная дата — 1 ноября 2026. Выборочная проверка инвентаризацию по графику не заменяет.<br><br>Оприходование и Списание оформляются только при инвентаризации. В производственном процессе их нет: выпуск ГП идёт через «Выполнение этапа» в п/з и в «Оприходовании» не отображается.',
+    rule:'Последний день каждого месяца — полная инвентаризация склада. Отдельно, 30 числа — сверка Ответ-хранения. Допустимое отклонение — 5% по количеству, по каждой позиции отдельно, в любую сторону (избыток тоже нарушение). Движение товаров по складу, который инвентаризируется, запрещено до согласования инвентаризации директором (статус «Согласована» в Мой Склад); остальные склады работают как обычно.<br><br>Перед каждым новым п/з (включая вложенные) — выборочная проверка остатков: 30% позиций этого п/з, проверяют Антон и Арсений. План — остаток в программе, факт — ручной пересчёт, порог 5% по каждой позиции отдельно. Нет аномалий и не более 5% — инвентаризацию не проводим, в чат «Документы» не пишем. Аномалия или больше 5% — стоп и разбор, внеплановая инвентаризация этих позиций, затем процесс продолжается; в чат «Документы» — пометка «у нас расхождение план/факт». Проверять чаще — до положительной сдачи аттестации отделом, контрольная дата — 1 ноября 2026. Выборочная проверка инвентаризацию по графику не заменяет.<br><br>Оприходование и Списание оформляются только при инвентаризации. В производственном процессе их нет: выпуск ГП идёт через «Выполнение этапа» в п/з и в «Оприходовании» не отображается.',
     bad:['Двигать товары по складу, который инвентаризируется, до согласования инвентаризации директором','Закрывать инвентаризацию при отклонении выше 5% без разбора причин','Подменять инвентаризацию выборочной проверкой остатков','Начинать новый п/з без выборочной проверки остатков','Использовать Оприходование и Списание в производственном процессе — они только для инвентаризации','Оприходование с нулевой ценой по позиции']
   }
 };
@@ -719,12 +719,18 @@ const FLOW = [
   ]}
 ];
 
-// Быстрая ветка — проект (решение директора 19.09.2026): правилом не считается, дорабатывается с ассистентом «Аудит процесса»
+// Быстрая ветка — проект (написан, но ещё сырой; правилом не считается). Содержание по эталону, п. «Материалы»
 const FAST = {
   title:'Быстрая ветка',
   icon:'<circle cx="6" cy="5" r="2"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="9" r="2"/><path d="M6 7v10"/><path d="M18 11c0 4-6 3-12 6"/>',
-  lead:'Черновик: при достаточном запасе материалов закупку можно пропустить.',
-  note:'Условия и место в процессе не утверждены. Ветку дорабатывают вместе с ассистентом «Аудит процесса». Пока это не правило: работаем по шагам 0–12.'
+  lead:'Развилка касается только закупки. Если условия ниже выполнены, закупка по п/з пропускается и сразу идёт выдача материалов. Вложенные п/з создаются всегда.',
+  conds:[
+    'П/з на полуфабрикаты сформированы, их выпуск поставлен в «Ожидание»: в «Снабжении» материал «доступен», но в «Остатки» не попадает, виден только в «доступно».',
+    'В п/з на ГП колонка «Заказать» равна 0.',
+    'Техкарты актуальны.',
+    'Новой продукции нет: ни новых техкарт, ни новой номенклатуры на п/ф и на ГП.'
+  ],
+  note:'Проект: написан, но ещё сырой. Правилом не считается, работаем по шагам 0–12. Спорные случаи решает директор.'
 };
 
 function renderFlow(){
@@ -734,13 +740,13 @@ function renderFlow(){
   const chain = '<div class="cz-note"><div class="cz-cap">Матрёшка документов · максимум 4 уровня</div><div class="cz-chips"><span>Заказ покупателя</span><i>→</i><span>П/з ГП</span><i>→</i><span>П/з премикс</span><i>→</i><span>П/з концентрат</span><i>·</i><span>П/з основа</span></div></div>';
   makeCarousel(document.getElementById('flowBlocks'), {
     label:'Ветки процесса',
-    items: FLOW.map(b=>({title:b.title, sub:b.sub, icon:b.icon, peek:b.steps.length+' шагов'})).concat([{title:FAST.title, sub:'дорабатывается', icon:FAST.icon, tag:'ПРОЕКТ', dashed:true, peek:'Пока не правило'}]),
+    items: FLOW.map(b=>({title:b.title, sub:b.sub, icon:b.icon, peek:b.steps.length+' шагов'})).concat([{title:FAST.title, sub:'проект · только закупка', icon:FAST.icon, tag:'ПРОЕКТ', dashed:true, peek:'Ещё сырая'}]),
     list: i=>{
       if(i < FLOW.length){
         const b = FLOW[i];
         return (b.intro==='chain' ? chain : '<div class="cz-note"><div class="cz-cap">Важно</div><div class="cz-txt">'+b.intro+'</div></div>') + stepsHtml(b.steps);
       }
-      return '<div class="cz-note"><div class="cz-cap">Проект</div><div class="cz-txt" style="font-weight:600;">'+FAST.lead+'</div><div class="cz-txt" style="margin-top:8px;color:rgba(255,255,255,.7);">'+FAST.note+'</div></div>';
+      return '<div class="cz-note"><div class="cz-cap">Проект · только закупка</div><div class="cz-txt" style="font-weight:600;">'+FAST.lead+'</div></div>' + czLabel('ok','Условия, все сразу') + FAST.conds.map(t=>czItem(t,'ok')).join('') + '<div class="cz-note" style="margin-top:2px;"><div class="cz-txt">'+FAST.note+'</div></div>';
     },
     bind: list=>list.querySelectorAll('.cz-step .hd').forEach(h=>h.addEventListener('click', ()=>h.parentElement.classList.toggle('open')))
   });
@@ -834,6 +840,25 @@ const MOVEMAP = [
     ]
   },
   {
+    "key": "release",
+    "title": "Выпуск ГП",
+    "sub": "Стык 3",
+    "icon": "<polyline points=\"4 17 12 21 20 17\"/><polyline points=\"4 12 12 16 20 12\"/><polygon points=\"12 3 4 7 12 11 20 7 12 3\"/>",
+    "routes": [
+      {
+        "frm": "Выпуск ГП",
+        "to": "Склад ГП",
+        "prints": [],
+        "who": "",
+        "when": "",
+        "whoUnclear": true,
+        "printUnclear": true,
+        "whenOnlyUnclear": true,
+        "unclearText": "уточняется 01.10"
+      }
+    ]
+  },
+  {
     "key": "ship",
     "title": "Отгрузка покупателю",
     "sub": "Со склада площадки",
@@ -856,12 +881,11 @@ const MOVEMAP = [
 function renderMoveMap(){
   const arrow = ic('<line x1="4" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/>',16);
   const printer = ic('<polyline points="6 9 6 3 18 3 18 9"/><rect x="4" y="9" width="16" height="9" rx="2"/><rect x="7" y="14" width="10" height="7" rx="1"/>',14);
-  const unclear = '<span class="tag rev">уточняется в аудите</span>';
-  const routeHtml = r => '<div class="cz-route">'+
+  const routeHtml = r => { const unclear = '<span class="tag rev">'+(r.unclearText || 'уточняется в аудите')+'</span>'; return '<div class="cz-route">'+
     '<div class="cz-path"><span class="a">'+r.frm+'</span><span class="ar">'+arrow+'</span><span class="b">'+r.to+'</span></div>'+
     '<div class="cz-line"><span class="lb">'+printer+'К печати</span>'+(r.printUnclear ? unclear : r.prints.map(x=>'<span class="pr">'+x+'</span>').join(''))+'</div>'+
     '<div class="cz-line"><span class="lb">Кто</span>'+(r.whoUnclear ? unclear : '<span class="tx">'+r.who+'</span>')+'</div>'+
-    '<div class="cz-when"><span class="k">КОГДА</span><span class="tx">'+(r.whenOnlyUnclear ? unclear : r.when + (r.whenUnclear ? ' '+unclear : ''))+'</span></div></div>';
+    '<div class="cz-when"><span class="k">КОГДА</span><span class="tx">'+(r.whenOnlyUnclear ? unclear : r.when + (r.whenUnclear ? ' '+unclear : ''))+'</span></div></div>'; };
   makeCarousel(document.getElementById('moveMap'), {
     label:'Документы движения',
     items: MOVEMAP.map(m=>({title:m.title, sub:m.sub, icon:m.icon, peek:m.routes.length+' '+(m.routes.length===1?'маршрут':m.routes.length<5?'маршрута':'маршрутов')})),
@@ -1144,9 +1168,9 @@ function scaleBlock(){
   const host = document.getElementById('czScale');
   if(!host) return;
   host.innerHTML = CZ_HEAD('Как считаются баллы','Уровни, зоны месяца и пути обратно')+'<div id="czScaleC"></div>';
-  const levels = SCALE.map(x=>'<div class="cz-fact"><div class="between"><b style="font-size:12.5px;">Уровень '+x.lvl+'</b><span class="row" style="gap:6px;"><span class="tag">1-й раз '+x.first+'</span><span class="tag" style="background:var(--pill);color:var(--pill-ink);border-color:var(--pill);">повтор '+x.repeat+'</span></span></div><div class="muted" style="margin-top:4px;font-size:11.5px;">'+x.meaning+'</div></div>').join('');
+  const levels = SCALE.map(x=>'<div class="cz-fact"><div class="between"><b style="font-size:12.5px;">Уровень '+x.lvl+'</b><span class="row" style="gap:6px;"><span class="tag">1-й раз −'+x.first+'</span><span class="tag" style="background:var(--pill);color:var(--pill-ink);border-color:var(--pill);">повтор −'+x.repeat+'</span></span></div><div class="muted" style="margin-top:4px;font-size:11.5px;">'+x.meaning+'</div></div>').join('') + '<div class="cz-note"><div class="cz-cap">Срок и контроль</div><div class="cz-txt">Срок давности — 3 рабочих дня с момента обнаружения нарушения. Сообщили об ошибке сами до того, как её нашли, — 0 баллов. Пропущенная точка контроля (Антону): нарушение подчинённого, найденное директором или автоматикой и не внесённое в срок, — −3, повтор −6.</div></div>';
   const zones = '<div class="cz-note"><div class="cz-cap">Зоны месяца</div>'+
-    [['g','0–10','норма, ничего не происходит.'],['y','11–25','разговор один на один с директором.'],['r','выше 25','не проходит аттестацию и не получает расширения полномочий.']]
+    [['g','0–10','норма, ничего не происходит.'],['y','11–25','разговор один на один с директором.'],['r','26 и больше','не проходит аттестацию и не получает расширения полномочий.']]
     .map(z=>'<div class="cz-zone"><span class="ov '+z[0]+'">'+z[1]+'</span><span class="cz-txt">'+z[2]+'</span></div>').join('')+'</div>';
   const ways = COMEBACK.map(c=>'<div class="cz-fact"><b style="font-size:12.5px;">'+c.way+'</b><div style="font-size:12px;margin-top:4px;"><span class="muted">Нужно:</span> '+c.need+'</div><div style="font-size:12px;margin-top:2px;"><span class="muted">Даёт:</span> '+c.gives+'</div></div>').join('');
   const att = '<div class="cz-note"><div class="cz-cap">Аттестация</div><div class="cz-txt">Ежемесячно, два дня: 01–02.10 (установочная, без последствий) · 02–03.11 · 01–02.12. Сдача — право, не обязанность: тратит время только тот, у кого есть повод вернуть операцию или снять проверку.</div></div>';
