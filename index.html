@@ -208,12 +208,12 @@
 
   /* Тренажёр — колода карточек (стекло) */
   /* статистика игры — стекло */
-  .g-stats{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;padding:10px 12px;border-radius:99px;background:var(--glass);backdrop-filter:blur(26px) saturate(170%);-webkit-backdrop-filter:blur(26px) saturate(170%);border:1px solid var(--glass-border);}
+  .g-stats{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;padding:11px 13px;border-radius:99px;background:#000;color:#fff;border:1px solid #000;box-shadow:0 14px 30px -16px rgba(0,0,0,.45);}
   .g-pill{font-size:11px;font-weight:700;border-radius:99px;padding:5px 11px;white-space:nowrap;}
   .g-pill.g-know{background:var(--lime);color:var(--lime-ink);}
-  .g-pill.g-left{background:#000;color:#fff;}
-  .g-bar{flex:1 1 60px;height:6px;border-radius:99px;background:rgba(0,0,0,.12);overflow:hidden;min-width:50px;}
-  .g-bar i{display:block;height:100%;width:0;background:#000;border-radius:99px;transition:width .4s cubic-bezier(.22,.78,.2,1);}
+  .g-pill.g-left{background:rgba(255,255,255,.16);color:#fff;}
+  .g-bar{flex:1 1 60px;height:6px;border-radius:99px;background:rgba(255,255,255,.18);overflow:hidden;min-width:50px;}
+  .g-bar i{display:block;height:100%;width:0;background:var(--lime);border-radius:99px;transition:width .4s cubic-bezier(.22,.78,.2,1);}
 
 
   .g-deck{position:relative;height:512px;margin:56px 6px 0;}
@@ -265,12 +265,12 @@
   .g-actions{display:flex;gap:10px;margin-top:6px;}
   .g-btn{flex:1;min-height:52px;border-radius:99px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
     border:1px solid var(--glass-border);background:var(--glass);color:var(--ink);backdrop-filter:blur(20px) saturate(160%);-webkit-backdrop-filter:blur(20px) saturate(160%);}
-  .g-btn.g-know{background:var(--lime);border-color:var(--lime);color:var(--lime-ink);}
+  .g-btn.g-know{background:var(--lime);border:0;color:var(--lime-ink);}
   .g-btn:disabled{opacity:.4;cursor:default;}
   .g-btn:focus-visible{outline:3px solid #000;outline-offset:2px;}
   .g-hint{margin:14px 4px 0;font-size:11.5px;line-height:1.45;color:var(--ink-dim);text-align:center;}
 
-  .g-done{position:absolute;left:0;right:0;top:0;height:448px;border-radius:32px;background:var(--lime);color:var(--lime-ink);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;text-align:center;border:1px solid rgba(0,0,0,.12);}
+  .g-done{position:absolute;left:0;right:0;top:0;height:448px;border-radius:32px;background:var(--lime);color:var(--lime-ink);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;text-align:center;border:0;}
   .g-done[hidden]{display:none;}
   .g-done .g-ok{width:72px;height:72px;border-radius:50%;background:#000;color:var(--lime);display:flex;align-items:center;justify-content:center;}
   .g-done h3{margin:0;font-family:var(--font-display);font-size:20px;line-height:1.2;}
@@ -591,7 +591,109 @@
   .dk .ge-zones .ov.now{box-shadow:0 0 0 2px #000,0 0 0 4px #fff;}
   .dk .ge-zones .ov{opacity:.35;}
   .dk .ge-zones .ov.now{opacity:1;}
-</style>
+
+  /* Экран «Задачи»: неделя полосой, карточка со свайпом, полоска «Отменить» */
+  .tk-sum{display:flex;align-items:center;gap:10px;width:100%;margin-bottom:12px;padding:12px 14px;border-radius:16px;background:#000;border:1px solid #000;color:#fff;font-family:var(--font-body);font-weight:600;font-size:12px;line-height:1;cursor:pointer;text-align:left;box-shadow:0 14px 30px -16px rgba(0,0,0,.45);}
+  .tk-sum b{font-family:var(--font-display);font-size:14px;}
+  .tk-sum .s2{color:#ff8a7a;}
+  .tk-sum .s3{margin-left:auto;background:var(--lime);color:var(--lime-ink);border-radius:99px;padding:5px 9px;font-weight:800;}
+  .tk-sum .chv{display:flex;opacity:.5;}
+  .wk{display:flex;gap:5px;margin:0 0 14px;}
+  .wk-d{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 0 6px;border-radius:14px;background:var(--glass);border:1px solid var(--glass-border);color:var(--ink);cursor:pointer;}
+  .wk-d .wd{font-size:9.5px;letter-spacing:.04em;text-transform:uppercase;opacity:.55;}
+  .wk-d .dn{font-family:var(--font-display);font-weight:700;font-size:15px;line-height:1;}
+  .wk-d i{width:5px;height:5px;border-radius:50%;background:transparent;}
+  .wk-d i.has{background:var(--orange);}
+  .wk-d i.late{background:var(--danger);}
+  .wk-d.now .dn{color:var(--orange);}
+  .wk-d.on{background:var(--pill);color:var(--pill-ink);border-color:transparent;}
+  .wk-d.on .dn,.wk-d.now.on .dn{color:var(--pill-ink);}
+  .tk-lab{font-size:11.5px;color:var(--ink-dim);margin:10px 0 6px 4px;}
+  .tk-lab.bad{color:var(--danger);font-weight:700;}
+  .tk-sw{position:relative;border-radius:18px;overflow:hidden;margin-bottom:8px;touch-action:pan-y;}
+  .tk-bg{position:absolute;inset:0;display:flex;align-items:center;justify-content:space-between;padding:0 16px;font-size:11.5px;font-weight:800;border-radius:18px;background:var(--glass-strong);color:var(--ink-dim);}
+  .tk-sw.to-done .tk-bg{background:var(--lime);color:var(--lime-ink);}
+  .tk-sw.to-info .tk-bg{background:var(--warn-bg);color:var(--warn);}
+  .tk-card{position:relative;border-radius:18px;padding:12px 14px;background:var(--glass);backdrop-filter:blur(26px) saturate(170%);-webkit-backdrop-filter:blur(26px) saturate(170%);border:1px solid var(--glass-border);transition:transform .18s ease;}
+  .tk-t{font-size:12.5px;font-weight:700;line-height:1.35;}
+  .tk-meta{display:flex;align-items:center;gap:8px;margin-top:7px;font-size:11.5px;color:var(--ink-dim);}
+  .tk-meta .due.late{color:var(--danger);font-weight:700;}
+  .tk-go{margin-left:auto;display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--glass-strong);border:1px solid var(--glass-border);color:var(--ink);cursor:pointer;}
+  .tk-undo{position:fixed;left:50%;transform:translate(-50%,120%);bottom:calc(86px + env(safe-area-inset-bottom,0px));z-index:12;display:flex;align-items:center;gap:12px;max-width:min(92vw,420px);padding:11px 14px;border-radius:99px;background:#000;color:#fff;font-family:var(--font-body);font-weight:600;font-size:12px;line-height:1.2;box-shadow:0 18px 34px -18px rgba(0,0,0,.7);opacity:0;transition:transform .2s ease,opacity .2s ease;pointer-events:none;}
+  .tk-undo.on{transform:translate(-50%,0);opacity:1;pointer-events:auto;}
+  .scen-who{display:inline-block;margin-top:6px;padding:3px 8px;border-radius:99px;font-size:10px;font-weight:700;background:var(--glass-strong);border:1px solid var(--glass-border);color:var(--ink-dim);}
+  .scen-who.mine{background:var(--lime);border-color:transparent;color:var(--lime-ink);}
+  .pr-modes{display:flex;gap:4px;padding:5px;margin:0 0 12px;border-radius:99px;background:#000;box-shadow:0 14px 30px -16px rgba(0,0,0,.45);}
+  .pr-mode{flex:1;padding:10px 12px;border:0;border-radius:99px;background:transparent;color:rgba(255,255,255,.72);font-family:var(--font-body);font-weight:700;font-size:12.5px;cursor:pointer;}
+  .pr-mode.on{background:var(--lime);color:var(--lime-ink);}
+  .now-sum{display:flex;gap:16px;margin-top:6px;font-size:12px;color:rgba(255,255,255,.72);}
+  .now-sum b{font-family:var(--font-display);font-size:18px;color:#fff;margin-right:4px;}
+  .nt{position:fixed;inset:0;z-index:30;background:var(--paper);opacity:0;pointer-events:none;transition:opacity .25s ease;}
+  .nt.open{opacity:1;pointer-events:auto;}
+  .nt-in{position:relative;height:100%;display:flex;flex-direction:column;max-width:520px;margin:0 auto;}
+  .nt-track{flex:1;display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;}
+  .nt-track::-webkit-scrollbar{display:none;}
+  .nt-s{flex:0 0 100%;scroll-snap-align:center;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:14px;padding:24px 28px 0;text-align:center;}
+  .nt-art{width:min(62vw,240px);aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:32px;background:var(--lime);}
+  .nt-art img{width:78%;height:78%;object-fit:contain;}
+  .nt-t{font-family:var(--font-display);font-weight:700;font-size:22px;line-height:1.15;}
+  .nt-p{margin:0;font-size:13px;line-height:1.5;color:var(--ink-dim);max-width:34ch;}
+  .nt-hint{font-size:11px;color:var(--ink-dim);opacity:.7;}
+  .nt-go{margin-top:4px;padding:14px 28px;border:0;border-radius:99px;background:#000;color:#fff;font-family:var(--font-body);font-weight:700;font-size:13.5px;cursor:pointer;}
+  .nt-dots{display:flex;gap:6px;justify-content:center;padding:18px 0 8px;}
+  .nt-dots button{width:7px;height:7px;padding:0;border:0;border-radius:50%;background:var(--glass-border);cursor:pointer;}
+  .nt-dots button.on{background:#000;width:18px;border-radius:99px;}
+  .nt-skip{margin:0 auto calc(18px + env(safe-area-inset-bottom,0px));padding:8px 16px;border:0;background:transparent;color:var(--ink-dim);font-family:var(--font-body);font-size:12px;cursor:pointer;}
+  .pk-doc{display:flex;flex-direction:column;align-items:flex-start;gap:4px;width:100%;margin-bottom:8px;padding:13px 14px;border-radius:18px;background:var(--glass);border:1px solid var(--glass-border);color:var(--ink);text-align:left;cursor:pointer;}
+  .pk-n{font-family:var(--font-display);font-weight:700;font-size:15px;}
+  .pk-w{font-size:11.5px;color:var(--ink-dim);}
+  .pk-st{margin-top:4px;padding:3px 8px;border-radius:99px;background:var(--glass-strong);border:1px solid var(--glass-border);font-size:10px;font-weight:700;color:var(--ink-dim);}
+  .pk-st.go{background:var(--lime);border-color:transparent;color:var(--lime-ink);}
+  .pk-row{display:flex;align-items:center;gap:7px;padding:8px 10px;border-radius:12px;background:var(--paper);border:1px solid var(--glass-border);margin-bottom:5px;}
+  .pk-row.done{background:var(--glass-strong);}
+  .pk-t{flex:1 1 auto;min-width:0;font-size:12.5px;font-weight:700;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .pk-plan{flex:0 0 auto;min-width:40px;padding:6px 8px;border-radius:8px;background:var(--glass-strong);font-family:var(--font-display);font-weight:700;font-size:13px;color:var(--ink-dim);text-align:center;}
+  .pk-fact{flex:0 0 auto;min-width:48px;padding:6px 10px;border-radius:8px;background:var(--lime);color:var(--lime-ink);font-family:var(--font-display);font-size:13px;font-weight:700;text-align:center;}
+  .pk-fact.bad{background:#ff5544;color:#1a0500;}
+  .pk-in{flex:0 0 54px;width:54px;padding:6px 6px;border-radius:8px;border:1px solid var(--glass-border);background:#fff;font-family:var(--font-display);font-size:13px;font-weight:700;color:var(--ink);text-align:center;}
+  .pk-go{flex:0 0 auto;padding:7px 10px;border:0;border-radius:8px;background:var(--glass-strong);color:var(--ink-dim);font-family:var(--font-body);font-weight:700;font-size:11px;cursor:pointer;}
+  .pk-go.now{background:var(--lime);color:var(--lime-ink);}
+  .pk-back{display:block;width:100%;margin-top:12px;padding:10px;border:0;background:transparent;color:var(--ink-dim);font-family:var(--font-body);font-size:12px;cursor:pointer;}
+  .op-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .op{display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-height:96px;padding:13px 12px;border-radius:18px;background:var(--glass);border:1px solid var(--glass-border);color:var(--ink);text-align:left;cursor:pointer;}
+  .op.lime{background:var(--lime);color:var(--lime-ink);border:0;box-shadow:0 14px 30px -18px rgba(0,0,0,.35);}
+  .op.lime .op-w{color:rgba(14,20,0,.62);}
+  .op.lime .op-gap{background:rgba(14,20,0,.12);color:var(--lime-ink);}
+  .pk-start{position:sticky;bottom:calc(10px + env(safe-area-inset-bottom,0px));display:block;width:100%;margin:20px 0 4px;padding:17px 24px;border:0;border-radius:16px;background:var(--lime);color:var(--lime-ink);font-family:var(--font-body);font-weight:700;font-size:14.5px;letter-spacing:.01em;cursor:pointer;box-shadow:0 16px 30px -18px rgba(0,0,0,.45);}
+  .op.hot{background:#000;color:#fff;border-color:#000;box-shadow:0 14px 30px -16px rgba(0,0,0,.45);}
+  .op-t{font-size:12.5px;font-weight:700;line-height:1.3;}
+  .op-w{font-size:10.5px;color:var(--ink-dim);line-height:1.25;}
+  .op.hot .op-w{color:rgba(255,255,255,.6);}
+  .op-gap.draft{background:var(--glass-strong);color:var(--ink-dim);}
+  .op.hot .op-gap.draft{background:rgba(255,255,255,.16);color:rgba(255,255,255,.8);}
+  .op-gap{margin-top:auto;padding:3px 7px;border-radius:99px;background:var(--warn-bg);color:var(--warn);font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;}
+  .op.hot .op-gap{background:rgba(255,255,255,.16);color:#fff;}
+  .pr-tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 0 14px;padding-bottom:2px;}
+  .pr-tabs::-webkit-scrollbar{display:none;}
+  .pr-tab{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;padding:9px 14px;border-radius:99px;background:var(--glass);border:1px solid var(--glass-border);color:var(--ink);font-family:var(--font-body);font-weight:700;font-size:12px;line-height:1;cursor:pointer;white-space:nowrap;}
+  .pr-tab.on{background:#000;color:#fff;border-color:#000;box-shadow:0 14px 30px -16px rgba(0,0,0,.45);}
+  .pr-draft{font-size:9.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:3px 6px;border-radius:99px;background:var(--warn-bg);color:var(--warn);}
+  .pr-tab.on .pr-draft{background:rgba(255,255,255,.18);color:#fff;}
+  .at-tile.dk{background:#000;color:#fff;border-color:#000;box-shadow:0 14px 30px -16px rgba(0,0,0,.45);backdrop-filter:none;-webkit-backdrop-filter:none;}
+  .at-tile.dk .s{color:rgba(255,255,255,.6);}
+  .at-tile.lime{background:var(--lime);color:var(--lime-ink);border-color:transparent;backdrop-filter:none;-webkit-backdrop-filter:none;}
+  .at-tile.lime .s{color:rgba(14,20,0,.62);}
+  .at-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
+  .at-tiles:empty{display:none;}
+  .at-tile{display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:12px 10px;border-radius:18px;background:var(--glass);backdrop-filter:blur(26px) saturate(170%);-webkit-backdrop-filter:blur(26px) saturate(170%);border:1px solid var(--glass-border);color:var(--ink);text-align:left;cursor:pointer;}
+  .at-tile .c{font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;opacity:.55;}
+  .at-tile .v{font-family:var(--font-display);font-weight:700;font-size:21px;line-height:1.05;}
+  .at-tile .s{font-size:10.5px;color:var(--ink-dim);line-height:1.25;}
+  .at-tile .ov{min-width:0;margin-top:4px;padding:4px 8px;font-size:10px;}
+  .g-again.ghost{background:transparent;color:var(--ink-dim);border:1px solid var(--glass-border);margin-top:8px;}
+  .tk-undo span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .tk-undo button{flex:0 0 auto;background:var(--lime);color:var(--lime-ink);border:0;border-radius:99px;padding:7px 12px;font-family:var(--font-body);font-weight:800;font-size:11.5px;line-height:1;cursor:pointer;}
+  </style>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bounded:wght@400;500;700;800&family=Montserrat:wght@400;500;600;700&display=swap">
 </head>
 <body>
@@ -608,31 +710,9 @@
 
   <!-- 2. ПРОЦЕСС -->
   <div class="section" id="s-process">
-    <div id="scenBlock">
-      <div class="lime-heading">Что делать, если…</div>
-      <div class="honest" style="margin:-4px 0 12px 4px;">Ситуации Антона: короткие чек-листы по эталону процесса</div>
-      <div id="scenarios"></div>
-    </div>
-
-    <div class="lime-heading">Памятка документы</div>
-    <div class="honest" style="margin:-4px 0 12px 4px;">Правила, запреты и прошлые ошибки по каждому документу</div>
-    <div id="docBlocks"></div>
-
-    <div class="lime-heading">Эталонный процесс п/з</div>
-    <div class="honest" style="margin:-4px 0 12px 4px;">Редакция директора 19.09.2026 · шаги 0–12</div>
-    <div id="flowBlocks"></div>
-
-    <div class="lime-heading">Движение документов</div>
-    <div class="honest" style="margin:-4px 0 12px 4px;">Откуда, куда, что печатать и когда</div>
-    <div id="moveMap"></div>
-    <div class="attn col">
-      <div class="eb">Всегда, при любом движении</div>
-      <p style="margin:0;font-size:12.5px;line-height:1.5;">Две подписи от руки — «сдал» и «принял». Затем фото подписанного документа в чат «Документы» — в день движения, до конца смены. PDF из программы фото не заменяет — в нём нет подписей.</p>
-    </div>
-
-    <div class="lime-heading">Общие правила</div>
-    <div class="honest" style="margin:-4px 0 12px 4px;">Действуют для любого документа</div>
-    <div id="ruleAccordion"></div>
+    <div class="pr-modes" id="prModes"></div>
+    <div class="pr-tabs" id="prTabs"></div>
+    <div id="prBody"></div>
   </div>
 
   <!-- 3. ОШИБКИ -->
@@ -675,6 +755,8 @@
 
 <div id="appState" aria-live="polite"></div>
 
+<div class="nt" id="newTour"></div>
+<div class="tk-undo" id="tkUndo" role="status"></div>
 <div class="docModal" id="docModal"><div class="docModal-inner" id="docModalInner"></div></div>
 
 <script>
@@ -704,6 +786,12 @@ const RULES = [
     ok: 'На каждой передаче ответственности — две подписи от руки (сдал/принял), затем фото подписанного документа в чат «Документы» в день движения, до конца смены.',
     bad: ['Передавать без двух подписей','Заменять фото PDF-версией без подписей'],
     risk: 'Без подписи с обеих сторон при расхождении спор превращается в «я передавал / мне не передавали» без возможности разрешить его фактами.'
+  },
+  {
+    title: '4. Основание документа',
+    ok: 'Каждый документ создаётся на основании предыдущего, а не с чистого листа. Цепочка продаж: заказ покупателя → отгрузка на основании заказа → счёт на основании отгрузки. П/з — на основании заказа покупателя, перемещение — на основании п/з, приёмка — на основании заказа поставщику.',
+    bad: ['Отгрузка не на основании заказа','Счёт не на основании отгрузки','Перемещение без привязки к п/з','Приёмка не на основании заказа поставщику','П/з на ГП не на основании заказа покупателя'],
+    risk: 'Документ без основания разрывает цепочку: план и факт перестают сходиться в одной точке, и расхождение нечем измерить. Шесть из двенадцати машинных проверок — про основание и связь документов.'
   }
 ];
 
@@ -720,6 +808,50 @@ const COMEBACK = [
   {way:'Аттестация', need:'Сдать участок: пройти тест по нему, зачёт при 3 верных из 4', gives:'Возвращаются забранные операции, снимается режим обязательной проверки'}
 ];
 
+// Счёт «Рост»: за что начисляются плюсы (редакция 22.09.2026 — добавлены задачи, закрытые в срок)
+const PLUS_RULES = [
+  ['Чистая неделя — ни одного штрафного балла за неделю', '+3', 'снимается, если нарушение за эту неделю вскрылось позже'],
+  ['Месяц в зелёной зоне — до 10 штрафных баллов', '+5', ''],
+  ['Сдана аттестация участка — за каждый участок', '+10', 'повтор того же участка — 0; плюсы идут с 02–03.11'],
+  ['Сдана аттестация по всей зоне', '+25', 'один раз за сессию'],
+  ['Игра «Банк» — за верный ответ', '+1', 'не больше 4 плюсов в месяц'],
+  ['Задача, закрытая не позже срока', '+1', 'не больше 4 плюсов в месяц; задача без срока в счёт не идёт']
+];
+
+// Порядок начисления и утреннее окно (редакция 22.09.2026)
+const ORDER_RULES = [
+  'Аудитор ставит предварительный балл в день обнаружения и в тот же день сообщает вам. В зачёт месяца балл идёт после утверждения директором.',
+  'Утреннее окно — час с момента окончания утреннего созвона. Нарушение уровня 1 или 2, фактически устранённое в окно, баллов не даёт.',
+  'Уровень 3 в окне не снимается никогда. Снимает балл только устранение — ответ, признание и обещание исправить не снимают.',
+  'Срок внесения нарушения — 3 рабочих дня с момента обнаружения, а не с момента совершения.',
+  'Заявил о своей ошибке сам — 0 баллов всегда, и чистую неделю это не портит.',
+  'Счёт месяца закрывается разбором 2–4 числа. Понедельник остаётся разбором по существу, а не начислением.'
+];
+
+// Оспаривание (редакция 22.09.2026)
+const DISPUTE_RULES = [
+  'Оспорить начисление можно в течение 3 рабочих дней с момента уведомления.',
+  'Обязательны комментарий по существу и категория. Одно начисление — одно оспаривание.',
+  'Оспаривание не освобождает от устранения: пока нарушение не исправлено, оно остаётся.',
+  'Решение принимает только директор. Нерассмотренное к закрытию месяца замораживается и переезжает на следующий месяц.'
+];
+
+// Приложение 2 — закрытый перечень того, что машина начисляет сама (22.09.2026)
+const MACHINE_CHECKS = [
+  ['Документ не распечатан — перемещение, приёмка, отгрузка (исключение: приёмка на склад «Услуги»)', 1],
+  ['Документ или п/з не проведён на следующий рабочий день', 2],
+  ['П/з не текущей датой без комментария «исправление»', 1],
+  ['Дата документа в будущем', 1],
+  ['Нулевая цена покупной позиции — у позиции без техкарты; своё производство по нулю это норма', 2],
+  ['Склады в п/з ГП не совпадают — материалы, списание, выпуск', 2],
+  ['Перемещение не привязано к п/з', 2],
+  ['Оприходование или списание вне инвентаризации', 2],
+  ['Карточка номенклатуры создана не Михаилом', 2],
+  ['Заказ покупателя правился после «Подтверждён»', 2],
+  ['Отгрузка создана не на основании заказа покупателя', 2],
+  ['Счёт покупателю создан не на основании отгрузки', 2]
+];
+
 let ERROR_LOG = [];
 
 const BANS = [
@@ -728,7 +860,14 @@ const BANS = [
     'Создавать п/з на ГП не на основании заказа покупателя — исключений нет',
     'Оставлять п/з непроведённым',
     'Снимать проведение с закрытого задания и стирать факт производства без зафиксированной причины',
-    'Менять статус заказа, если подтверждающий его документ не создан и не проведён'
+    'Менять статус заказа, если подтверждающий его документ не создан и не проведён',
+    'Править заказ покупателя после статуса «Подтверждён» — корректировка только дополнительным заказом',
+    'Ставить в п/з на ГП разные склады материалов, списания и выпуска'
+  ]},
+  {title:'Отгрузка и счёт', items:[
+    'Создавать отгрузку не на основании заказа покупателя',
+    'Создавать счёт покупателю не на основании отгрузки',
+    'Возвращать готовую продукцию с площадки на основной склад ради отгрузки'
   ]},
   {title:'Движение материалов', items:[
     'Передавать материалы физически без перемещения в программе',
@@ -738,7 +877,9 @@ const BANS = [
     'Пропускать перемещение п/ф на Основной склад после выпуска',
     'Пропускать перемещение с Основного на ХП/РЕЛЛ',
     'Использовать склады «Общий (ЕКБ)» и «СТМ»',
-    'Перемещать на «ГП (ЕКБ) — под удаление»'
+    'Перемещать на «ГП (ЕКБ) — под удаление»',
+    'Создавать перемещение без основания — производственного задания',
+    'Заказывать машину, пока перемещение не создано, груз не собран и комплектация не сверена с расчётом из п/з'
   ]},
   {title:'Цены и номенклатура', items:[
     'Создавать карточку товара без цены продажи',
@@ -750,7 +891,8 @@ const BANS = [
   {title:'Даты и сроки', items:[
     'Заводить документ задним числом больше чем на сутки',
     'Ставить дату документа в будущем',
-    'Двигать товары по складу, который инвентаризируется, до согласования инвентаризации директором (остальные склады работают как обычно)'
+    'Двигать товары по складу, который инвентаризируется, до согласования инвентаризации директором (остальные склады работают как обычно)',
+    'Делать оприходование или списание вне инвентаризации — в производственном процессе их нет'
   ]},
   {title:'Приёмка', items:[
     'Принимать количество не по фактическому пересчёту, когда документов от поставщика нет — переписывать ожидаемое из заказа вместо реального пересчёта'
@@ -805,22 +947,39 @@ let DOCS = {
     bad:['Принимать количество не по факту, когда документов от поставщика нет','Проводить документ с нулевой ценой по покупной позиции','Оставлять отсутствие документов без запроса Михаилу'],
     risk:['Без документа и без честного пересчёта компания либо теряет основание для претензии поставщику при недостаче, либо задним числом подгоняет цифры под ожидание — расхождение остаётся незамеченным до инвентаризации.','Нулевая цена в приёмке навсегда фиксирует себестоимость партии как ноль — ФИФО раздаёт её по всем последующим продажам, прибыль по ним завышается задним числом. Уже найдено 29 таких документов, 6 — созданы уже после того, как правило объявили. <span class="tag rev">под пересмотром</span>']
   },
+  order: {
+    title:'Заказ покупателя', subtitle:'Продажи',
+    icon:'<rect x="4" y="3" width="16" height="18" rx="2"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="14" y2="12"/><path d="M8 16h4"/>',
+    rule:'Заказ — это план. Создаёт и подтверждает директор; до статуса «Подтвержден» Михаил проверяет цены: нет цены — заводит в товар и делает «Расценить по цене продажи». Пока статус не «Подтвержден», в работу заказ не берётся.<br><br>После «Подтверждён» заказ не правится. Изменилась заявка покупателя — оформляется дополнительный заказ, первоначальный остаётся как есть.<br><br>Почему так: отгрузка идёт по факту выпуска и заказу не равна. Правка заказа — это подбивка плана под факт, она уничтожает единственный след расхождения.<br><br>Отклонение заказано/отгружено — метрика, а не нарушение: норма ±5% по каждой позиции, база сравнения — первоначальный подтверждённый заказ, дополнительные заказы идут отдельной строкой. Баллов за отклонение нет, это повод разобрать причину.',
+    bad:['Брать заказ в работу до статуса «Подтвержден»','Править заказ после «Подтверждён» — только дополнительным заказом','Менять статус, если подтверждающий документ не создан и не проведён','Оставлять заказ в одном статусе дольше 3–5 дней'],
+    risk:'Без неизменного заказа не с чем сравнивать факт: расхождение между обещанным покупателю и выпущенным исчезает вместе с правкой.',
+    errors:[]
+  },
+  demand: {
+    title:'Отгрузка и счёт', subtitle:'Продажи',
+    icon:'<path d="M3 7h11v9H3z"/><path d="M14 10h4l3 3v3h-7z"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/>',
+    rule:'Цепочка жёсткая: заказ покупателя → отгрузка на основании заказа → счёт на основании отгрузки. Отгрузка — это факт, она создаётся только на основании заказа, счёт — только на основании отгрузки.<br><br>Отгрузка идёт напрямую со склада контрактной площадки (ХП, РЕЛЛ), готовая продукция на основной склад не возвращается. Отгрузки со складов группы СТМ создаёт Михаил.<br><br>После движения — фото подписанного УПД в чат «Документы», в день движения.',
+    bad:['Создавать отгрузку не на основании заказа покупателя','Создавать счёт покупателю не на основании отгрузки','Закрывать движение без фото подписанного УПД в чате «Документы»'],
+    risk:'Отгрузка без основания рвёт связь с заказом: отклонение заказано/отгружено становится нечем считать, и расхождение остаётся невидимым до инвентаризации.',
+    errors:[]
+  },
   move: {
     title:'Перемещение', subtitle:'Склад',
     icon:'<path d="M17 3l4 4-4 4"/><path d="M3 7h18"/><path d="M7 21l-4-4 4-4"/><path d="M21 17H3"/>',
-    rule:'Собирается только на основании расчёта в «Снабжении». Порядок: создать в программе → печать (сборочный лист кладовщика) → сборка с отметками (кратность тары или упаковки может изменить количество) → правка факта перемещения в программе → печать чистового → две подписи (сдал/принял) → физическое перемещение → фото документа в чат «Документы» после физического перемещения.<br><br>Правка факта в программе обязательна, иначе перемещение остаётся расчётным.<br><br>На площадку (ХП, РЕЛЛ) материалы идут с «Основного», часть — с «Ответ-хранения», на конкретный склад площадки. Перед отправкой сверить: материалы готовы, остатки на складе площадки, резервы прошлых п/з (работа идёт — резерв ставится, нет — снимается). Колонка «Заказать» в п/з «готовое к отправке» должна быть 0. Печатается сопроводительный ТОРГ-13 для транспортной компании.',
-    bad:['Двигать материал без перемещения в программе','Передавать без распечатанного документа','Оставить факт перемещения не исправленным в программе — оно останется расчётным','Отправлять фото документа в чат «Документы» до физического перемещения','Закрывать движение без фото в чат «Документы»','Собирать перемещение «от себя»','Перемещать на «СТМ» или «Общий (ЕКБ)» — СТМ это группа складов площадок, перемещаем на конкретный склад ХП/РЕЛЛ','Отправлять на площадку, пока «Заказать» не равно 0','Пропускать перемещение с Основного на площадку','Пропускать перемещение п/ф на Основной'],
+    rule:'Собирается только на основании расчёта в «Снабжении». Порядок: создать в программе → печать (сборочный лист кладовщика) → сборка с отметками (кратность тары или упаковки может изменить количество) → правка факта перемещения в программе → печать чистового → две подписи (сдал/принял) → физическое перемещение → фото документа в чат «Документы» после физического перемещения.<br><br>Правка факта в программе обязательна, иначе перемещение остаётся расчётным.<br><br>Основание — производственное задание: перемещение без документа-основания машина считает нарушением (уровень 2).<br><br>Машину заказывают, только когда выполнены три условия сразу: перемещение создано → груз собран → комплектация сверена с расчётом потребности из п/з. Раньше этого — уровень 3 (решение №26).<br><br>На площадку (ХП, РЕЛЛ) материалы идут с «Основного», часть — с «Ответ-хранения», на конкретный склад площадки. Перед отправкой сверить: материалы готовы, остатки на складе площадки, резервы прошлых п/з (работа идёт — резерв ставится, нет — снимается). Колонка «Заказать» в п/з «готовое к отправке» должна быть 0. Печатается сопроводительный ТОРГ-13 для транспортной компании.',
+    bad:['Двигать материал без перемещения в программе','Создавать перемещение без основания — производственного задания','Заказывать машину, пока перемещение не создано, груз не собран и комплектация не сверена с расчётом из п/з','Передавать без распечатанного документа','Оставить факт перемещения не исправленным в программе — оно останется расчётным','Отправлять фото документа в чат «Документы» до физического перемещения','Закрывать движение без фото в чат «Документы»','Собирать перемещение «от себя»','Перемещать на «СТМ» или «Общий (ЕКБ)» — СТМ это группа складов площадок, перемещаем на конкретный склад ХП/РЕЛЛ','Отправлять на площадку, пока «Заказать» не равно 0','Пропускать перемещение с Основного на площадку','Пропускать перемещение п/ф на Основной'],
     risk:'Без документа неизвестно, на чьей стороне возникла недостача. Уже было: 63 позиции уехали на ХП без перемещения и пересчёта — если бы фасовка началась раньше, недостачу было бы не отличить от расхода сырья.'
   },
   inventory: {
     title:'Инвентаризация', subtitle:'Склад',
     icon:'<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>',
-    rule:'Последний день каждого месяца — полная инвентаризация склада. Отдельно, 30 числа — сверка Ответ-хранения. Допустимое отклонение — 5% по количеству, по каждой позиции отдельно, в любую сторону (избыток тоже нарушение). Движение товаров по складу, который инвентаризируется, запрещено до согласования инвентаризации директором (статус «Согласована» в Мой Склад); остальные склады работают как обычно.<br><br>Перед каждым новым п/з (включая вложенные) — выборочная проверка остатков: 30% позиций этого п/з, проверяют Антон и Арсений. План — остаток в программе, факт — ручной пересчёт, порог 5% по каждой позиции отдельно. Нет аномалий и не более 5% — инвентаризацию не проводим, в чат «Документы» не пишем. Аномалия или больше 5% — стоп и разбор, внеплановая инвентаризация этих позиций, затем процесс продолжается; в чат «Документы» — пометка «у нас расхождение план/факт». Проверять чаще — до положительной сдачи аттестации отделом, контрольная дата — 1 ноября 2026. Выборочная проверка инвентаризацию по графику не заменяет.<br><br>Оприходование и Списание оформляются только при инвентаризации. В производственном процессе их нет: выпуск ГП идёт через «Выполнение этапа» в п/з и в «Оприходовании» не отображается.',
+    rule:'Последний день каждого месяца — полная инвентаризация склада. Отдельно, 30 числа — сверка Ответ-хранения. Допустимое отклонение — 5% по количеству, по каждой позиции отдельно, в любую сторону (избыток тоже нарушение). Движение товаров по складу, который инвентаризируется, запрещено до согласования инвентаризации директором (статус «Согласована» в Мой Склад); остальные склады работают как обычно.<br><br>Перед каждым новым п/з (включая вложенные) — выборочная проверка остатков: 30% позиций этого п/з, проверяют Антон и Арсений. План — остаток в программе, факт — ручной пересчёт, порог 5% по каждой позиции отдельно. Нет аномалий и не более 5% — инвентаризацию не проводим, в чат «Документы» не пишем. Аномалия или больше 5% — стоп и разбор, внеплановая инвентаризация этих позиций, затем процесс продолжается; в чат «Документы» — пометка «у нас расхождение план/факт». Проверять чаще — до положительной сдачи аттестации отделом, контрольная дата — 1 ноября 2026. Выборочная проверка инвентаризацию по графику не заменяет.<br><br>Оприходование и Списание оформляются только при инвентаризации — оприходование или списание вне инвентаризации машина находит сама, это уровень 2. В производственном процессе их нет: выпуск ГП идёт через «Выполнение этапа» в п/з и в «Оприходовании» не отображается.',
     bad:['Двигать товары по складу, который инвентаризируется, до согласования инвентаризации директором','Закрывать инвентаризацию при отклонении выше 5% без разбора причин','Подменять инвентаризацию выборочной проверкой остатков','Начинать новый п/з без выборочной проверки остатков','Использовать Оприходование и Списание в производственном процессе — они только для инвентаризации','Оприходование с нулевой ценой по позиции']
   }
 };
 
 const DOC_BLOCKS = [
+  {key:'sales', title:'Продажи', icon:DOCS.order.icon, docs:['order','demand']},
   {key:'production', title:'Производство', icon:DOCS.techcard.icon, docs:['techcard','workorder']},
   {key:'goods', title:'Товары и услуги', icon:DOCS.goods.icon, docs:['goods']},
   {key:'purchasing', title:'Закупки', icon:DOCS.supplierorder.icon, docs:['supplierorder','supplierinvoice','receipt']},
@@ -844,7 +1003,7 @@ const FLOW = [
     {n:"9", title:"Исполнение от п/ф к ГП", desc:"По шаблону п/з, а не по нормам техкарты. П/з — последовательно", tag:"", mark:false, detail:"Исполнение — по распечатанному шаблону п/з с материалами, а не по нормам из техкарты на бумаге.\nП/з выполняются последовательно; п/з не начинается, пока не хватает материалов."},
     {n:"10", title:"Контрактные площадки ХП и РЕЛЛ", desc:"Сверка перед отправкой, «Заказать» = 0, сопроводительный ТОРГ-13", tag:"", mark:false, detail:"«СТМ» в программе — группа складов ХП и РЕЛЛ, а не склад: перемещаем на конкретный склад площадки.\nМатериалы идут со склада «Основной» (часть — с «Ответ-хранения») на склад площадки, физически и в программе.\nПеред отправкой сверить: материалы готовы к отправке; остатки материалов на складе площадки; резервы прошлых п/з на площадке (работа идёт — резерв ставится, нет — снимается).\nКолонка «Заказать» в п/з «готовое к отправке» должна показывать 0.\nПечатается сопроводительный ТОРГ-13 для транспортной компании.\nВ чат площадки уходят: документы перемещения, шаблон п/з с материалами, шаблон п/з без материалов общим списком (наполнение чата — задача Михаила)."},
     {n:"11", title:"Выпуск ГП — последний этап", desc:"Склад = складу отгрузки. Факт через «Выполнение этапа» в день отчёта", tag:"", mark:false, detail:"Проверить склад: он должен соответствовать складу отгрузки заказа покупателя (склад проверяется перед выполнением этапов, перед выпуском ГП и перед отгрузкой).\nФакт выпуска берётся из отчёта площадки и вносится в п/з в день отчёта через «Выполнение этапа». Пока отчёт не заведён, отгрузки быть не может; риск — платное хранение ГП.\nДалее сверка «Запланировано / Произведено» — факт может отличаться от расчёта из-за погрешностей.\nГП не отображается в «Оприходовании»."},
-    {n:"12", title:"Отгрузка", desc:"Напрямую со склада площадки. ГП на основной склад не возвращается", tag:"", mark:false, detail:"Отгрузка идёт напрямую со склада контрактной площадки (ХП/РЕЛЛ). ГП на основной склад не возвращается."}
+    {n:"12", title:"Отгрузка", desc:"Напрямую со склада площадки. ГП на основной склад не возвращается", tag:"", mark:false, detail:"Отгрузка идёт напрямую со склада контрактной площадки (ХП/РЕЛЛ). ГП на основной склад не возвращается.\nОтгрузка создаётся только на основании заказа покупателя, счёт покупателю — только на основании отгрузки (решение 22.09.2026).\nОтгрузки со складов группы СТМ создаёт Михаил.\nВ момент создания отгрузки считается отклонение заказано/отгружено: норма ±5% по каждой позиции, база — первоначальный подтверждённый заказ. Это метрика, баллов за неё нет.\nПосле движения — фото подписанного УПД в чат «Документы», в день движения."}
   ]}
 ];
 
@@ -1228,89 +1387,299 @@ function renderProfile(u){
   }
 }
 
-function renderTasks(u){
-  const el = document.getElementById('s-tasks');
-  if(!u){ el.innerHTML = `<div class="empty">Задачи появятся после определения пользователя.</div>`; return; }
-  const row = t => '<div class="cz-task"><div class="between"><span class="row" style="gap:8px;font-size:12.5px;font-weight:700;">'+(t.pri?'<span class="dotpri '+(t.pri==='hi'?'':t.pri==='mid'?'mid':'low')+'"></span>':'')+t.title+'</span><span class="tag">'+t.id+'</span></div><div class="muted" style="margin-top:4px;">срок '+t.due+'</div></div>';
-  const shared = {title:'Общее', sub:'1 задача', icon:IC.users, peek:SHARED_TASK.title, list:[SHARED_TASK]};
-  const n = a => a.length ? a.length+' '+(a.length===1?'задача':a.length<5?'задачи':'задач') : 'пусто';
-  let groups;
-  if(u.key === 'director'){
-    groups = ROSTER.map(p=>{ const l = TASKS[p.key] || []; return {title:p.name, sub:n(l), iconHtml:'<b style="font-family:var(--font-display);font-size:14px;">'+p.initials+'</b>', peek:l[0] ? l[0].title : 'Сейчас ничего не назначено', list:l}; }).concat([shared]);
-  } else {
-    const own = TASKS[u.key] || [];
-    groups = [{title:'Ваши задачи', sub:n(own), icon:IC.tasks, peek:own[0] ? own[0].title : 'Сейчас ничего не назначено', list:own}, shared];
-  }
-  el.innerHTML = CZ_HEAD('Задачи','Данные из Яндекс Трекера (очередь PR-VO) на 19.09.2026')+
-    '<div id="czTasks"></div>'+
-    '<div class="pill lime" id="openTracker" style="justify-content:center;width:100%;text-align:center;margin-bottom:10px;cursor:pointer;">Открыть в Трекере</div>';
-  makeCarousel(document.getElementById('czTasks'), {
-    label:'Задачи',
-    items: groups.map(g=>({title:g.title, sub:g.sub, icon:g.icon, iconHtml:g.iconHtml, peek:g.peek})),
-    list: i=>groups[i].list.length ? groups[i].list.map(row).join('') : czEmpty('Сейчас ничего не назначено.')
-  });
-  const trackerUrl = 'https://tracker.yandex.ru/issues/?query=Queue%3A%20PRVO%20Sort%20By%3A%20key%20DESC';
-  document.getElementById('openTracker').addEventListener('click', ()=>{
-    if(tg && tg.openLink){ tg.openLink(trackerUrl); }
-    else { window.open(trackerUrl,'_blank'); }
-  });
+// ===== Задачи =====
+// Источник — Яндекс Трекер, очередь PR-VO, живьём (решение 22.09.2026: Трекер — единственное место учёта,
+// приложение — витрина, а не вторая копия). Показываются только задачи в статусе «В работе».
+// Главный экран — сегодня: неделя полосой, список выбранного дня, просроченное всегда сверху.
+const apiBase = () => (typeof API_URL === 'string' && API_URL) ? API_URL.replace(/\/data$/, '') : '';
+const tkEsc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const tkDay = d => String(d).slice(8,10)+'.'+String(d).slice(5,7);
+const nTask = n => n+' '+(n%10===1 && n%100!==11 ? 'задача' : (n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20)) ? 'задачи' : 'задач');
+const TK_WD = ['пн','вт','ср','чт','пт','сб','вс'];
+const TRACKER_URL = 'https://tracker.yandex.ru/issues/?query=Queue%3A%20PRVO%20Sort%20By%3A%20key%20DESC';
+let TKS = null;      // ответ сервера
+let TK_DAY = null;   // выбранный день недели
+
+function tkOpen(url){ if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url, '_blank'); } }
+const tkAll = t => [].concat(t.overdue, t.today, t.soon, t.noDue);
+function tkWeek(today){
+  const d = new Date(today+'T00:00:00Z');
+  const mon = new Date(d.getTime() - ((d.getUTCDay()+6)%7)*86400000);
+  return Array.from({length:7}, (_,i)=> new Date(mon.getTime()+i*86400000).toISOString().slice(0,10));
 }
 
-function renderGrowth(u){
-  const el = document.getElementById('s-growth');
-  if(!u){ el.innerHTML = `<div class="empty">Раздел доступен после определения пользователя.</div>`; return; }
-  const important = `<div class="attn"><div class="eb">Важно</div><p>Счёт идёт с 21.09.2026, у всех с нуля. Заявил проблему сам — ноль баллов, всегда. Плюс не отменяет минус.</p></div>`;
-  const detail = g => '<div class="cz-fact"><div class="muted">Из чего баллы этой недели</div><p style="margin:4px 0 0;font-size:12.5px;line-height:1.5;">'+g.weekBreak+'</p></div>'+
-    '<div class="cz-fact"><div class="muted">Из чего баллы ретроспективы</div><p style="margin:4px 0 0;font-size:12.5px;line-height:1.5;">'+g.retroBreak+'</p></div>'+
-    (g.note ? '<div class="cz-note"><div class="cz-cap">Уточнение</div><div class="cz-txt">'+g.note+'</div></div>' : '')+
-    '<div class="cz-fact"><div class="muted" style="margin-bottom:6px;">Часто повторяется</div><div class="errchip" style="margin:0;"><span>'+g.top+'</span></div></div>';
+// Пояснение про статусы: сотрудник закрывает задачу сам, и от статуса зависит срок (решение 22.09.2026).
+const TASK_STATUSES = '<div class="cz-note"><div class="cz-cap">Что делать со статусом</div>'+
+  '<div class="cz-txt">Свайп вправо — <b>Закрыт</b>, сделал. Свайп влево — <b>Требуется информация</b>: не сделал и есть вопрос, срок встаёт на паузу, пока директор не ответит. Вопрос, заданный днём, директор увидит следующим утром.<br>'+
+  'В Трекере рядом с задачей появится ваше имя: статус меняет сервер, а комментарий подписывает вас.<br>'+
+  '<b>Открыт</b> — черновик директора, вам такие задачи не приходят. <b>В работе</b> — выданное вам, только эти и показаны здесь.</div></div>';
 
-  if(u.key === 'director'){
-    const list = ROSTER.filter(p=>GROWTH[p.key]);
-    el.innerHTML = CZ_HEAD('Мой рост','Текущая неделя (15–21.09) — по отделу')+'<div id="czGrowth"></div>'+important+'<div id="czScale"></div>';
-    makeCarousel(document.getElementById('czGrowth'), {
-      label:'Рост сотрудников',
-      items: list.map(p=>{ const g = GROWTH[p.key]; return {title:p.name, sub:'Неделя: '+g.week+' балл.', iconHtml:'<b style="font-family:var(--font-display);font-size:14px;">'+p.initials+'</b>', peek:zoneWord(g)+' · '+g.top}; }),
-      list: i=>{ const g = GROWTH[list[i].key]; return '<div class="cz-fact"><div class="between"><span class="muted">Текущая неделя</span>'+zoneTag(g)+'</div><div class="huge" style="font-size:30px;margin-top:6px;">'+g.week+'</div></div>'+detail(g); }
-    });
-    scaleBlock();
+// Счёт дисциплины: строка-итог в шапке, подробности — шторкой, чтобы экран не тянулся вниз.
+function discLine(s){
+  if(!s) return '';
+  return '<button class="tk-sum" id="tkSum"><span class="s1">в срок <b>'+s.inTime+'</b></span><span class="s2">просрочено <b>'+s.overdue+'</b></span>'+
+    '<span class="s3">+'+s.plus+' из '+s.cap+'</span><span class="chv">'+ic('<polyline points="9 6 15 12 9 18"/>',14)+'</span></button>';
+}
+function discBlock(s){
+  if(!s) return '';
+  const rows = [
+    ['Закрыто в срок', s.inTime + (s.early ? ' (раньше срока — '+s.early+')' : ''), 'ok'],
+    ['Закрыто с опозданием', s.late, s.late ? 'bad' : 'ok'],
+    ['Сейчас просрочено', s.overdue, s.overdue ? 'bad' : 'ok'],
+    ['Закрыто без срока — в счёт не идут', s.noDue, 'risk']
+  ];
+  return '<div class="cz-fact"><div class="between"><b style="font-size:12.5px;">Плюсов за месяц</b><span class="tag" style="background:var(--lime);color:var(--lime-ink);border-color:transparent;font-weight:800;">+'+s.plus+' из '+s.cap+'</span></div>'+
+    '<div class="muted" style="margin-top:6px;">+1 за каждую задачу, закрытую не позже срока, не больше '+s.cap+' плюсов в месяц. Счёт премию не снижает — влияет только на рост.</div></div>'+
+    rows.map(r=>czItem(r[0]+': <b>'+r[1]+'</b>', r[2])).join('');
+}
+// Общая шторка: «тап → подробности → назад». Так экран остаётся коротким, а детали никуда не деваются.
+function openSheet({cap, title, sub, icon, body, after}){
+  document.getElementById('docModalInner').innerHTML =
+    '<div class="dm-top"><button class="dm-back" id="docBack" aria-label="Назад">'+ic('<polyline points="15 18 9 12 15 6"/>',20)+'</button><div class="dm-cap">'+cap+'</div><span style="width:44px;flex:0 0 auto;"></span></div>'+
+    '<div class="dm-hero"><div class="dm-ic">'+ic(icon || IC.chart,32)+'</div><div class="dm-title">'+title+'</div>'+(sub ? '<div class="dm-sub">'+sub+'</div>' : '')+'</div>'+
+    '<div class="dm-sheet"><div class="cz-stack" id="dmBody">'+body+'</div></div>';
+  document.getElementById('docBack').addEventListener('click', closeDoc);
+  const m = document.getElementById('docModal'); m.classList.add('open'); m.scrollTop = 0;
+  if(after) after(document.getElementById('dmBody'));
+}
+function tkSheet(){
+  openSheet({cap:'Третий счёт', title:'Задачи и сроки', icon:IC.cal,
+    sub:'Срок и факт выполнения'+(TKS && TKS.period ? ' · '+TKS.period.replace('-','.') : ''),
+    body: discBlock(TKS && TKS.score)+TASK_STATUSES});
+}
+
+function tkCard(t, canAct){
+  return '<div class="tk-sw'+(canAct ? '' : ' flat')+'" data-key="'+tkEsc(t.key)+'">'+
+    (canAct ? '<div class="tk-bg"><span class="l">Выполнено</span><span class="r">Нужна информация</span></div>' : '')+
+    '<div class="tk-card"><div class="tk-t">'+tkEsc(t.title)+'</div>'+
+    '<div class="tk-meta"><span class="tag">'+tkEsc(t.key)+'</span><span class="due'+(t.due && TKS && t.due < TKS.today ? ' late' : '')+'">'+(t.due ? 'срок '+tkDay(t.due) : 'без срока')+'</span>'+
+    '<button class="tk-go" data-url="'+tkEsc(t.url)+'" aria-label="Открыть в Трекере">'+ic('<path d="M14 3h7v7"/><path d="M10 14 21 3"/><path d="M21 14v7H3V3h7"/>',14)+'</button></div></div></div>';
+}
+const tkEmpty = t => '<div class="cz-fact"><b style="font-size:12.5px;">'+t+'</b></div>';
+
+function renderTasksBody(){
+  const t = TKS.tasks, today = TKS.today;
+  const week = tkWeek(today);
+  const byDay = {};
+  tkAll(t).forEach(x=>{ if(x.due){ (byDay[x.due] = byDay[x.due] || []).push(x); } });
+  const strip = '<div class="wk">'+week.map(d=>{
+    const n = (byDay[d] || []).length;
+    const late = d < today && n;
+    return '<button class="wk-d'+(d===TK_DAY ? ' on' : '')+(d===today ? ' now' : '')+'" data-d="'+d+'">'+
+      '<span class="wd">'+TK_WD[week.indexOf(d)]+'</span><span class="dn">'+Number(d.slice(8,10))+'</span>'+
+      '<i class="'+(n ? (late ? 'late' : 'has') : '')+'"></i></button>';
+  }).join('')+'</div>';
+
+  const dayList = (byDay[TK_DAY] || []);
+  const dayName = TK_DAY === today ? 'На сегодня' : 'На '+tkDay(TK_DAY);
+  const overdue = t.overdue.filter(x=>x.due !== TK_DAY);
+  const sec = (lab, html, bad) => '<div class="tk-sec"><div class="tk-lab'+(bad ? ' bad' : '')+'">'+lab+'</div>'+html+'</div>';
+  const parts = [];
+  // Просроченное показываем всегда, даже когда открыт другой день: прятать его переключением дня нельзя.
+  if(overdue.length) parts.push(sec('Осталось с прошлых дней — '+nTask(overdue.length), overdue.map(x=>tkCard(x,true)).join(''), true));
+  parts.push(sec(dayName+' — '+(dayList.length ? nTask(dayList.length) : 'пусто'),
+    dayList.length ? dayList.map(x=>tkCard(x,true)).join('') : tkEmpty(TK_DAY === today ? 'На сегодня задач нет.' : 'На этот день задач нет.')));
+  if(t.noDue.length) parts.push(sec('Без срока — '+nTask(t.noDue.length), t.noDue.map(x=>tkCard(x,true)).join('')));
+  return strip+parts.join('');
+}
+
+function renderTasksScreen(){
+  const el = document.getElementById('s-tasks');
+  el.innerHTML = CZ_HEAD('Задачи','Трекер PR-VO · статус «В работе»')+discLine(TKS.score)+
+    '<div id="tkBody">'+renderTasksBody()+'</div>'+
+    '<div class="pill lime" id="openTracker" style="justify-content:center;width:100%;text-align:center;margin:12px 0 10px;cursor:pointer;">Открыть в Трекере</div>';
+  bindTasks();
+}
+
+function bindTasks(){
+  const sum = document.getElementById('tkSum');
+  if(sum) sum.addEventListener('click', tkSheet);
+  const tr = document.getElementById('openTracker');
+  if(tr) tr.addEventListener('click', ()=>tkOpen(TRACKER_URL));
+  document.querySelectorAll('#tkBody .wk-d').forEach(b=>b.addEventListener('click', ()=>{
+    TK_DAY = b.dataset.d;
+    document.getElementById('tkBody').innerHTML = renderTasksBody();
+    bindTasks();
+  }));
+  document.querySelectorAll('#tkBody .tk-go').forEach(b=>b.addEventListener('click', e=>{ e.stopPropagation(); tkOpen(b.dataset.url); }));
+  document.querySelectorAll('#tkBody .tk-sw:not(.flat)').forEach(bindSwipe);
+}
+
+// Свайп по карточке: вправо — «Выполнено», влево — «Нужна информация».
+// Запрос уходит не сразу: пять секунд внизу висит «Отменить». Так необратимое действие
+// отменяется до того, как случится, и не приходится откатывать статус в Трекере.
+function tkTrim(){
+  document.querySelectorAll('#tkBody .tk-sec').forEach(sec=>{
+    const cards = [...sec.querySelectorAll('.tk-sw')];
+    const alive = !cards.length || cards.some(c=>c.style.display !== 'none');
+    sec.style.display = alive ? '' : 'none';
+  });
+}
+function bindSwipe(el){
+  const card = el.querySelector('.tk-card');
+  let x0 = null, dx = 0;
+  const done = () => { card.style.transition = ''; el.classList.remove('to-done','to-info'); };
+  el.addEventListener('pointerdown', e=>{ x0 = e.clientX; dx = 0; card.style.transition = 'none'; try{ el.setPointerCapture(e.pointerId); }catch(err){} });
+  el.addEventListener('pointermove', e=>{
+    if(x0 === null) return;
+    dx = e.clientX - x0;
+    card.style.transform = 'translateX('+dx+'px)';
+    el.classList.toggle('to-done', dx > 12);
+    el.classList.toggle('to-info', dx < -12);
+  });
+  const end = ()=>{
+    if(x0 === null) return;
+    const th = Math.min(120, el.offsetWidth * 0.3);
+    const act = dx > th ? 'done' : dx < -th ? 'needinfo' : null;
+    x0 = null; done();
+    if(!act){ card.style.transform = ''; return; }
+    card.style.transform = 'translateX('+(act === 'done' ? '110%' : '-110%')+')';
+    try{ tg && tg.HapticFeedback && tg.HapticFeedback.impactOccurred('light'); }catch(err){}
+    setTimeout(()=>{ el.style.display = 'none'; tkTrim(); }, 180);
+    tkPending(el, act);
+  };
+  el.addEventListener('pointerup', end);
+  el.addEventListener('pointercancel', end);
+}
+
+let TK_TIMER = null;
+function tkPending(el, action){
+  const key = el.dataset.key;
+  const bar = document.getElementById('tkUndo');
+  const label = action === 'done' ? 'Закрыто' : 'Отмечено «нужна информация»';
+  bar.innerHTML = '<span>'+label+' · '+tkEsc(key)+'</span><button type="button" id="tkUndoBtn">Отменить</button>';
+  bar.classList.add('on');
+  clearTimeout(TK_TIMER);
+  const restore = ()=>{ bar.classList.remove('on'); el.style.display = ''; el.querySelector('.tk-card').style.transform = ''; tkTrim(); };
+  document.getElementById('tkUndoBtn').addEventListener('click', ()=>{ clearTimeout(TK_TIMER); restore(); });
+  TK_TIMER = setTimeout(async ()=>{
+    bar.classList.remove('on');
+    try{
+      const r = await fetch(apiBase()+'/tasks/action', {method:'POST', headers:{Authorization:'tma '+((tg && tg.initData) || ''), 'Content-Type':'application/json'}, body: JSON.stringify({key, action})});
+      if(!r.ok) throw new Error('http '+r.status);
+      await loadTasks(true);
+    }catch(e){
+      restore();
+      bar.innerHTML = '<span>Трекер не принял изменение. Задача на месте.</span>';
+      bar.classList.add('on');
+      setTimeout(()=>bar.classList.remove('on'), 4000);
+    }
+  }, 5000);
+}
+
+async function loadTasks(silent){
+  const url = apiBase();
+  let data = null;
+  if(url && tg && tg.initData){
+    try{
+      const r = await fetch(url+'/tasks', {headers:{Authorization:'tma '+tg.initData}});
+      if(r.ok) data = await r.json();
+    }catch(e){}
+  }
+  if(!data){
+    if(silent) return;
+    const el = document.getElementById('s-tasks');
+    el.innerHTML = CZ_HEAD('Задачи','Трекер PR-VO')+
+      '<div class="attn col"><div class="eb">Задачи не загружены</div><p>Трекер сейчас недоступен. Это не значит «задач нет» — откройте очередь PR-VO в Трекере.</p></div>'+
+      TASK_STATUSES+'<div class="pill lime" id="openTracker" style="justify-content:center;width:100%;text-align:center;margin:12px 0 10px;cursor:pointer;">Открыть в Трекере</div>';
+    document.getElementById('openTracker').addEventListener('click', ()=>tkOpen(TRACKER_URL));
     return;
   }
+  TKS = data;
+  if(data.score) window.DISCIPLINE = data.score;
+  if(!TK_DAY || !tkWeek(data.today).includes(TK_DAY)) TK_DAY = data.today;
+  if(data.byEmployee) renderTasksDirector(); else renderTasksScreen();
+}
 
-  const g = GROWTH[u.key];
-  if(!g){ el.innerHTML = `<div class="empty">Раздел доступен после определения пользователя.</div>`; return; }
-  const newScreen = !!(window.ERR_SCORE || window.GROW_SCORE);
-  el.innerHTML = CZ_HEAD('Мой рост', newScreen ? 'Счёт идёт с 21.09, у всех с нуля' : 'Счёт идёт с 21.09, у всех с нуля. Ваши баллы появятся здесь после запуска экрана.')+`<div id="czScale"></div>${important}`;
-  const parts = [
-    {t:'Эта неделя', s:g.week+' балл.', icon:IC.step, body:'<div class="cz-fact"><p style="margin:0;font-size:12.5px;line-height:1.5;">'+g.weekBreak+'</p></div>'},
-    {t:'Ретроспектива', s:g.retro+' балл.', icon:IC.chart, body:'<div class="cz-fact"><p style="margin:0;font-size:12.5px;line-height:1.5;">'+g.retroBreak+'</p></div>'},
-    {t:'Часто повторяется', s:'Что чаще всего', icon:IC.flag, body:'<div class="cz-fact"><div class="errchip" style="margin:0;"><span>'+g.top+'</span></div></div>'+(g.note ? '<div class="cz-note"><div class="cz-cap">Уточнение</div><div class="cz-txt">'+g.note+'</div></div>' : '')}
-  ];
-  makeCarousel(document.getElementById('czGrowth'), {
-    label:'Разбор баллов',
-    items: parts.map(x=>({title:x.t, sub:x.s, icon:x.icon, peek:plain(x.body,60)})),
-    list: i=>parts[i].body
+// Директору — по сотрудникам, без свайпов: чужие задачи закрывает исполнитель, а не он.
+function renderTasksDirector(){
+  const el = document.getElementById('s-tasks');
+  const list = Object.entries(TKS.byEmployee);
+  el.innerHTML = CZ_HEAD('Задачи отдела','Трекер PR-VO, статус «В работе» · счёт дисциплины за месяц')+
+    '<div id="czTasks"></div>'+TASK_STATUSES+
+    '<div class="pill lime" id="openTracker" style="justify-content:center;width:100%;text-align:center;margin:12px 0 10px;cursor:pointer;">Открыть в Трекере</div>';
+  makeCarousel(document.getElementById('czTasks'), {
+    label:'Задачи отдела',
+    items: list.map(([k,v])=>{
+      const all = tkAll(v.tasks).length;
+      return {title:v.name, sub:nTask(all), iconHtml:'<b style="font-family:var(--font-display);font-size:14px;">'+tkEsc(v.name.slice(0,2).toUpperCase())+'</b>',
+        peek: v.tasks.overdue.length ? 'просрочено: '+v.tasks.overdue.length : (all ? 'просроченного нет' : 'задач в работе нет')};
+    }),
+    list: i=>{
+      const v = list[i][1];
+      const sec = (lab, arr, bad) => arr.length ? '<div class="tk-lab'+(bad ? ' bad' : '')+'">'+lab+' — '+nTask(arr.length)+'</div>'+arr.map(x=>tkCard(x,false)).join('') : '';
+      return (sec('Просрочено', v.tasks.overdue, true)+sec('На сегодня', v.tasks.today)+sec('На ближайшие дни', v.tasks.soon)+sec('Без срока', v.tasks.noDue) || tkEmpty('Задач в работе нет.'))+discBlock(v.score);
+    },
+    bind: list2=>list2.querySelectorAll('.tk-go').forEach(b=>b.addEventListener('click', ()=>tkOpen(b.dataset.url)))
   });
+  document.getElementById('openTracker').addEventListener('click', ()=>tkOpen(TRACKER_URL));
+}
+
+function renderTasks(u){
+  const el = document.getElementById('s-tasks');
+  if(!u){ el.innerHTML = '<div class="empty">Задачи появятся после определения пользователя.</div>'; return; }
+  el.innerHTML = CZ_HEAD('Задачи','Трекер PR-VO · статус «В работе»')+'<div class="empty">Загрузка…</div>';
+  loadTasks(false);
+}
+
+// ===== Мой рост =====
+// Личные баллы живут на экране «Изучать» (два счёта, премия, игра). Здесь — правила, по которым они считаются:
+// недельные цифры убраны, зона считается за календарный месяц (редакция 22.09.2026).
+function renderGrowth(u){
+  const el = document.getElementById('s-growth');
+  if(!u){ el.innerHTML = '<div class="empty">Раздел доступен после определения пользователя.</div>'; return; }
+  const important = '<div class="attn"><div class="eb">Важно</div><p>Счёт идёт с 21.09.2026, у всех с нуля. Заявил проблему сам — ноль баллов, всегда. Плюс не отменяет минус.</p></div>';
+  // Карточки счетов («Ошибки», «Премия», «Рост», аттестация) вставляет сюда же atMountScore — сразу после заголовка.
+  const where = u.key === 'director'
+    ? '<div class="cz-fact"><b style="font-size:12.5px;">Счета сотрудников в приложении не сведены.</b><div class="muted" style="margin-top:4px;">Предварительные баллы Аудитор ставит в день обнаружения, в зачёт месяца они идут после вашего утверждения на закрытии 2–4 числа. Дисциплина по задачам — на экране «Задачи».</div></div>'
+    : '';
+  // Плитки со счетами и карточки премии/аттестации вставляет atMountScore — сразу после заголовка.
+  el.innerHTML = CZ_HEAD('Мой рост','Три счёта, премия и правила, по которым они считаются')+
+    where+
+    '<div class="at-tiles" id="atTiles"></div><div id="atCards"></div>'+
+    important+
+    '<div id="czScale"></div>';
   scaleBlock();
 }
 
 function scaleBlock(){
   const host = document.getElementById('czScale');
   if(!host) return;
-  host.innerHTML = CZ_HEAD('Как считаются баллы','Уровни, зоны месяца и пути обратно')+'<div id="czScaleC"></div>';
-  const levels = SCALE.map(x=>'<div class="cz-fact"><div class="between"><b style="font-size:12.5px;">Уровень '+x.lvl+'</b><span class="row" style="gap:6px;"><span class="tag">1-й раз −'+x.first+'</span><span class="tag" style="background:var(--pill);color:var(--pill-ink);border-color:var(--pill);">повтор −'+x.repeat+'</span></span></div><div class="muted" style="margin-top:4px;font-size:11.5px;">'+x.meaning+'</div></div>').join('') + '<div class="cz-note"><div class="cz-cap">Срок и контроль</div><div class="cz-txt">Срок давности — 3 рабочих дня с момента обнаружения нарушения. Сообщили об ошибке сами до того, как её нашли, — 0 баллов. Пропущенная точка контроля (Антону): нарушение подчинённого, найденное директором или автоматикой и не внесённое в срок, — −3, повтор −6.</div></div>';
+  host.innerHTML = CZ_HEAD('Как считаются баллы','Уровни, зоны месяца, плюсы и порядок начисления')+'<div id="czScaleC"></div>';
+  const levels = SCALE.map(x=>'<div class="cz-fact"><div class="between"><b style="font-size:12.5px;">Уровень '+x.lvl+'</b><span class="row" style="gap:6px;"><span class="tag">1-й раз −'+x.first+'</span><span class="tag" style="background:var(--pill);color:var(--pill-ink);border-color:var(--pill);">повтор −'+x.repeat+'</span></span></div><div class="muted" style="margin-top:4px;font-size:11.5px;">'+x.meaning+'</div></div>').join('')+
+    '<div class="cz-note"><div class="cz-cap">Эпизод и повтор</div><div class="cz-txt">Внутри одного эпизода каждый документ считается отдельно, но по базовой ставке. Повторность — когда нарушение случилось снова, после разбора предыдущего. Окна повторности нет, счёт бессрочный: третий раз — операция забирается либо каждый документ этого типа проверяется до проведения.</div></div>';
   const zones = '<div class="cz-note"><div class="cz-cap">Зоны месяца</div>'+
     [['g','0–10','норма, ничего не происходит.'],['y','11–25','разговор один на один с директором.'],['r','26 и больше','не проходит аттестацию и не получает расширения полномочий.']]
-    .map(z=>'<div class="cz-zone"><span class="ov '+z[0]+'">'+z[1]+'</span><span class="cz-txt">'+z[2]+'</span></div>').join('')+'</div>';
+    .map(z=>'<div class="cz-zone"><span class="ov '+z[0]+'">'+z[1]+'</span><span class="cz-txt">'+z[2]+'</span></div>').join('')+'</div>'+
+    czItem('10 и более плюсов за месяц поднимают на одну ступень выше — не больше чем на одну.', 'ok')+
+    czItem('Сокрытие (уровень 3) — ступень не поднимается, даже если баллов мало.', 'bad');
+  const plus = PLUS_RULES.map(p=>czItem(p[0]+': <b>'+p[1]+'</b>', 'ok', p[2] || '')).join('')+
+    czItem('Плюсы не гасят минусы. Ошибка, заявленная самим, — 0 баллов и чистую неделю не портит.', 'risk');
+  const order = ORDER_RULES.map(x=>czItem(x, 'ok')).join('');
+  const dispute = DISPUTE_RULES.map(x=>czItem(x, 'ok')).join('')+
+    '<div class="cz-note"><div class="cz-cap">Категория оспаривания</div><div class="cz-txt">документ есть, машина не увидела · действие согласовано · исполнитель другой · правило понял иначе · другое. Номер документа подставляется сам.</div></div>';
+  const machine = '<div class="cz-note"><div class="cz-cap">Закрытый список</div><div class="cz-txt">Чего здесь нет — Аудитор не начисляет, даже если видит. Изменение списка — только решением директора. Балл идёт владельцу документа. Повторность машина не ставит: повышенную ставку определяет директор при закрытии месяца.</div></div>'+
+    MACHINE_CHECKS.map(m=>czItem(m[0], m[1]===3?'bad':m[1]===2?'risk':'ok', 'уровень '+m[1])).join('')+
+    czItem('Только через директора: правка техкарт · проведение выпуска ГП · план/факт и ±3% · фото и подписи · выборочная проверка остатков.', 'risk');
   const ways = COMEBACK.map(c=>'<div class="cz-fact"><b style="font-size:12.5px;">'+c.way+'</b><div style="font-size:12px;margin-top:4px;"><span class="muted">Нужно:</span> '+c.need+'</div><div style="font-size:12px;margin-top:2px;"><span class="muted">Даёт:</span> '+c.gives+'</div></div>').join('');
-  const att = '<div class="cz-note"><div class="cz-cap">Аттестация</div><div class="cz-txt">Ежемесячно, два дня: 01–02.10 (установочная, без последствий) · 02–03.11 · 01–02.12. Сдача — право, не обязанность: тратит время только тот, у кого есть повод вернуть операцию или снять проверку.</div></div>';
-  const items = [{t:'Уровни', s:'1, 2 и 3', icon:IC.list, body:levels},{t:'Зоны месяца', s:'Норма, внимание, последствие', icon:IC.flag, body:zones},{t:'Пути обратно', s:'Два пути', icon:IC.route, body:ways},{t:'Аттестация', s:'Ежемесячно', icon:IC.cal, body:att}];
+  const att = '<div class="cz-note"><div class="cz-cap">Аттестация</div><div class="cz-txt">Ежемесячно, два дня: 01–02.10 (установочная, очков не даёт) · 02–03.11 (первая реальная) · 01–02.12. Сдача — право, не обязанность: тратит время только тот, у кого есть повод вернуть операцию, снять обязательную проверку или претендовать на расширение полномочий.</div></div>';
+  const items = [
+    {t:'Уровни', s:'1, 2 и 3', icon:IC.list, body:levels},
+    {t:'Зоны месяца', s:'Норма, внимание, последствие', icon:IC.flag, body:zones},
+    {t:'За что плюсы', s:'Счёт «Рост»', icon:IC.chart, body:plus},
+    {t:'Порядок начисления', s:'Балл, окно, закрытие месяца', icon:IC.step, body:order},
+    {t:'Оспаривание', s:'3 рабочих дня', icon:IC.route, body:dispute},
+    {t:'Что машина ставит сама', s:'Приложение 2 · закрытый список', icon:IC.list, body:machine},
+    {t:'Пути обратно', s:'Два пути', icon:IC.route, body:ways},
+    {t:'Аттестация', s:'Ежемесячно', icon:IC.cal, body:att}
+  ];
   makeCarousel(document.getElementById('czScaleC'), {
     label:'Как считаются баллы',
     items: items.map(x=>({title:x.t, sub:x.s, icon:x.icon})),
     list: i=>items[i].body
   });
 }
+
 
 // ===== Помощники для экранов в стиле каруселей =====
 const CZ_HEAD = (t, cap) => '<div class="lime-heading">'+t+'</div>'+(cap ? '<div class="honest" style="margin:-4px 0 12px 4px;">'+cap+'</div>' : '');
@@ -1350,6 +1719,260 @@ const ulHtml = arr => '<ul style="margin:0;padding-left:18px;">'+arr.map(x=>'<li
 // ===== Что делать, если… (ситуации Антона; шаги из эталона процесса п/з от 19.09.2026) =====
 let SCEN = [];
 
+// ===== «Что нового» =====
+// Показывается один раз на версию и по ссылке из письма бота. Карточки листаются, последняя —
+// кнопка «Приступить к работе». Письмо об обновлении — постоянно разрешённый тип сообщения (решение 22.09).
+const NEW_VERSION = '2026-09-22';
+const NEW_SLIDES = [
+  {img:'33-checks-double', t:'Задачи — на сегодня', p:'Неделя полосой сверху, список выбранного дня, просроченное всегда первым. Свайп вправо — «Выполнено», влево — «Нужна информация». Пять секунд на «Отменить», и только потом статус уходит в Трекер.'},
+  {img:'41-tiles-three',   t:'«Сейчас» вместо ленты', p:'Экран «Процесс» отвечает на вопрос «что я делаю»: плитки ваших операций. Частое — чёрным, редкое — светлым. Весь регламент никуда не делся, он рядом во вкладке «Справочник».'},
+  {img:'08-pallet',        t:'Сборка перемещения',  p:'В операции «Выдаю материалы» — кнопка «Собрать». Отмечаете позиции и вводите, сколько собрали фактически. Приложение помнит сборку, пока вы не перенесёте её в Мой Склад.'},
+  {img:'24-stairs-four',   t:'Изучать по десять',   p:'Колода режется на партии. Прошли десять карточек — приложение скажет, сколько осталось, и предложит остановиться. По десять в день колода кончается за неделю.'},
+  {img:'34-pie-chart',     t:'Три счёта на виду',   p:'Ошибки за месяц, накопительный рост и задачи в срок — тремя плитками. Тап открывает разбор: из чего сложилось и что поднимает ступень премии.'}
+];
+
+function newSeen(){
+  try{ return localStorage.getItem('oggo-new') === NEW_VERSION; }catch(e){ return true; }
+}
+function newMark(){
+  try{ localStorage.setItem('oggo-new', NEW_VERSION); }catch(e){}
+}
+
+function showWhatsNew(){
+  const host = document.getElementById('newTour');
+  if(!host) return;
+  host.innerHTML = '<div class="nt-in">'+
+    '<div class="nt-track" id="ntTrack">'+NEW_SLIDES.map((s,i)=>'<section class="nt-s">'+
+      '<div class="nt-art"><img src="assets/cards/'+s.img+'.webp" alt="" draggable="false"></div>'+
+      '<div class="nt-t">'+s.t+'</div><p class="nt-p">'+s.p+'</p>'+
+      (i === NEW_SLIDES.length - 1 ? '<button class="nt-go" type="button" id="ntGo">Приступить к работе</button>' : '<div class="nt-hint">Листайте дальше</div>')+
+    '</section>').join('')+'</div>'+
+    '<div class="nt-dots">'+NEW_SLIDES.map((s,i)=>'<button type="button" aria-label="'+s.t+'"'+(i === 0 ? ' class="on"' : '')+'></button>').join('')+'</div>'+
+    '<button class="nt-skip" type="button" id="ntSkip">Пропустить</button>'+
+  '</div>';
+  host.classList.add('open');
+  const track = document.getElementById('ntTrack'), dots = [...host.querySelectorAll('.nt-dots button')];
+  track.addEventListener('scroll', ()=>{
+    const i = Math.round(track.scrollLeft / track.clientWidth);
+    dots.forEach((d,n)=>d.classList.toggle('on', n === i));
+  }, {passive:true});
+  dots.forEach((d,i)=>d.addEventListener('click', ()=>track.scrollTo({left:i*track.clientWidth, behavior:'smooth'})));
+  const close = ()=>{ newMark(); host.classList.remove('open'); setTimeout(()=>{ host.innerHTML = ''; }, 250); };
+  document.getElementById('ntGo').addEventListener('click', close);
+  document.getElementById('ntSkip').addEventListener('click', close);
+}
+
+// Открывается сама после обновления и по ссылке из письма бота (?new=1).
+function maybeWhatsNew(){
+  const forced = /(\?|&)new=1/.test(location.search);
+  if(forced || !newSeen()) setTimeout(showWhatsNew, 400);
+}
+
+// ===== Сборка перемещения =====
+// Замена карандашных отметок на сборочном листе: бумага, две подписи и фото в чат остаются.
+// Приложение — черновик; факт в Мой Склад вносит человек своей учёткой (решение 22.09).
+const pkApi = (path, body) => fetch(apiBase()+'/pick'+path, {
+  method: body ? 'POST' : 'GET',
+  headers: Object.assign({Authorization:'tma '+((tg && tg.initData) || '')}, body ? {'Content-Type':'application/json'} : {}),
+  body: body ? JSON.stringify(body) : undefined
+}).then(r=>{ if(!r.ok) throw new Error('http '+r.status); return r.json(); });
+
+const PK_STATE = {picking:'собирается', picked:'собрано', entered:'внесено в Мой Склад', shipped:'уехало'};
+
+function pkDeepLink(){
+  const m = /(?:\?|&)pick=([\w-]+)/.exec(location.search);
+  if(!m) return false;
+  setTimeout(()=>openSheet({cap:'Перемещение', title:'Собрать', sub:'Документ из сообщения бота', icon:IC.list,
+    body:'<div class="empty">Загрузка…</div>', after: box=>pkOpen(box, m[1])}), 500);
+  return true;
+}
+
+function pkSheet(){
+  openSheet({cap:'Перемещение', title:'Собрать', sub:'Перемещения, созданные сегодня', icon:IC.list,
+    body:'<div class="empty">Загрузка…</div>', after: box=>pkList(box)});
+}
+
+async function pkList(box){
+  let d;
+  try{ d = await pkApi(''); }
+  catch(e){ box.innerHTML = '<div class="cz-note"><div class="cz-cap">Не получилось</div><div class="cz-txt">Мой Склад сейчас недоступен, список перемещений не пришёл. Это не значит, что перемещений нет.</div></div>'; return; }
+  const moves = (d && d.moves) || [];
+  if(!moves.length){ box.innerHTML = '<div class="cz-fact"><b style="font-size:12.5px;">Сегодня перемещений не создавали.</b><div class="muted" style="margin-top:4px;">Появится — придёт сообщение от бота.</div></div>'; return; }
+  box.innerHTML = moves.map(m=>'<button class="pk-doc" data-id="'+m.id+'">'+
+    '<span class="pk-n">'+tkEsc(m.name)+'</span>'+
+    '<span class="pk-w">'+tkEsc(m.from || '—')+' → '+tkEsc(m.to || '—')+' · '+m.positions+' поз.</span>'+
+    (m.state ? '<span class="pk-st'+(m.state === 'picking' ? ' go' : '')+'">'+PK_STATE[m.state]+(m.state === 'picking' ? ' · '+m.done+' из '+m.positions : '')+'</span>' : '')+
+    '</button>').join('');
+  box.querySelectorAll('.pk-doc').forEach(b=>b.addEventListener('click', ()=>pkOpen(box, b.dataset.id)));
+}
+
+async function pkOpen(box, docId){
+  box.innerHTML = '<div class="empty">Загрузка…</div>';
+  let r;
+  try{ r = await pkApi('/start', {docId}); }
+  catch(e){ box.innerHTML = '<div class="cz-note"><div class="cz-cap">Не получилось</div><div class="cz-txt">Сборку начать не удалось. Попробуйте ещё раз.</div></div>'; return; }
+  pkRender(box, r.session);
+}
+
+function pkRender(box, s){
+  const left = s.total - s.done;
+  const head = '<div class="cz-note" style="margin-bottom:12px;"><div class="cz-cap">'+tkEsc(s.docName)+' · '+(PK_STATE[s.state] || s.state)+'</div>'+
+    '<div class="now-sum"><span><b>'+s.done+'</b> из '+s.total+'</span>'+(s.diff ? '<span><b>'+s.diff+'</b> '+AT_PL(s.diff,'расхождение','расхождения','расхождений')+'</span>' : '<span>расхождений нет</span>')+'</div></div>';
+  const next = s.items.find(i=>!i.done);
+  const row = i => '<div class="pk-row'+(i.done ? ' done' : '')+'" data-pos="'+i.pos+'">'+
+    '<span class="pk-t" title="'+tkEsc(i.name)+'">'+tkEsc(i.name)+'</span>'+
+    '<span class="pk-plan">'+i.plan+'</span>'+
+    (i.done
+      ? '<span class="pk-fact'+(Number(i.fact) === Number(i.plan) ? '' : ' bad')+'">'+i.fact+'</span>'
+      : '<input class="pk-in" type="number" inputmode="decimal" min="0" step="any" aria-label="Сколько собрано '+tkEsc(i.name)+'">'+
+        '<button class="pk-go'+(next && next.pos === i.pos ? ' now' : '')+'" type="button">Собрать</button>')+
+    '</div>';
+  const foot = s.state === 'picking'
+    ? '<button class="pill lime pk-fin" type="button" style="justify-content:center;width:100%;margin-top:12px;'+(left ? 'opacity:.45;' : '')+'">'+(left ? 'Осталось '+left : 'Сборка закончена')+'</button>'
+    : s.state === 'picked'
+      ? '<div class="cz-note" style="margin-top:12px;"><div class="cz-cap">Перенесите в Мой Склад</div><div class="cz-txt">Внесите собранное количество в документ своей учёткой и отметьте здесь. Пока не внесено, перемещение считается расчётным, а не фактическим.</div></div>'+
+        '<button class="pill lime pk-ent" type="button" style="justify-content:center;width:100%;margin-top:10px;">Внёс в Мой Склад</button>'
+      : '<div class="cz-fact" style="margin-top:12px;"><b style="font-size:12.5px;">'+(s.state === 'entered' ? 'Отмечено как внесённое.' : 'Документ проведён, перемещение уехало.')+'</b><div class="muted" style="margin-top:4px;">Аудитор сверит сборку с документом и напомнит, если что-то разошлось.</div></div>';
+  box.innerHTML = head+'<div class="pk-list">'+s.items.map(row).join('')+'</div>'+foot+
+    '<button class="pk-back" type="button">← К списку перемещений</button>';
+
+  box.querySelectorAll('.pk-row:not(.done)').forEach(r=>{
+    const inp = r.querySelector('.pk-in'), btn = r.querySelector('.pk-go');
+    const send = async ()=>{
+      if(inp.value === ''){ inp.focus(); return; }
+      btn.disabled = true;
+      try{ const out = await pkApi('/mark', {docId:s.docId, pos:Number(r.dataset.pos), fact:Number(inp.value)}); pkRender(box, out.session); }
+      catch(e){ btn.disabled = false; btn.textContent = 'Не сохранилось'; }
+    };
+    btn.addEventListener('click', send);
+    inp.addEventListener('keydown', e=>{ if(e.key === 'Enter'){ e.preventDefault(); send(); } });
+  });
+  const fin = box.querySelector('.pk-fin');
+  if(fin) fin.addEventListener('click', async ()=>{
+    try{ const out = await pkApi('/finish', {docId:s.docId}); pkRender(box, out.session); }
+    catch(e){ fin.textContent = 'Отметьте все позиции'; }
+  });
+  const ent = box.querySelector('.pk-ent');
+  if(ent) ent.addEventListener('click', async ()=>{
+    try{ const out = await pkApi('/entered', {docId:s.docId}); pkRender(box, out.session); }
+    catch(e){ ent.textContent = 'Не сохранилось'; }
+  });
+  box.querySelector('.pk-back').addEventListener('click', ()=>{ box.innerHTML = '<div class="empty">Загрузка…</div>'; pkList(box); });
+}
+
+// ===== «Сейчас»: операции сотрудника =====
+// Экран отвечает на вопрос «что я делаю», а не «где я в процессе» (решение директора 22.09).
+// Показываем только свои операции: чужие в цеху не нужны. Частое — чёрной плиткой, редкое — стеклянной,
+// лайм остаётся акцентом, а не заливкой.
+let OPS = [];
+const opMine = (o, u) => !!(u && o.keys && o.keys.indexOf(u.key) > -1);
+
+function opSteps(o){
+  const parts = [];
+  if((o.scen || []).length){
+    parts.push(PR_DRAFT);
+  }
+  if(o.gap){
+    parts.push('<div class="cz-note"><div class="cz-cap">Чек-листа нет</div><div class="cz-txt">Порядка шагов в эталоне процесса на эту операцию нет. Ниже собрано из правил документа — это не проверенный порядок. Спорное — к директору.</div></div>');
+  }
+  (o.scen || []).forEach(q=>{
+    const g = (SCEN || []).find(x=>(x.items||[]).some(i=>i.q === q));
+    const it = g && g.items.find(i=>i.q === q);
+    if(!it) return;
+    parts.push(czLabel('ok', it.q)+'<ol class="cz-ol">'+it.steps.map(t=>'<li>'+t+'</li>').join('')+'</ol>');
+  });
+  (o.steps || []).forEach(n=>{
+    const f = FLOW.find(x=>x.steps.some(s=>s.n === n));
+    const st = f && f.steps.find(s=>s.n === n);
+    if(!st) return;
+    parts.push(czItem('<b>Шаг '+st.n+'. '+st.title+'</b> — '+st.desc, 'ok'));
+  });
+  if(o.gap){
+    (o.docs || []).forEach(k=>{
+      const d = DOCS[k];
+      if(!d) return;
+      parts.push(czLabel('ok','Что известно')+czSentences(d.rule).map(t=>czItem(t,'ok')).join(''));
+      parts.push(czLabel('bad','Нельзя')+(d.bad||[]).map(b=>czItem(withRev(b),'bad')).join(''));
+    });
+  }
+  return parts.join('');
+}
+
+function opSheet(o, u){
+  const docs = (o.docs || []).filter(k=>DOCS[k]);
+  openSheet({
+    cap: o.gap ? 'Операция · чек-листа нет' : 'Операция',
+    title: o.title,
+    sub: (opMine(o,u) ? 'Делаете вы · ' : 'Делает: ')+o.who,
+    icon: IC.step,
+    body: opSteps(o)+(docs.length ? czLabel('ok','Документы')+'<div class="cz-links">'+docs.map(k=>'<button class="cz-link" data-doc="'+k+'">'+DOCS[k].title+' '+ic('<polyline points="9 6 15 12 9 18"/>',13)+'</button>').join('')+'</div>' : '')+
+      (o.key === 'give' ? '<button class="pk-start" id="pkStart" type="button">Приступить</button>' : ''),
+    after: box => {
+      box.querySelectorAll('.cz-link').forEach(b=>b.addEventListener('click', ()=>openDoc(b.dataset.doc)));
+      const pk = box.querySelector('#pkStart');
+      if(pk) pk.addEventListener('click', pkSheet);
+    }
+  });
+}
+
+function renderNow(u){
+  const body = document.getElementById('prBody');
+  const mine = OPS.filter(o=>opMine(o,u));
+  const list = mine.length ? mine : OPS; // роль не определилась — показываем всё, а не пустоту
+  const gaps = list.filter(o=>o.gap).length;
+  const head = '<div class="cz-note" style="margin-bottom:12px;"><div class="cz-cap">Ваши операции</div>'+
+    '<div class="now-sum"><span><b>'+list.length+'</b> операций</span>'+(gaps ? '<span><b>'+gaps+'</b> без чек-листа</span>' : '<span>чек-листы есть у всех</span>')+'</div>'+
+    '<div class="cz-txt" style="margin-top:8px;opacity:.8;">Порядок шагов сверку Аудитором ещё не прошёл — это проект, а не правило.</div>'+
+    (mine.length ? '' : '<div class="cz-txt" style="margin-top:6px;">Роль не определена, показаны все операции процесса.</div>')+'</div>';
+  const tile = o => '<button class="op'+(o.accent === 'lime' ? ' lime' : o.freq === 'often' ? ' hot' : '')+'" type="button" data-k="'+o.key+'">'+
+    '<span class="op-t">'+o.title+'</span>'+
+    '<span class="op-w">'+o.who+'</span>'+
+    (o.gap ? '<span class="op-gap">чек-листа нет</span>' : '')+'</button>';
+  body.innerHTML = head+'<div class="op-grid">'+list.map(tile).join('')+'</div>'+
+    '<div class="honest" style="margin:10px 4px 0;">Чаще всего — чёрные. Остальное — светлые. Порядок по ходу процесса.</div>';
+  body.querySelectorAll('.op').forEach(b=>b.addEventListener('click', ()=>{
+    const o = OPS.find(x=>x.key === b.dataset.k);
+    if(o) opSheet(o, u);
+  }));
+}
+
+// ===== Экран «Процесс»: справочник вкладками =====
+// Решение 22.09: пять разделов лежали одной лентой без приоритета — теперь по одному за раз.
+// Режим «Работа» (экран от действия) добавится следующим этапом, тогда над вкладками появится переключатель.
+const PR_DRAFT = '<div class="cz-note" style="margin-bottom:12px;"><div class="cz-cap">Проект, не правило</div>'+
+  '<div class="cz-txt">Чек-листы писались под Антона и сверку Аудитором ещё не прошли: два шага уже нашлись неверными для Михаила и Арсения. Пользуйтесь как подсказкой, а не как основанием; спорное — к директору.</div></div>';
+const PR_MOVE_ALWAYS = '<div class="attn col"><div class="eb">Всегда, при любом движении</div>'+
+  '<p style="margin:0;font-size:12.5px;line-height:1.5;">Две подписи от руки — «сдал» и «принял». Затем фото подписанного документа в чат «Документы» — в день движения, до конца смены. PDF из программы фото не заменяет — в нём нет подписей.</p></div>';
+const PR_TABS = [
+  {k:'docs',  t:'Документы',              head:'Памятка документы',        sub:'Правила, запреты и прошлые ошибки по каждому документу', body:'<div id="docBlocks"></div>',   mount:()=>renderDocBlocks()},
+  {k:'flow',  t:'Эталон п/з',             head:'Эталонный процесс п/з',    sub:'Редакция директора 19.09.2026 · шаги 0–12',            body:'<div id="flowBlocks"></div>',  mount:()=>renderFlow()},
+  {k:'move',  t:'Движение',               head:'Движение документов',      sub:'Откуда, куда, что печатать и когда',                   body:'<div id="moveMap"></div>'+PR_MOVE_ALWAYS, mount:()=>renderMoveMap()},
+  {k:'rules', t:'Правила',                head:'Общие правила',            sub:'Действуют для любого документа',                       body:'<div id="ruleAccordion"></div>', mount:()=>renderRules()}
+];
+let PR_TAB = 'docs';
+let PR_MODE = 'now'; // экран всегда открывается на «Сейчас» (решение 22.09), выбор не запоминается
+function renderProcess(u){
+  const tabs = document.getElementById('prTabs'), body = document.getElementById('prBody');
+  const modes = document.getElementById('prModes');
+  if(!tabs || !body) return;
+  if(modes){
+    modes.innerHTML = [['now','Сейчас'],['ref','Справочник']].map(m=>'<button class="pr-mode'+(m[0] === PR_MODE ? ' on' : '')+'" type="button" data-m="'+m[0]+'">'+m[1]+'</button>').join('');
+    modes.querySelectorAll('.pr-mode').forEach(b=>b.addEventListener('click', ()=>{ PR_MODE = b.dataset.m; renderProcess(u); }));
+  }
+  if(PR_MODE === 'now'){ tabs.hidden = true; renderNow(u); return; }
+  tabs.hidden = false;
+  tabs.innerHTML = PR_TABS.map(x=>'<button class="pr-tab'+(x.k === PR_TAB ? ' on' : '')+'" type="button" data-k="'+x.k+'">'+x.t+(x.draft ? '<span class="pr-draft">проект</span>' : '')+'</button>').join('');
+  tabs.querySelectorAll('.pr-tab').forEach(b=>b.addEventListener('click', ()=>{
+    PR_TAB = b.dataset.k;
+    renderProcess(u);
+    const y = tabs.getBoundingClientRect().top + window.scrollY - 8;
+    window.scrollTo({top:Math.max(0, y), behavior:'smooth'});
+  }));
+  const t = PR_TABS.find(x=>x.k === PR_TAB) || PR_TABS[0];
+  body.innerHTML = CZ_HEAD(t.head, t.sub) + (t.draft ? PR_DRAFT : '') + t.body;
+  t.mount(u);
+}
+
 function renderRules(){
   const icons = ['<path d="M20 12l-8 8-9-9V3h8z"/><circle cx="7.5" cy="7.5" r="1.5"/>', '<rect x="3" y="5" width="18" height="16" rx="3"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/>', '<path d="M4 20l4-1 11-11-3-3L5 16z"/><line x1="13" y1="6" x2="17" y2="10"/>'];
   makeCarousel(document.getElementById('ruleAccordion'), {
@@ -1367,11 +1990,15 @@ function renderRules(){
 function renderScenarios(u){
   const blk = document.getElementById('scenBlock');
   if(!blk) return;
-  const show = !u || u.key==='anton' || u.key==='director';
-  blk.hidden = !show;
-  if(!show) return;
+  blk.hidden = false; // решение 22.09: ситуации открыты всем, в карточке подписывается исполнитель
   const chev = ic('<polyline points="6 9 12 15 18 9"/>',15);
-  const rowHtml = it => '<div class="cz-step"><div class="hd"><span class="num">?</span><div style="flex:1;min-width:0;"><div class="tt">'+it.q+'</div><div class="dd">'+it.sub+'</div></div><span class="chv">'+chev+'</span></div>'+
+  // «Делаете вы» — только когда человек действительно исполнитель: ключи, а не поиск имени в тексте.
+  const whoHtml = it => {
+    if(!it.who) return '';
+    const mine = u && it.keys && it.keys.indexOf(u.key) > -1;
+    return '<span class="scen-who'+(mine ? ' mine' : '')+'">'+(mine ? 'Делаете вы · '+it.who : 'Делает: '+it.who)+'</span>';
+  };
+  const rowHtml = it => '<div class="cz-step"><div class="hd"><span class="num">?</span><div style="flex:1;min-width:0;"><div class="tt">'+it.q+'</div><div class="dd">'+it.sub+'</div>'+whoHtml(it)+'</div><span class="chv">'+chev+'</span></div>'+
     '<div class="dtl-w"><div><div class="dtl"><ol class="cz-ol">'+it.steps.map(t=>'<li>'+t+'</li>').join('')+'</ol>'+
     '<div class="cz-links">'+it.links.map(k=>'<button class="cz-link" data-doc="'+k+'">'+DOCS[k].title+' '+ic('<polyline points="9 6 15 12 9 18"/>',13)+'</button>').join('')+'</div></div></div></div></div>';
   makeCarousel(document.getElementById('scenarios'), {
@@ -1434,9 +2061,9 @@ function renderGame(u){
   var root = document.getElementById('s-game');
   if (!root) return;
   root.innerHTML = '<div class="lime-heading">Тренажёр</div>'+
-    '<div class="honest" style="margin:-4px 0 12px 4px;">Правило дня, документы и правила из игры «Банк». Свайп вправо — знаю, влево — повторить.</div>'+
+    '<div class="honest" style="margin:-4px 0 12px 4px;">Правило дня и правила, которые спрашивают в игре «Банк» и на аттестации. Свайп вправо — знаю, влево — повторить.</div>'+
     '<div class="g-stats"><span class="g-pill g-know" id="gPKnow"></span><span class="g-pill g-left" id="gPLeft"></span><span class="g-bar" aria-hidden="true"><i id="gBar"></i></span></div>'+
-    '<div class="g-deck" id="gDeck" aria-label="Колода карточек"><div class="g-done" id="gDone" hidden><div class="g-ok">'+ic('<polyline points="4 12 10 18 20 6"/>',34)+'</div><h3>Все карточки — знаю!</h3><p id="gDoneText"></p><button class="g-again" id="gBtnAgain">Пройти снова</button></div></div>'+
+    '<div class="g-deck" id="gDeck" aria-label="Колода карточек"><div class="g-done" id="gDone" hidden></div></div>'+
     '<div class="g-consent">'+ic('<circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16"/><line x1="12" y1="7.6" x2="12" y2="7.7"/>',18)+'<span>Нажимая «Знаю», вы подтверждаете, что знаете это правило. Ошибка по нему после этого считается повторной.</span></div>'+
     '<div class="g-actions"><button class="g-btn" id="gBtnRep">'+ic('<line x1="19" y1="12" x2="5" y2="12"/><polyline points="11 6 5 12 11 18"/>',16)+'Повторить</button><button class="g-btn g-know" id="gBtnKnow">Знаю'+ic('<line x1="5" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/>',16)+'</button></div>'+
     '<p class="g-hint">«Повторить» вернёт карточку в конец колоды. Прогресс хранится на этом телефоне.</p>'+
@@ -1471,19 +2098,13 @@ function renderGame(u){
 
   var ALL = [
     {id:'rod-'+dayKey, title:'Правило дня', tag:rod.tag, art:'rule', bg:'rgba(219,255,61,.5)', key:rod.key, more:'Правило меняется каждый день. Все правила по документам — в «Памятке документы».'},
-    {id:'techcard', title:'Техкарта', tag:'Производство', art:'tech', bg:'rgba(255,171,94,.42)', key:'Проверка техкарт — до создания п/з. Правит только Михаил.', more:'Михаил запрашивает у директора, правит, директор сверяет изменения и согласует.'},
-    {id:'workorder', title:'Производственное задание', tag:'Производство', art:'wo', bg:'rgba(255,171,94,.42)', key:'Только после «Подтверждён» и на основании заказа.', more:'Дата текущая, проводится сразу. Ошибка в п/з — не трогать, созвон с директором.'},
-    {id:'goods', title:'Товары и услуги', tag:'Товары', art:'goods', bg:'rgba(219,255,61,.45)', key:'Карточку создаёт только Михаил — сразу с ценой продажи.', more:'S 161 ₽, M и XL 180 ₽. Делается по образцу существующей продукции.'},
     {id:'supplierorder', title:'Заказ поставщику', tag:'Закупки', art:'order', bg:'rgba(219,255,61,.45)', key:'Только по потребности, подтверждённой Антоном.', more:'Создаёт Михаил с учётом остатков всех складов. Отправка — после согласования суммы директором.'},
     {id:'supplierinvoice', title:'Счёт поставщика', tag:'Закупки', art:'invoice', bg:'rgba(219,255,61,.45)', key:'Сверить счёт сразу после отправки заказа.', more:'До передачи платёжного поручения.'},
-    {id:'receipt', title:'Приёмка', tag:'Закупки', art:'receipt', bg:'rgba(219,255,61,.45)', key:'Количество — по УПД и по факту пересчёта.', more:'Нет документов — принимаем строго по ручному пересчёту, не по заказу.'},
-    {id:'move', title:'Перемещение', tag:'Склад', art:'move', bg:'rgba(0,0,0,.07)', key:'Только по расчёту «Снабжения». Правка факта — обязательна.', more:'Печать, две подписи, физическое перемещение, потом фото в чат «Документы».'},
-    {id:'inventory', title:'Инвентаризация', tag:'Склад', art:'inv', bg:'rgba(0,0,0,.07)', key:'Допуск 5% — по каждой позиции отдельно.', more:'Последний день месяца — полная. Оприходование и списание — только при инвентаризации.'}
   ];
 
   /* Правила из игры «Банк»: то, что спрашивают в аттестации и игре */
-  var EXTRA = [{"id": "r-move1", "title": "Передача — только по перемещению", "tag": "Движение материалов и бумаги", "art": "move", "bg": "rgba(0,0,0,.07)", "key": "Сначала перемещение в программе, печать и две подписи — потом передача.", "more": "Источник: Документ «Перемещение»."}, {"id": "r-move2", "title": "Фото — после перемещения, в день движения", "tag": "Движение материалов и бумаги", "art": "move", "bg": "rgba(0,0,0,.07)", "key": "Фото уходит после физического перемещения, в день движения.", "more": "Пока фото не отправлено, движение не считается закрытым. Источник: Общие правила «Бумажное сопровождение»."}, {"id": "r-move3", "title": "Факт перемещения — в программе", "tag": "Движение материалов и бумаги", "art": "move", "bg": "rgba(0,0,0,.07)", "key": "Факт правим в программе, иначе перемещение остаётся расчётным.", "more": "Источник: Документ «Перемещение»."}, {"id": "r-move4", "title": "Перемещаем на склад площадки, не на «СТМ»", "tag": "Движение материалов и бумаги", "art": "move", "bg": "rgba(0,0,0,.07)", "key": "«СТМ» в программе — группа складов площадок, а не склад.", "more": "Перемещаем на конкретный склад ХП или РЕЛЛ. Источник: Запреты по движению материалов."}, {"id": "r-move5", "title": "Перемещение — только по расчёту", "tag": "Движение материалов и бумаги", "art": "move", "bg": "rgba(0,0,0,.07)", "key": "Собирать перемещение «от себя» запрещено: только на основании расчёта в «Снабжении».", "more": "Источник: Запреты по движению материалов."}, {"id": "r-move6", "title": "«Заказать» = 0 перед отправкой", "tag": "Движение материалов и бумаги", "art": "move", "bg": "rgba(0,0,0,.07)", "key": "Пока «Заказать» не равно 0, на площадку не отправляем.", "more": "Источник: Документ «Перемещение»."}, {"id": "r-move7", "title": "Отгрузка — со склада площадки", "tag": "Движение материалов и бумаги", "art": "move", "bg": "rgba(0,0,0,.07)", "key": "Отгрузка идёт напрямую со склада ХП или РЕЛЛ.", "more": "ГП на основной склад не возвращается. Источник: Шаг 12."}, {"id": "r-move8", "title": "Фото с подписями, не PDF", "tag": "Движение материалов и бумаги", "art": "move", "bg": "rgba(0,0,0,.07)", "key": "PDF без подписей не заменяет фото подписанного документа.", "more": "Источник: Общие правила «Бумажное сопровождение»."}, {"id": "r-wo1", "title": "П/з — только после «Подтверждён»", "tag": "Производственное задание", "art": "wo", "bg": "rgba(255,171,94,.42)", "key": "П/з создаётся строго после «Подтверждён» и только на основании заказа, без исключений.", "more": "Источник: Документ «Производственное задание»."}, {"id": "r-wo2", "title": "Ошибка в п/з — не трогаем", "tag": "Производственное задание", "art": "wo", "bg": "rgba(255,171,94,.42)", "key": "П/з хранит в себе ошибки: не отменяем, не правим, ничего нового не создаём.", "more": "Сначала созвон с директором. Источник: Документ «Производственное задание»."}, {"id": "r-wo3", "title": "Проведение закрытого п/з не снимаем", "tag": "Производственное задание", "art": "wo", "bg": "rgba(255,171,94,.42)", "key": "Откат проведения закрытого задания стирает факт из истории.", "more": "Без зафиксированной причины это запрещено. Источник: Запреты по п/з."}, {"id": "r-wo4", "title": "Стоп-проверка состава п/з на ГП", "tag": "Производственное задание", "art": "wo", "bg": "rgba(255,171,94,.42)", "key": "Стоп-проверка состава, иначе ошибка задвоится в документах.", "more": "Источник: Шаг 4."}, {"id": "r-wo5", "title": "Склады в п/з на ГП совпадают", "tag": "Производственное задание", "art": "wo", "bg": "rgba(255,171,94,.42)", "key": "В п/з на ГП склады материалов, списания и выпуска совпадают и выставляются сразу.", "more": "Для п/ф это правило не действует. Источник: Документ «Производственное задание»."}, {"id": "r-wo6", "title": "Факт выпуска — в день отчёта", "tag": "Производственное задание", "art": "wo", "bg": "rgba(255,171,94,.42)", "key": "Факт вносится в день отчёта.", "more": "Источник: Шаг 11."}, {"id": "r-wo7", "title": "Без полного количества материалов — не в работу", "tag": "Производственное задание", "art": "wo", "bg": "rgba(255,171,94,.42)", "key": "Задание нельзя отдать в работу, если материалов нет в полном количестве.", "more": "Источник: Шаг 8."}, {"id": "r-wo8", "title": "Не больше 4 уровней п/з", "tag": "Производственное задание", "art": "wo", "bg": "rgba(255,171,94,.42)", "key": "ГП, премикс, концентрат, основа — максимум 4 уровня, каждый отдельным п/з.", "more": "Источник: Шаг 5."}, {"id": "r-dates1", "title": "Дата п/з — текущая", "tag": "Даты и сроки", "art": "rule", "bg": "rgba(219,255,61,.5)", "key": "Для п/з только текущая дата; ранняя — лишь с комментарием «исправление».", "more": "Источник: Общие правила «Даты и сроки»."}, {"id": "r-dates2", "title": "Больше суток назад — «восстановительный»", "tag": "Даты и сроки", "art": "rule", "bg": "rgba(219,255,61,.5)", "key": "Больше суток задним числом — только как «восстановительный документ» с явной пометкой.", "more": "Источник: Общие правила «Даты и сроки»."}, {"id": "r-dates3", "title": "Дату в будущем ставить нельзя", "tag": "Даты и сроки", "art": "rule", "bg": "rgba(219,255,61,.5)", "key": "Дата в будущем запрещена.", "more": "Источник: Запреты по датам и срокам."}, {"id": "r-dates4", "title": "Ранняя дата — с комментарием", "tag": "Даты и сроки", "art": "rule", "bg": "rgba(219,255,61,.5)", "key": "Для п/з ранняя дата — только с комментарием «исправление».", "more": "Источник: Общие правила «Даты и сроки»."}, {"id": "r-order1", "title": "Техкарты проверяем до п/з", "tag": "Заказ покупателя", "art": "order", "bg": "rgba(219,255,61,.45)", "key": "После «Подтверждён» заказ не меняется, правки не принимаются.", "more": "Корректировка — только дополнительным заказом покупателя. Источник: Шаг 1."}, {"id": "r-order2", "title": "Похожий товар — копия «(2)»", "tag": "Заказ покупателя", "art": "order", "bg": "rgba(219,255,61,.45)", "key": "До «Подтверждён» Михаил проверяет цены.", "more": "Заказ создаёт и подтверждает директор. Источник: Шаг 1."}, {"id": "r-order3", "title": "Карточка товара — сразу с ценой продажи", "tag": "Заказ покупателя", "art": "order", "bg": "rgba(219,255,61,.45)", "key": "Брать заказ в работу, пока он не «Подтверждён», запрещено.", "more": "Источник: Запреты по заказу."}, {"id": "r-tech1", "title": "Нет документов — считаем по факту", "tag": "Техкарты и номенклатура", "art": "tech", "bg": "rgba(255,171,94,.42)", "key": "Только Михаил, по согласованному запросу директору с письменным обоснованием.", "more": "Источник: Документ «Техкарта»."}, {"id": "r-tech2", "title": "Приёмка — дважды: УПД и пересчёт", "tag": "Техкарты и номенклатура", "art": "tech", "bg": "rgba(255,171,94,.42)", "key": "Порядок: запрос редактирования, правка, сверка изменений и согласование директором.", "more": "Источник: Документ «Техкарта»."}, {"id": "r-tech3", "title": "Выборочная проверка: 30%, Антон и Арсений", "tag": "Техкарты и номенклатура", "art": "tech", "bg": "rgba(255,171,94,.42)", "key": "Проверка идёт до создания п/з.", "more": "Источник: Шаг 2."}, {"id": "r-tech4", "title": "Допуск 5% — по каждой позиции", "tag": "Техкарты и номенклатура", "art": "tech", "bg": "rgba(255,171,94,.42)", "key": "Оригинал не правим: правится только копия с «(2)».", "more": "Источник: Документ «Техкарта»."}, {"id": "r-tech5", "title": "Расхождение больше 5% — стоп и разбор", "tag": "Техкарты и номенклатура", "art": "tech", "bg": "rgba(255,171,94,.42)", "key": "Карточка создаётся сразу с ценой продажи, по образцу существующей продукции.", "more": "Источник: Общие правила «Цены и номенклатура»."}, {"id": "r-recv1", "title": "Склад на инвентаризации не двигаем", "tag": "Приёмка", "art": "receipt", "bg": "rgba(219,255,61,.45)", "key": "Нет документов — количество строго по факту пересчёта.", "more": "Источник: Документ «Приёмка»."}, {"id": "r-recv2", "title": "Оприходование и списание — только при инвентаризации", "tag": "Приёмка", "art": "receipt", "bg": "rgba(219,255,61,.45)", "key": "Количество сверяется дважды — по УПД и физическим пересчётом.", "more": "Источник: Документ «Приёмка»."}, {"id": "r-inv1", "title": "Заявил сам — ноль баллов", "tag": "Инвентаризация и остатки", "art": "inv", "bg": "rgba(0,0,0,.07)", "key": "Перед каждым п/з, включая вложенные: 30% позиций этого п/з, проверяют Антон и Арсений.", "more": "Источник: Шаг 0."}, {"id": "r-inv2", "title": "Заявить о проблеме — за 2 дня", "tag": "Инвентаризация и остатки", "art": "inv", "bg": "rgba(0,0,0,.07)", "key": "Порог 5% считается по каждой позиции отдельно; избыток тоже нарушение.", "more": "Источник: Документ «Инвентаризация»."}, {"id": "r-inv3", "title": "Что такое сокрытие", "tag": "Инвентаризация и остатки", "art": "inv", "bg": "rgba(0,0,0,.07)", "key": "Больше 5% — стоп, разбор и внеплановая инвентаризация этих позиций.", "more": "Источник: Шаг 0."}, {"id": "r-inv4", "title": "Уровень 3 — всегда разговор", "tag": "Инвентаризация и остатки", "art": "inv", "bg": "rgba(0,0,0,.07)", "key": "Запрет действует до согласования инвентаризации директором и только по этому складу.", "more": "Источник: Общие правила «Даты и сроки»."}, {"id": "r-inv5", "title": "Счётчик обнуляют три чистые операции", "tag": "Инвентаризация и остатки", "art": "inv", "bg": "rgba(0,0,0,.07)", "key": "Оприходование и списание — только при инвентаризации.", "more": "Выпуск ГП идёт через «Выполнение этапа» в п/з. Источник: Документ «Инвентаризация»."}, {"id": "r-disc1", "title": "После «Подтверждён» — доп. заказ", "tag": "Дисциплина и баллы", "art": "rule", "bg": "rgba(255,171,94,.42)", "key": "Заявил сам — ноль баллов, всегда, без исключений.", "more": "Источник: Регламент KPI."}, {"id": "r-disc2", "title": "Цены в заказе проверяет Михаил", "tag": "Дисциплина и баллы", "art": "rule", "bg": "rgba(255,171,94,.42)", "key": "Норма эскалации — 2 дня.", "more": "Вскрылось позже и не было заявлено — уровень 3 как сокрытие. Источник: Регламент KPI."}, {"id": "r-disc3", "title": "Заказ до «Подтверждён» не берём", "tag": "Дисциплина и баллы", "art": "rule", "bg": "rgba(255,171,94,.42)", "key": "Сокрытие — это проблема, о которой не заявили в срок и которая вскрылась позже.", "more": "Это уровень 3. Источник: Регламент KPI."}, {"id": "r-disc4", "title": "Техкарты — только Михаил, по запросу", "tag": "Дисциплина и баллы", "art": "rule", "bg": "rgba(255,171,94,.42)", "key": "Любое нарушение уровня 3 тянет разговор независимо от суммы.", "more": "Скрыл проблему — обсуждаем, даже если в остальном чисто. Источник: Регламент KPI."}, {"id": "r-disc5", "title": "Порядок правки техкарты", "tag": "Дисциплина и баллы", "art": "rule", "bg": "rgba(255,171,94,.42)", "key": "Время счётчик не обнуляет.", "more": "Источник: Регламент KPI."}];
-  var ARTMAP = {"move1": "move", "move2": "phone", "move3": "laptop", "move4": "depot", "move5": "calc", "move6": "cart", "move7": "truck", "move8": "sign", "wo1": "stamp", "wo2": "call", "wo3": "lock", "wo4": "lens", "wo5": "cubes3", "wo6": "clock", "wo7": "emptybox", "wo8": "stairs", "dates1": "rule", "dates2": "hourglass", "dates3": "calendarlock", "dates4": "rule", "order1": "docplus", "order2": "tag", "order3": "lock", "tech1": "key", "tech2": "docpen", "tech3": "tech", "tech4": "copy", "tech5": "tag", "recv1": "scales", "recv2": "check2", "inv1": "pie", "inv2": "caliper", "inv3": "stop", "inv4": "lock", "inv5": "scanner", "disc1": "mega", "disc2": "clock", "disc3": "envelope", "disc4": "bubbles", "disc5": "tiles3"};
+  var EXTRA = [{"id": "r-move1", "title": "Передача — только по перемещению", "tag": "Движение материалов и бумаги", "art": "move", "bg": "rgba(0,0,0,.07)", "key": "Сначала перемещение в программе, печать и две подписи — потом передача.", "more": "Источник: Документ «Перемещение»."}, {"id": "r-move2", "title": "Фото — после перемещения, в день движения", "tag": "Движение материалов и бумаги", "art": "move", "bg": "rgba(0,0,0,.07)", "key": "Фото уходит после физического перемещения, в день движения.", "more": "Пока фото не отправлено, движение не считается закрытым. Источник: Общие правила «Бумажное сопровождение»."}, {"id": "r-move3", "title": "Факт перемещения — в программе", "tag": "Движение материалов и бумаги", "art": "move", "bg": "rgba(0,0,0,.07)", "key": "Факт правим в программе, иначе перемещение остаётся расчётным.", "more": "Источник: Документ «Перемещение»."}, {"id": "r-move4", "title": "Перемещаем на склад площадки, не на «СТМ»", "tag": "Движение материалов и бумаги", "art": "move", "bg": "rgba(0,0,0,.07)", "key": "«СТМ» в программе — группа складов площадок, а не склад.", "more": "Перемещаем на конкретный склад ХП или РЕЛЛ. Источник: Запреты по движению материалов."}, {"id": "r-move5", "title": "Перемещение — только по расчёту", "tag": "Движение материалов и бумаги", "art": "move", "bg": "rgba(0,0,0,.07)", "key": "Собирать перемещение «от себя» запрещено: только на основании расчёта в «Снабжении».", "more": "Источник: Запреты по движению материалов."}, {"id": "r-move6", "title": "«Заказать» = 0 перед отправкой", "tag": "Движение материалов и бумаги", "art": "move", "bg": "rgba(0,0,0,.07)", "key": "Пока «Заказать» не равно 0, на площадку не отправляем.", "more": "Источник: Документ «Перемещение»."}, {"id": "r-move7", "title": "Отгрузка — со склада площадки", "tag": "Движение материалов и бумаги", "art": "move", "bg": "rgba(0,0,0,.07)", "key": "Отгрузка идёт напрямую со склада ХП или РЕЛЛ.", "more": "ГП на основной склад не возвращается. Источник: Шаг 12."}, {"id": "r-move8", "title": "Фото с подписями, не PDF", "tag": "Движение материалов и бумаги", "art": "move", "bg": "rgba(0,0,0,.07)", "key": "PDF без подписей не заменяет фото подписанного документа.", "more": "Источник: Общие правила «Бумажное сопровождение»."}, {"id": "r-wo1", "title": "П/з — только после «Подтверждён»", "tag": "Производственное задание", "art": "wo", "bg": "rgba(255,171,94,.42)", "key": "П/з создаётся строго после «Подтверждён» и только на основании заказа, без исключений.", "more": "Источник: Документ «Производственное задание»."}, {"id": "r-wo2", "title": "Ошибка в п/з — не трогаем", "tag": "Производственное задание", "art": "wo", "bg": "rgba(255,171,94,.42)", "key": "П/з хранит в себе ошибки: не отменяем, не правим, ничего нового не создаём.", "more": "Сначала созвон с директором. Источник: Документ «Производственное задание»."}, {"id": "r-wo3", "title": "Проведение закрытого п/з не снимаем", "tag": "Производственное задание", "art": "wo", "bg": "rgba(255,171,94,.42)", "key": "Откат проведения закрытого задания стирает факт из истории.", "more": "Без зафиксированной причины это запрещено. Источник: Запреты по п/з."}, {"id": "r-wo4", "title": "Стоп-проверка состава п/з на ГП", "tag": "Производственное задание", "art": "wo", "bg": "rgba(255,171,94,.42)", "key": "Стоп-проверка состава, иначе ошибка задвоится в документах.", "more": "Источник: Шаг 4."}, {"id": "r-wo5", "title": "Склады в п/з на ГП совпадают", "tag": "Производственное задание", "art": "wo", "bg": "rgba(255,171,94,.42)", "key": "В п/з на ГП склады материалов, списания и выпуска совпадают и выставляются сразу.", "more": "Для п/ф это правило не действует. Источник: Документ «Производственное задание»."}, {"id": "r-wo6", "title": "Факт выпуска — в день отчёта", "tag": "Производственное задание", "art": "wo", "bg": "rgba(255,171,94,.42)", "key": "Факт вносится в день отчёта.", "more": "Источник: Шаг 11."}, {"id": "r-wo7", "title": "Без полного количества материалов — не в работу", "tag": "Производственное задание", "art": "wo", "bg": "rgba(255,171,94,.42)", "key": "Задание нельзя отдать в работу, если материалов нет в полном количестве.", "more": "Источник: Шаг 8."}, {"id": "r-wo8", "title": "Не больше 4 уровней п/з", "tag": "Производственное задание", "art": "wo", "bg": "rgba(255,171,94,.42)", "key": "ГП, премикс, концентрат, основа — максимум 4 уровня, каждый отдельным п/з.", "more": "Источник: Шаг 5."}, {"id": "r-dates1", "title": "Дата п/з — текущая", "tag": "Даты и сроки", "art": "rule", "bg": "rgba(219,255,61,.5)", "key": "Для п/з только текущая дата; ранняя — лишь с комментарием «исправление».", "more": "Источник: Общие правила «Даты и сроки»."}, {"id": "r-dates2", "title": "Больше суток назад — «восстановительный»", "tag": "Даты и сроки", "art": "rule", "bg": "rgba(219,255,61,.5)", "key": "Больше суток задним числом — только как «восстановительный документ» с явной пометкой.", "more": "Источник: Общие правила «Даты и сроки»."}, {"id": "r-dates3", "title": "Дату в будущем ставить нельзя", "tag": "Даты и сроки", "art": "rule", "bg": "rgba(219,255,61,.5)", "key": "Дата в будущем запрещена.", "more": "Источник: Запреты по датам и срокам."}, {"id": "r-order1", "title": "После «Подтверждён» — доп. заказ", "tag": "Заказ покупателя", "art": "order", "bg": "rgba(219,255,61,.45)", "key": "После «Подтверждён» заказ не меняется, правки не принимаются.", "more": "Корректировка — только дополнительным заказом покупателя. Источник: Шаг 1."}, {"id": "r-order2", "title": "Цены в заказе проверяет Михаил", "tag": "Заказ покупателя", "art": "order", "bg": "rgba(219,255,61,.45)", "key": "До «Подтверждён» Михаил проверяет цены.", "more": "Заказ создаёт и подтверждает директор. Источник: Шаг 1."}, {"id": "r-order3", "title": "Заказ до «Подтверждён» не берём", "tag": "Заказ покупателя", "art": "order", "bg": "rgba(219,255,61,.45)", "key": "Брать заказ в работу, пока он не «Подтверждён», запрещено.", "more": "Источник: Запреты по заказу."}, {"id": "r-tech1", "title": "Техкарты — только Михаил, по запросу", "tag": "Техкарты и номенклатура", "art": "tech", "bg": "rgba(255,171,94,.42)", "key": "Только Михаил, по согласованному запросу директору с письменным обоснованием.", "more": "Источник: Документ «Техкарта»."}, {"id": "r-tech2", "title": "Порядок правки техкарты", "tag": "Техкарты и номенклатура", "art": "tech", "bg": "rgba(255,171,94,.42)", "key": "Порядок: запрос редактирования, правка, сверка изменений и согласование директором.", "more": "Источник: Документ «Техкарта»."}, {"id": "r-tech3", "title": "Техкарты проверяем до п/з", "tag": "Техкарты и номенклатура", "art": "tech", "bg": "rgba(255,171,94,.42)", "key": "Проверка идёт до создания п/з.", "more": "Источник: Шаг 2."}, {"id": "r-tech4", "title": "Похожий товар — копия «(2)»", "tag": "Техкарты и номенклатура", "art": "tech", "bg": "rgba(255,171,94,.42)", "key": "Оригинал не правим: правится только копия с «(2)».", "more": "Источник: Документ «Техкарта»."}, {"id": "r-tech5", "title": "Карточка товара — сразу с ценой продажи", "tag": "Техкарты и номенклатура", "art": "tech", "bg": "rgba(255,171,94,.42)", "key": "Карточка создаётся сразу с ценой продажи, по образцу существующей продукции.", "more": "Источник: Общие правила «Цены и номенклатура»."}, {"id": "r-recv1", "title": "Нет документов — считаем по факту", "tag": "Приёмка", "art": "receipt", "bg": "rgba(219,255,61,.45)", "key": "Нет документов — количество строго по факту пересчёта.", "more": "Источник: Документ «Приёмка»."}, {"id": "r-recv2", "title": "Приёмка — дважды: УПД и пересчёт", "tag": "Приёмка", "art": "receipt", "bg": "rgba(219,255,61,.45)", "key": "Количество сверяется дважды — по УПД и физическим пересчётом.", "more": "Источник: Документ «Приёмка»."}, {"id": "r-inv1", "title": "Выборочная проверка: 30%, Антон и Арсений", "tag": "Инвентаризация и остатки", "art": "inv", "bg": "rgba(0,0,0,.07)", "key": "Перед каждым п/з, включая вложенные: 30% позиций этого п/з, проверяют Антон и Арсений.", "more": "Источник: Шаг 0."}, {"id": "r-inv2", "title": "Допуск 5% — по каждой позиции", "tag": "Инвентаризация и остатки", "art": "inv", "bg": "rgba(0,0,0,.07)", "key": "Порог 5% считается по каждой позиции отдельно; избыток тоже нарушение.", "more": "Источник: Документ «Инвентаризация»."}, {"id": "r-inv3", "title": "Расхождение больше 5% — стоп и разбор", "tag": "Инвентаризация и остатки", "art": "inv", "bg": "rgba(0,0,0,.07)", "key": "Больше 5% — стоп, разбор и внеплановая инвентаризация этих позиций.", "more": "Источник: Шаг 0."}, {"id": "r-inv4", "title": "Склад на инвентаризации не двигаем", "tag": "Инвентаризация и остатки", "art": "inv", "bg": "rgba(0,0,0,.07)", "key": "Запрет действует до согласования инвентаризации директором и только по этому складу.", "more": "Источник: Общие правила «Даты и сроки»."}, {"id": "r-inv5", "title": "Оприходование и списание — только при инвентаризации", "tag": "Инвентаризация и остатки", "art": "inv", "bg": "rgba(0,0,0,.07)", "key": "Оприходование и списание — только при инвентаризации.", "more": "Выпуск ГП идёт через «Выполнение этапа» в п/з. Источник: Документ «Инвентаризация»."}, {"id": "r-disc1", "title": "Заявил сам — ноль баллов", "tag": "Дисциплина и баллы", "art": "rule", "bg": "rgba(255,171,94,.42)", "key": "Заявил сам — ноль баллов, всегда, без исключений.", "more": "Источник: Регламент KPI."}, {"id": "r-disc2", "title": "Заявить о проблеме — за 2 дня", "tag": "Дисциплина и баллы", "art": "rule", "bg": "rgba(255,171,94,.42)", "key": "Норма эскалации — 2 дня.", "more": "Вскрылось позже и не было заявлено — уровень 3 как сокрытие. Источник: Регламент KPI."}, {"id": "r-disc3", "title": "Что такое сокрытие", "tag": "Дисциплина и баллы", "art": "rule", "bg": "rgba(255,171,94,.42)", "key": "Сокрытие — это проблема, о которой не заявили в срок и которая вскрылась позже.", "more": "Это уровень 3. Источник: Регламент KPI."}, {"id": "r-disc4", "title": "Уровень 3 — всегда разговор", "tag": "Дисциплина и баллы", "art": "rule", "bg": "rgba(255,171,94,.42)", "key": "Любое нарушение уровня 3 тянет разговор независимо от суммы.", "more": "Скрыл проблему — обсуждаем, даже если в остальном чисто. Источник: Регламент KPI."}, {"id": "r-disc5", "title": "Счётчик обнуляют три чистые операции", "tag": "Дисциплина и баллы", "art": "rule", "bg": "rgba(255,171,94,.42)", "key": "Время счётчик не обнуляет.", "more": "Источник: Регламент KPI."}, {"id": "r-move9", "title": "Перемещение — на основании п/з", "tag": "Движение материалов и бумаги", "art": "move", "bg": "rgba(0,0,0,.07)", "key": "У перемещения должен быть документ-основание — производственное задание.", "more": "Перемещение без основания машина находит сама: уровень 2. Источник: Приложение 2, решение 22.09.2026."}, {"id": "r-move10", "title": "Машина — после сборки и сверки", "tag": "Движение материалов и бумаги", "art": "truck", "bg": "rgba(0,0,0,.07)", "key": "Машину заказываем, только когда перемещение создано, груз собран и комплектация сверена с расчётом из п/з.", "more": "Три условия сразу. Раньше — уровень 3. Источник: решение №26."}, {"id": "r-order4", "title": "Отгрузка — на основании заказа", "tag": "Заказ покупателя", "art": "cart", "bg": "rgba(219,255,61,.45)", "key": "Отгрузка создаётся только на основании заказа покупателя.", "more": "Заказ — план, отгрузка — факт. Без связи отклонение заказано/отгружено не посчитать. Источник: решение 22.09.2026."}, {"id": "r-order5", "title": "Счёт — на основании отгрузки", "tag": "Заказ покупателя", "art": "invoice", "bg": "rgba(219,255,61,.45)", "key": "Счёт покупателю создаётся только на основании отгрузки.", "more": "Цепочка: заказ → отгрузка → счёт. Источник: решение 22.09.2026."}, {"id": "r-disc6", "title": "Утреннее окно — час на исправление", "tag": "Дисциплина и баллы", "art": "hourglass", "bg": "rgba(255,171,94,.42)", "key": "Нарушение уровня 1 или 2, устранённое в течение часа после утреннего созвона, баллов не даёт.", "more": "Уровень 3 в окне не снимается. Снимает балл только устранение, не ответ и не обещание. Источник: регламент KPI, редакция 22.09.2026."}, {"id": "r-disc7", "title": "Оспорить — 3 рабочих дня", "tag": "Дисциплина и баллы", "art": "scales", "bg": "rgba(255,171,94,.42)", "key": "Не согласны с баллом — оспаривание в течение 3 рабочих дней: комментарий по существу и категория.", "more": "Решает только директор. Оспаривание не освобождает от устранения. Источник: Положение о премировании, §7."}, {"id": "r-disc8", "title": "Задача в срок — плюс в «Рост»", "tag": "Дисциплина и баллы", "art": "check2", "bg": "rgba(255,171,94,.42)", "key": "Задача, закрытая не позже срока, даёт +1 в счёт «Рост», не больше 4 плюсов в месяц.", "more": "Задача без срока в счёт не идёт. Счёт дисциплины премию не снижает, влияет только на рост. Источник: решение 22.09.2026."}];
+  var ARTMAP = {"move1": "move", "move2": "phone", "move3": "laptop", "move4": "depot", "move5": "calc", "move6": "cart", "move7": "truck", "move8": "sign", "wo1": "stamp", "wo2": "call", "wo3": "lock", "wo4": "lens", "wo5": "cubes3", "wo6": "clock", "wo7": "emptybox", "wo8": "stairs", "dates1": "rule", "dates2": "hourglass", "dates3": "calendarlock", "dates4": "rule", "order1": "docplus", "order2": "tag", "order3": "lock", "tech1": "key", "tech2": "docpen", "tech3": "tech", "tech4": "copy", "tech5": "tag", "recv1": "scales", "recv2": "check2", "inv1": "pie", "inv2": "caliper", "inv3": "stop", "inv4": "lock", "inv5": "scanner", "disc1": "mega", "disc2": "clock", "disc3": "envelope", "disc4": "bubbles", "disc5": "tiles3", "move9": "move", "move10": "truck", "order4": "cart", "order5": "invoice", "disc6": "hourglass", "disc7": "scales", "disc8": "check2"};
   EXTRA.forEach(function(c){ var k = ARTMAP[c.id.replace(/^r-/, '')]; if(k) c.art = k; });
   ALL = ALL.concat(EXTRA);
 
@@ -1496,7 +2117,18 @@ function renderGame(u){
   function save(){ try { localStorage.setItem(KEY, JSON.stringify({known:Array.from(knownIds)})); } catch(e) {} }
   function knownCount(){ return ALL.filter(function(c){ return knownIds.has(c.id); }).length; }
 
-  var queue = ALL.filter(function(c){ return !knownIds.has(c.id); });
+  var BATCH = 10; // партия обучения: маленькими порциями запоминается лучше, чем за один присест
+  function pool(){ return ALL.filter(function(c){ return !knownIds.has(c.id); }); }
+  var batches = Math.max(1, Math.ceil(pool().length / BATCH));
+  var batchNo = 0, batchSize = 0, queue = [];
+  function nextBatch(){
+    queue = pool().slice(0, BATCH);
+    queue.forEach(function(c,i){ c._n = i + 1; });
+    batchSize = queue.length;
+    batchNo += 1;
+    batches = batchNo + Math.ceil(Math.max(0, pool().length - batchSize) / BATCH);
+  }
+  nextBatch();
   var els = new Map();
   var deck = document.getElementById('gDeck');
   var done = document.getElementById('gDone');
@@ -1510,7 +2142,7 @@ function renderGame(u){
     el.className = 'g-card';
     el.dataset.id = card.id;
     el.innerHTML = '<div class="g-art" style="background:'+card.bg+'"><div class="g-art-in"><div class="g-obj" style="'+pose(card.art)+'"><img src="assets/cards/'+IMG[card.art]+'.webp" alt="" draggable="false"></div></div>'+
-      '<span class="g-chip g-tag">'+card.tag+'</span><span class="g-chip g-cnt">'+(ALL.indexOf(card)+1)+' / '+ALL.length+'</span></div>'+
+      '<span class="g-chip g-tag">'+card.tag+'</span><span class="g-chip g-cnt">'+(card._n || 1)+' / '+batchSize+'</span></div>'+
       '<div class="g-body"><div class="g-title">'+card.title+'</div><div class="g-key"><b>Главное</b><span>'+card.key+'</span></div><p class="g-more">'+card.more+'</p></div>'+
       '<div class="g-stamp g-know">ЗНАЮ</div><div class="g-stamp g-rep">ПОВТОРИТЬ</div><span class="g-tint"></span>';
     var im = el.querySelector('.g-obj img');
@@ -1545,12 +2177,35 @@ function renderGame(u){
   function stats(){
     var k = knownCount();
     document.getElementById('gPKnow').textContent = 'Знаю '+k+' из '+ALL.length;
-    document.getElementById('gPLeft').textContent = 'Осталось '+queue.length;
+    document.getElementById('gPLeft').textContent = 'Партия '+batchNo+' из '+batches+(queue.length ? ' · осталось '+queue.length : ' · пройдена');
     document.getElementById('gBar').style.width = (k/ALL.length*100)+'%';
     var isDone = queue.length === 0;
     done.hidden = !isDone;
     btnRep.disabled = btnKnow.disabled = isDone;
-    if (isDone) document.getElementById('gDoneText').textContent = 'Пройдено '+ALL.length+' из '+ALL.length+': правило дня и документы.';
+    if (isDone) renderDone();
+  }
+
+  function doneWord(n){ return n+' '+(n%10===1 && n%100!==11 ? 'карточка' : (n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20)) ? 'карточки' : 'карточек'); }
+  function more(){
+    nextBatch();
+    els.forEach(function(el){ el.remove(); }); els.clear(); layout();
+  }
+  function renderDone(){
+    var left = pool().length;
+    var head = '<div class="g-ok">'+ic('<polyline points="4 12 10 18 20 6"/>',34)+'</div>';
+    if (!left) {
+      done.innerHTML = head+'<h3>Все карточки — знаю!</h3><p>Пройдено '+ALL.length+' из '+ALL.length+'. Это те же правила, что спрашивают в игре «Банк» и на аттестации.</p><button class="g-again" id="gBtnAgain">Пройти снова</button>';
+      document.getElementById('gBtnAgain').addEventListener('click', function(){ knownIds.clear(); save(); batchNo = 0; more(); });
+      return;
+    }
+    done.innerHTML = head+'<h3>Партия пройдена</h3><p>Не изучено ещё '+doneWord(left)+'. Следующая партия — '+Math.min(BATCH, left)+'.</p>'+
+      '<button class="g-again" id="gBtnMore">Изучить новые карточки</button>'+
+      '<button class="g-again ghost" id="gBtnStop">Хватит на сегодня</button>';
+    document.getElementById('gBtnMore').addEventListener('click', more);
+    document.getElementById('gBtnStop').addEventListener('click', function(){
+      done.innerHTML = head+'<h3>На сегодня хватит</h3><p>Осталось '+doneWord(left)+'. По десять в день — и через неделю колода кончится.</p><button class="g-again ghost" id="gBtnMore2">Всё-таки продолжить</button>';
+      document.getElementById('gBtnMore2').addEventListener('click', more);
+    });
   }
 
   function stampOpacity(el, x){
@@ -1656,7 +2311,7 @@ function renderGame(u){
       {transform:'translate3d('+(dir*560)+'px,'+(y + Math.min(72, Math.abs(x)*0.16))+'px,0) rotate('+(dir*20)+'deg)', opacity:0.15}
     ], {duration: reduced.matches ? 1 : 430, easing:'cubic-bezier(.2,.72,.18,1)', fill:'forwards'});
     queue.shift();
-    if (dir > 0) { knownIds.add(card.id); save(); } else { queue.push(card); }
+    if (dir > 0) { knownIds.add(card.id); save(); } else { queue.push(card); } // «повторить» — в конец этой же партии
     els.delete(card.id);
     releasePreview(queue[0]);
     layout();
@@ -1676,11 +2331,6 @@ function renderGame(u){
 
   btnKnow.addEventListener('click', function(){ throwTop(1); });
   btnRep.addEventListener('click', function(){ throwTop(-1); });
-  document.getElementById('gBtnAgain').addEventListener('click', function(){
-    knownIds.clear(); save(); queue = ALL.slice();
-    els.forEach(function(el){ el.remove(); }); els.clear(); layout();
-  });
-
   layout(); ready = true;
 }
 
@@ -1689,13 +2339,9 @@ function renderAll(u){
   renderProfile(u);
   renderTasks(u);
   renderGrowth(u);
-  renderRules();
   renderErrors(u);
-  renderDocBlocks();
-  renderFlow();
-  renderMoveMap();
+  renderProcess(u);
   renderGame(u);
-  renderScenarios(u);
   atMountAll(u);
   sqMount('s-profile', u, {});
   sqMount('s-process', u, {ph:'Поиск по процессу и документам', skip:['Моя роль'], chips:['перемещение','приёмка','заказ покупателя','инвентаризация']});
@@ -1876,7 +2522,9 @@ function atGrowthHtml(g){
     {l:'Месяц в зелёной зоне', m:g.greenMonths+' × +5', v:g.greenMonths*5},
     {l:'Аттестация участка', m:g.sectionAttest+' × +10', v:g.sectionAttest*10},
     {l:'Аттестация по всей зоне', m:g.zoneAttest+' × +25', v:g.zoneAttest*25},
-    {l:'Игра «Банк»', m:'до +4 в месяц', v:g.game || 0}
+    {l:'Игра «Банк»', m:'до +4 в месяц', v:g.game || 0},
+    // Задачи, закрытые в срок: +1 за задачу, не больше 4 в месяц (решение 22.09.2026). Считает сервер по Трекеру.
+    {l:'Задачи в срок', m:'до +4 в месяц', v:(window.DISCIPLINE && window.DISCIPLINE.plus) || 0}
   ];
   const total = it.reduce((n,r)=>n + r.v, 0);
   const need = g.needStreak || 3, st = Math.min(g.cleanStreak, need), left = need - st;
@@ -1921,14 +2569,35 @@ function atBonusHtml(b){
     '<div class="ge-sub">Ступень по баллам за календарный месяц.'+(b.from ? ' Премия работает с '+b.from+', до этого это ориентир.' : '')+'</div>'+
     '<div class="gp-rows">'+ladder+'</div>'+prog;
 }
+// Карточки складываем в контейнер экрана, если он есть: порядок задаётся разметкой, а не счётом детей.
+function atPut(host, node, idx){
+  const box = document.getElementById('atCards');
+  if(box) box.appendChild(node); else atSlot(host, node, idx);
+}
+const atTile = (id, cap, val, sub, pill, tone) => '<button class="at-tile'+(tone ? ' '+tone : '')+'" id="'+id+'"><span class="c">'+cap+'</span>'+
+  '<span class="v">'+val+'</span><span class="s">'+sub+'</span>'+(pill ? '<span class="ov '+pill[0]+'">'+pill[1]+'</span>' : '')+'</button>';
+
 function atMountScore(host){
-  let idx = 2;
-  const e = window.ERR_SCORE, g = window.GROW_SCORE;
-  if(e){ const b = document.createElement('div'); b.className = 'at-score dk'; b.id = 'atScore'; b.innerHTML = atErrorsHtml(e); atSlot(host, b, idx++); }
-  if(window.BONUS){ const bb = document.createElement('div'); bb.className = 'at-score'; bb.id = 'atBonus'; bb.innerHTML = atBonusHtml(window.BONUS); atSlot(host, bb, idx++); }
-  if(g){ const h = atGrowthHtml(g);
-    const b1 = document.createElement('div'); b1.className = 'at-score dk'; b1.id = 'atGrowth'; b1.innerHTML = h.score; atSlot(host, b1, idx++); atGameCta(b1);
-    const b2 = document.createElement('div'); b2.className = 'at-score'; b2.id = 'atPath'; b2.innerHTML = h.path; atSlot(host, b2, idx++); }
+  const e = window.ERR_SCORE, g = window.GROW_SCORE, d = window.DISCIPLINE;
+  const tiles = document.getElementById('atTiles');
+  if(tiles){
+    const zone = e ? AT_ZONE(e.points) : null;
+    const growTotal = g ? (g.cleanWeeks*3 + g.greenMonths*5 + g.sectionAttest*10 + g.zoneAttest*25 + (g.game||0) + ((d && d.plus)||0)) : 0;
+    tiles.innerHTML =
+      (e ? atTile('tileErr','Ошибки', AT_MINUS(e.points), e.month, [zone.k, zone.t.split(' · ')[1] || zone.t], 'dk') : '')+
+      (g ? atTile('tileGrow','Рост', (growTotal > 0 ? '+'+growTotal : '0'), 'накопительно', null, 'lime') : '')+
+      (d ? atTile('tileTask','Задачи', '+'+d.plus+' из '+d.cap, d.overdue ? 'просрочено '+d.overdue : 'просрочек нет') : '');
+    const on = (id, fn) => { const b = document.getElementById(id); if(b) b.addEventListener('click', fn); };
+    on('tileErr', ()=>openSheet({cap:'Счёт месяца', title:'Ошибки', icon:IC.flag, sub:e.month, body:'<div class="at-score dk">'+atErrorsHtml(e)+'</div>'}));
+    on('tileGrow', ()=>{ const h = atGrowthHtml(g);
+      openSheet({cap:'Накопительный счёт', title:'Рост', icon:IC.chart, sub:'Плюсы не гасят минусы',
+        body:'<div class="at-score dk" id="sheetGrow">'+h.score+'</div><div class="at-score">'+h.path+'</div>',
+        after: ()=>{ const box = document.getElementById('sheetGrow'); if(box) atGameCta(box); }}); });
+    on('tileTask', ()=>openSheet({cap:'Третий счёт', title:'Задачи и сроки', icon:IC.cal, sub:'Премию не снижает, влияет только на рост',
+      body: discBlock(d)+(typeof TASK_STATUSES === 'string' ? TASK_STATUSES : '')}));
+  }
+  // Премия остаётся карточкой: ради неё экран и открывают.
+  if(window.BONUS){ const bb = document.createElement('div'); bb.className = 'at-score'; bb.id = 'atBonus'; bb.innerHTML = atBonusHtml(window.BONUS); atPut(host, bb, 2); }
 }
 
 // --- Аттестация: сотрудник (тест «вопрос — 4 варианта — один верный»)
@@ -1945,7 +2614,7 @@ function atWrongHtml(list){
 function atResultChips(blocks){ return '<div class="at-verd">'+blocks.map(b=>'<span class="ov '+(b.pass?'g':'r')+'">'+b.id+' · '+(b.pass?'Зачтён':'Не зачтён')+' · '+b.correct+'/'+b.total+'</span>').join('')+'</div>'; }
 async function atMountEmployee(host){
   const box = document.createElement('div'); box.className = 'at-card dk'; box.id = 'atBox'; box.hidden = true;
-  atSlot(host, box, 2 + (window.ERR_SCORE ? 1 : 0) + (window.BONUS ? 1 : 0) + (window.GROW_SCORE ? 2 : 0));
+  atPut(host, box, 3);
   let A; try{ A = await appApi('GET','/attestation'); }catch(e){ return; }
   atRenderEmployee(box, A); box.hidden = false;
 }
@@ -2105,6 +2774,8 @@ function applyRemote(d){
   window.ERR_SCORE = d.errScore || null;
   window.GROW_SCORE = d.growScore || null;
   window.BONUS = d.bonus || null;
+  window.DISCIPLINE = d.discipline || null;
+  if(d.ops) OPS = d.ops;
 }
 
 const STATES = {
@@ -2148,6 +2819,8 @@ async function boot(){
   if(!d || !d.me){ showState('err'); return; }
   applyRemote(d); currentUser = d.me;
   hideState(); renderAll(currentUser);
+  // Ссылка на сборку из сообщения важнее тура: человек пришёл собирать, а не смотреть новости.
+  if(!pkDeepLink()) maybeWhatsNew();
 }
 boot();
 
@@ -2157,6 +2830,8 @@ document.querySelectorAll('.botnav .ni').forEach(btn=>{
     document.querySelectorAll('.botnav .ni').forEach(x=>x.classList.remove('on'));
     document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
     btn.classList.add('on');
+    // Экран открывается всегда одинаково: выбранный режим и вкладка не запоминаются.
+    if(btn.dataset.s === 'process'){ PR_MODE = 'now'; PR_TAB = 'docs'; renderProcess(currentUser); }
     document.getElementById('s-'+btn.dataset.s).classList.add('active');
     refreshCarousels();
   });
