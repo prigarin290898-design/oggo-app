@@ -2933,5 +2933,207 @@ document.querySelectorAll('.botnav .ni').forEach(btn=>{
   });
 });
 </script>
+
+<!-- ===== ТЁМНЫЙ КАРКАС =====
+     Перенесено из макета `контекст/бренд/макет-тёмная` 23.09.2026 по команде директора.
+     Блок идёт последним: он переопределяет токены :root и поверхности, не трогая разметку.
+     `!important` только на цвет и заливку — `transform` и `opacity` ведёт жест, их трогать нельзя
+     (грабли 23.09: свайп «Тренажёра» двигает карточку инлайновым стилем).
+     `--paper` здесь чёрный, и `tgChrome()` читает его же — шапка и фон Telegram чернеют сами. -->
+<style>
+/* ===== ТЁМНЫЙ КАРКАС =====
+   Правило макета: !important только на цвет и заливку.
+   transform и opacity ведёт жест — трогать нельзя. */
+:root{
+  --paper:#000000; --ink:#ffffff; --ink-soft:#f2f0ec; --ink-dim:rgba(255,255,255,.62);
+  --line:rgba(255,255,255,.18);
+  --glass:rgba(255,255,255,.06); --glass-strong:rgba(255,255,255,.12);
+  --glass-border:rgba(255,255,255,.16);
+  --orange:#E85002; --orange-2:#ffab5e;
+}
+body{background:#000;color:#fff;}
+.oshape{display:none;}
+
+/* ===== Свет живёт в фоне, а не в карточках =====
+   Три источника на разной высоте, слои смешиваются в screen: чёрное из картинок
+   не перекрывает соседний слой, складывается только свет. Слой прибит к экрану,
+   поэтому карточки проплывают над светом при прокрутке — и подсвечиваются сквозь стекло. */
+.bgfield{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-color:#000;
+  background-image:
+    url("assets/bg/corner-bloom.webp"),
+    url("assets/bg/header-band.webp"),
+    url("assets/bg/corner-bloom.webp");
+  background-repeat:no-repeat,no-repeat,no-repeat;
+  background-position:right top, left center, right bottom;
+  background-size:cover,cover,cover;
+  background-blend-mode:screen,screen,normal;}
+  .bgfield::after{content:'';position:absolute;inset:0;background:
+    linear-gradient(180deg, rgba(0,0,0,.70) 0, rgba(0,0,0,.40) 300px, rgba(0,0,0,.40) 100%);}
+body.bg-start .bgfield{
+  background-image:url("assets/bg/bg-start.webp");
+  background-position:center 6%;background-size:cover;background-blend-mode:normal;}
+body.bg-start .bgfield::after{content:'';position:absolute;inset:0;background:rgba(0,0,0,.45);}
+
+/* ===== Стекло: только заливка и размытие, никаких картинок внутри ===== */
+.glass:not(.tblack),.cz-fact,.cz-route,.cz-card,.at-card,.at-score,.at-tile:not(.lime),
+.st-card,.taskcard,.rhead,.sq-field,.dblock,.op:not(.hot){
+  background:rgba(255,255,255,.06)!important;border:1px solid var(--glass-border)!important;color:#fff!important;
+  backdrop-filter:blur(26px) saturate(170%)!important;-webkit-backdrop-filter:blur(26px) saturate(170%)!important;}
+/* «Смысл, который нельзя пролистать» — плотнее стекла и с яркой кромкой сверху. */
+.cz-note,.glass.tblack,.at-score.dk,.at-card.dk,.at-tile.dk{
+  background:rgba(0,0,0,.5)!important;border:1px solid rgba(255,255,255,.14)!important;
+  border-top-color:rgba(255,255,255,.3)!important;color:#fff!important;
+  backdrop-filter:blur(30px) saturate(180%)!important;-webkit-backdrop-filter:blur(30px) saturate(180%)!important;}
+.cz-cap,.cz-txt,.at-tile:not(.lime) .c,.at-tile:not(.lime) .s,.honest,.muted,.sub,.eb,.empty{
+  color:rgba(255,255,255,.82)!important;}
+/* Подпись лежит прямо на фоне, а фон местами светлеет. Тень держит букву,
+   не превращая её в обводку: смещения нет, только мягкий ореол вниз. */
+.honest,.sub,.eb,.empty,.lime-heading + .honest{
+  text-shadow:0 1px 4px rgba(0,0,0,.85), 0 0 12px rgba(0,0,0,.5)!important;}
+
+/* ===== Списки правил — белые, явные =====
+   Правило директора 23.09: анимационные карточки, блоки и своды — стеклянные,
+   а строки списков белые. Стекло красиво, но правило читают, а не рассматривают. */
+.cz-item,.cz-row,.cz-step,.cz-task,.op.hot,.pk-doc,.sq-row,.at-row,.wk-d,.tk-card{
+  background:#F9F9F9!important;border:1px solid rgba(0,0,0,.08)!important;color:#211f1b!important;
+  backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+  box-shadow:0 10px 24px -16px rgba(0,0,0,.7)!important;}
+.cz-item *,.cz-row *,.cz-step *,.cz-task *,.op.hot *,.pk-doc *,.sq-row *,.at-row *,.wk-d *,.tk-card *{
+  color:#211f1b!important;}
+.cz-item .muted,.cz-row .muted,.cz-step .muted,.cz-task .muted,.op.hot .muted,.pk-doc .muted,
+.sq-row .sq-s,.at-row .muted,.tk-card .muted,.cz-item .sub,.op.hot .sub,.pk-doc .sub{
+  color:rgba(0,0,0,.55)!important;}
+/* Внутри белой строки чёрная плашка снова работает как акцент. */
+.cz-item .tag,.cz-task .tag,.tk-card .tag,.op.hot .tag,.pk-doc .tag{
+  background:#000!important;color:#fff!important;}
+
+/* Быстрая клавиша: самая частая операция человека. Лайм здесь — не украшение,
+   а роль «действие дальше», та же, что у кнопки. Стрелка — контурная, stroke 2. */
+.op.lime{background:var(--lime)!important;color:var(--lime-ink)!important;
+  border:1px solid transparent!important;background-image:none!important;
+  backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+  box-shadow:0 14px 30px -16px rgba(0,0,0,.6)!important;position:relative!important;}
+.op.lime *{color:var(--lime-ink)!important;}
+.op.lime::before{content:''!important;position:absolute!important;top:13px!important;right:12px!important;
+  width:22px!important;height:22px!important;background:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230e1400' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14M13 6l6 6-6 6'/%3E%3C/svg%3E\") center/contain no-repeat!important;}
+
+/* Подсказка про свайп: на «Тренажёре» она есть текстом, на «Задачах» её не было вовсе.
+   Тот же приём, та же формулировка по смыслу. */
+.tk-hint{margin:2px 0 10px;font-family:var(--font-body);font-size:11.5px;line-height:1.35;
+  color:rgba(255,255,255,.72);text-shadow:0 1px 4px rgba(0,0,0,.85);display:flex;align-items:center;gap:7px;}
+.tk-hint i{flex:0 0 auto;width:15px;height:15px;opacity:.8;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 6 3 12l6 6M15 6l6 6-6 6'/%3E%3C/svg%3E") center/contain no-repeat;}
+
+/* Заголовок просроченной секции на тёмном поле тонул: --danger рассчитан на бумагу. */
+.tk-lab{color:rgba(255,255,255,.7)!important;}
+.tk-lab.bad{color:#ff7a5e!important;}
+.tk-sum{background:rgba(0,0,0,.5)!important;border:1px solid rgba(255,255,255,.16)!important;
+  border-top-color:rgba(255,255,255,.3)!important;color:#fff!important;
+  backdrop-filter:blur(30px) saturate(180%)!important;-webkit-backdrop-filter:blur(30px) saturate(180%)!important;}
+.tk-sum *{color:#fff!important;}
+.tk-sum .s3{background:var(--lime)!important;color:var(--lime-ink)!important;}
+
+/* ===== Лайм — там же, где был. Единственный акцентный свет. ===== */
+.at-tile.lime,.lime-heading,.pill.lime,.ov.g{background:var(--lime)!important;color:var(--lime-ink)!important;}
+.at-tile.lime .c,.at-tile.lime .s,.lime-heading *{color:var(--lime-ink)!important;}
+.sq-row:active,.pr-tab.on{
+  background:rgba(255,255,255,.26)!important;color:#fff!important;border-color:rgba(255,255,255,.4)!important;}
+.pill:not(.lime):not(.ghost),.tag{background:rgba(255,255,255,.16)!important;color:#fff!important;}
+.botnav{background:rgba(0,0,0,.5)!important;border:1px solid rgba(255,255,255,.14)!important;
+  backdrop-filter:blur(30px) saturate(180%)!important;-webkit-backdrop-filter:blur(30px) saturate(180%)!important;}
+.logo{filter:invert(1) brightness(2);}
+
+/* Переключатель страниц: активная — чёрная, вторая — стекло.
+   Без этого переход между «Изучать» и «Игрой» не виден вообще. */
+.gm-sw button.on,.subtab.on{background:#000!important;color:#fff!important;
+  border:1px solid rgba(255,255,255,.22)!important;
+  backdrop-filter:none!important;-webkit-backdrop-filter:none!important;}
+.gm-sw button:not(.on),.subtab:not(.on){background:rgba(255,255,255,.08)!important;color:#fff!important;
+  border:1px solid var(--glass-border)!important;
+  backdrop-filter:blur(26px) saturate(170%)!important;-webkit-backdrop-filter:blur(26px) saturate(170%)!important;}
+
+/* Кружки и квадраты с иконкой: фон чёрный, знак белый.
+   Правило «весь текст внутри белой строки тёмный» красило и иконку — она пропадала. */
+.ic,.ic-sm,.cz-ic,.dblock-ic,.dm-ic,.st-ic,.mk,[class*="-ic"],[class*="ic-"]{
+  background:#000!important;color:#fff!important;border:0!important;}
+.ic *,.ic-sm *,.cz-ic *,.dblock-ic *,.dm-ic *,.st-ic *,.mk *,[class*="-ic"] *,[class*="ic-"] *{
+  color:#fff!important;stroke:#fff!important;fill:none!important;}
+/* Аватар на тёмном поле не может быть чёрным — круг пропадает вместе с человеком.
+   Даём ему плотность стекла и светлую кромку. */
+.avatar{background:rgba(255,255,255,.14)!important;color:#fff!important;
+  border:1px solid rgba(255,255,255,.26)!important;}
+
+/* Нумерованный список «Эталона п/з»: кружок с номером — та же логика, что у иконки.
+   Отмеченный шаг остаётся лаймовым, это его смысл, а не оформление. */
+.cz-step .num,.cz-step .num *{background:#000!important;color:#fff!important;}
+.cz-step .num.lime,.cz-step .num.lime *{background:var(--lime)!important;color:var(--lime-ink)!important;}
+
+/* Стеклянные объекты приходят с фоном #0d0d0f — прозрачному стеклу нужно что преломлять.
+   Плашку красим тем же цветом и режем по ней: шва не видно, фон растворяется. */
+.g-art{background:#0d0d0f!important;overflow:hidden!important;
+  border:1px solid rgba(255,255,255,.10)!important;}
+.g-obj{--y:0%!important;}
+.g-obj img{filter:none!important;}
+
+.g-art{overflow:visible!important;}
+.g-obj{--s:1.28!important;--y:-6%!important;}
+
+/* ===== «Тренажёр»: пробуем стекло вместо белой карточки ===== */
+.g-card.g-s0{background:rgba(255,255,255,.16)!important;border:1px solid rgba(255,255,255,.34)!important;
+  border-top-color:rgba(255,255,255,.55)!important;
+  backdrop-filter:blur(34px) saturate(180%)!important;-webkit-backdrop-filter:blur(34px) saturate(180%)!important;}
+.g-card.g-s0 .g-title{color:#211f1b!important;}
+.g-card.g-s0 .g-more{color:rgba(0,0,0,.62)!important;}
+/* Текст карточки живёт на белой подложке внутри стекла: стекло остаётся стеклом,
+   а правило читается чёрным по белому. Плашка «главное» — реверс внутри подложки. */
+.g-card.g-s0 .g-body{
+  left:12px!important;right:12px!important;bottom:12px!important;top:198px!important;
+  background:#F9F9F9!important;border-radius:22px!important;
+  padding:15px 16px 12px!important;overflow:hidden!important;
+  box-shadow:0 10px 26px -18px rgba(0,0,0,.8)!important;}
+.g-card.g-s0 .g-body *{color:#211f1b!important;}
+.g-card.g-s0 .g-key{background:#000!important;}
+.g-card.g-s0 .g-key,.g-card.g-s0 .g-key *{color:#fff!important;}
+/* Стикер категории — та же логика: белая подложка, чёрные буквы.
+   Счётчик «1/10» остаётся реверсом, иначе два одинаковых пятна в одном ряду. */
+.g-chip:not(.g-cnt),.g-chip:not(.g-cnt) *{background:#F9F9F9!important;color:#211f1b!important;
+  border:1px solid rgba(0,0,0,.10)!important;}
+.g-chip:not(.g-cnt) *{background:transparent!important;border:0!important;}
+.g-chip.g-cnt,.g-chip.g-cnt *{background:#000!important;color:#fff!important;border-color:#000!important;}
+.g-card.g-s0 .g-more{color:rgba(0,0,0,.62)!important;}
+.g-card.g-s1{background:#000 url("assets/bg/card-plate.webp") center/cover no-repeat!important;
+  border:1px solid rgba(255,255,255,.16)!important;
+  backdrop-filter:none!important;-webkit-backdrop-filter:none!important;}
+.g-stats,.g-pill{color:#fff!important;}
+
+/* ===== Лайм остаётся действием: текст на нём — --lime-ink, никогда не белый =====
+   Общие правила «всё внутри блока белое» перекрашивали и лаймовые плашки:
+   плашка «Главное» внутри чёрного блока и счётчик «Знаю N из 49» на тёмном
+   читались белым по лайму — контраст 1,14. Найдено обходом всех экранов
+   с подсчётом контраста, а не глазами: на макете этого никто не заметил. */
+.g-pill.g-know,.g-pill.g-know *,.g-key b,.g-card .g-key b,
+/* .g-card.g-s0 .g-key * — три класса, поэтому побеждало белым; повторяем вес селектора */
+.g-card.g-s0 .g-key b,.g-card.g-s0 .g-key b *{color:var(--lime-ink)!important;}
+/* Карточки за передней лежат на тёмной плашке card-plate — подпись на них тоже светлая.
+   Видно в момент свайпа, когда следующая карточка выходит из-под верхней. */
+.g-card:not(.g-s0) .g-more{color:rgba(255,255,255,.72)!important;}
+
+@media (prefers-reduced-transparency:reduce){
+  [class]{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;}
+  .bgfield{background-image:none!important;}}
+</style>
+<div class="bgfield" aria-hidden="true"></div>
+<script>
+/* Заставка профиля живёт на своей фоновой картинке. Класс переключается по смене экрана. */
+(function(){
+  function sync(){
+    var a=document.querySelector('.section.active');
+    document.body.classList.toggle('bg-start', !!a && a.id==='s-profile');
+  }
+  document.addEventListener('click', function(e){ if(e.target.closest('.botnav')) setTimeout(sync,0); }, true);
+  setTimeout(sync,120);
+})();
+</script>
 </body>
 </html>
