@@ -40,10 +40,21 @@
     background:var(--paper);color:var(--ink);font-family:var(--font-body);
     -webkit-font-smoothing:antialiased;min-height:100%;
   }
+  /* Клякса живёт в клипере во всю ширину окна, а сама фигура — в ::before.
+     Так надо, потому что фигура торчит за правый край на 68px: 38 даёт right:-38px и ещё 30 —
+     поворот на -18°, он расширяет рамку с 230 до 290. Пока клякса была position:fixed, она в
+     ширине документа не участвовала; когда стала absolute (починка текста под ней), эти 68px
+     растянули страницу — появилась боковая прокрутка и содержимое резалось по обоим краям.
+     overflow-x:hidden на html/body здесь нельзя: он ломает position:sticky, а на нём держится
+     кнопка «Приступить» в шторке операции (.pk-start, решение директора 22.09). */
   .oshape{
-    position:absolute;top:-54px;right:-38px;width:230px;height:230px;
+    position:absolute;top:0;left:0;right:0;height:210px;
+    overflow:hidden;z-index:0;pointer-events:none;
+  }
+  .oshape::before{
+    content:'';position:absolute;top:-54px;right:-38px;width:230px;height:230px;
     background:var(--orange);border-radius:30% 34% 38% 32%/30%;
-    transform:rotate(-18deg);z-index:0;pointer-events:none;
+    transform:rotate(-18deg);
   }
   .app{position:relative;z-index:1;padding:16px 16px 92px;padding-top:calc(16px + env(safe-area-inset-top,0px));max-width:520px;margin:0 auto;}
   .topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;}
