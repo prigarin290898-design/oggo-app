@@ -28,17 +28,20 @@
     --warn-bg:#fbeed9;
     --lime:#dbff3d;
     --lime-ink:#0e1400;
-    --font-display:'Bounded',system-ui,sans-serif;
+    --font-display:'Unbounded',system-ui,sans-serif;
     --font-body:'Montserrat',system-ui,sans-serif;
   }
   *{box-sizing:border-box;}
+  /* button/input не наследуют шрифт от body — без этой строки любая новая кнопка молча уезжает
+     на системный Arial. Та же ловушка, что с сокращением `font:` (решение 22.09). */
+  button,input,textarea,select{font-family:var(--font-body);}
   html,body{margin:0;padding:0;height:100%;}
   body{
     background:var(--paper);color:var(--ink);font-family:var(--font-body);
     -webkit-font-smoothing:antialiased;min-height:100%;
   }
   .oshape{
-    position:fixed;top:-54px;right:-38px;width:230px;height:230px;
+    position:absolute;top:-54px;right:-38px;width:230px;height:230px;
     background:var(--orange);border-radius:30% 34% 38% 32%/30%;
     transform:rotate(-18deg);z-index:0;pointer-events:none;
   }
@@ -57,7 +60,7 @@
   .glass{
     position:relative;background:var(--glass);backdrop-filter:blur(26px) saturate(170%);-webkit-backdrop-filter:blur(26px) saturate(170%);
     border:1px solid var(--glass-border);border-radius:22px;padding:16px;margin-bottom:12px;
-    box-shadow:0 10px 24px -18px rgba(0,0,0,.3);
+    box-shadow:0 14px 30px -16px rgba(0,0,0,.45);
   }
   .attn{background:var(--pill);color:var(--pill-ink);border-radius:18px;padding:16px;margin-bottom:12px;box-shadow:0 14px 30px -16px rgba(0,0,0,.45);}
   .attn .eb{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--orange-2);margin-bottom:4px;}
@@ -74,13 +77,13 @@
   .avatar{width:46px;height:46px;border-radius:50%;background:var(--pill);color:var(--pill-ink);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:16px;font-weight:700;flex:0 0 auto;}
   .avatar.lime{background:var(--lime);color:var(--lime-ink);}
   .tag{font-size:10.5px;font-weight:700;color:var(--ink);background:var(--glass-strong);border:1px solid var(--glass-border);padding:4px 9px;border-radius:99px;display:inline-block;}
-  .pill{position:relative;z-index:2;display:inline-flex;align-items:center;gap:6px;background:var(--pill);color:var(--pill-ink);font-weight:600;font-size:12.5px;padding:10px 16px;border-radius:99px;}
+  .pill{position:relative;z-index:2;display:inline-flex;align-items:center;gap:6px;background:var(--pill);color:var(--pill-ink);font-weight:600;font-size:12.5px;padding:10px 16px;border:0;border-radius:99px;font-family:var(--font-body);}
   .pill.ghost{background:var(--glass);border:1px solid var(--glass-border);color:var(--ink);backdrop-filter:blur(18px);}
   .pill.lime{background:var(--lime);color:var(--lime-ink);}
   .tag.rev{background:var(--warn-bg);color:var(--warn);border-color:rgba(168,102,15,.35);white-space:nowrap;}
   h2{font-family:var(--font-display);font-size:15px;margin:0 0 10px;}
   .empty{padding:30px 16px;text-align:center;color:var(--ink-dim);font-size:13px;}
-  .honest{font-size:11.5px;color:var(--ink-dim);line-height:1.4;margin-top:2px;}
+  .honest{font-size:11.5px;color:var(--ink-soft);line-height:1.4;margin-top:2px;}
 
   /* Моя роль subtabs */
   .subtabs{display:flex;gap:6px;margin-bottom:10px;}
@@ -419,7 +422,7 @@
   .bars .b.hi{background:var(--lime);border-color:var(--lime);}
 
   /* bottom nav */
-  .botnav{position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:9;display:flex;gap:6px;background:var(--orange);border-radius:99px;padding:6px;box-shadow:0 16px 30px -14px rgba(0,0,0,.45);}
+  .botnav{position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:9;display:flex;gap:6px;background:var(--pill);border-radius:99px;padding:6px;box-shadow:0 16px 30px -14px rgba(0,0,0,.45);}
   .botnav .ni{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:transparent;color:#fff;cursor:pointer;}
   .botnav .ni.on{background:var(--lime);color:var(--lime-ink);}
   .botnav .ni svg{display:block;}
@@ -694,7 +697,7 @@
   .tk-undo span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .tk-undo button{flex:0 0 auto;background:var(--lime);color:var(--lime-ink);border:0;border-radius:99px;padding:7px 12px;font-family:var(--font-body);font-weight:800;font-size:11.5px;line-height:1;cursor:pointer;}
   </style>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bounded:wght@400;500;700;800&family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;700;800&family=Montserrat:wght@400;500;600;700&display=swap">
 </head>
 <body>
 <div class="oshape"></div>
