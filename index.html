@@ -2362,6 +2362,18 @@ function renderGame(u){
     locked = true;
     var card = queue[0], el = els.get(card.id);
     el.classList.remove('g-dragging'); el.classList.add('g-leaving'); el.tabIndex = -1;
+    /* Улетающая карточка вынимается из потока и прибивается к экрану на её же месте.
+       Иначе бросок на 560 px вбок и 72 px вниз растягивает прокручиваемую область документа
+       (замеряно: 1140 → 2143 px), и страница на телефоне прыгает в самый верх — человеку
+       приходится каждый раз скроллить обратно к колоде. Координаты берутся до смены position,
+       поэтому карточка не дёргается в момент подмены. */
+    var rct = el.getBoundingClientRect();
+    el.style.position = 'fixed';
+    el.style.margin = '0';
+    el.style.top = rct.top + 'px';
+    el.style.left = rct.left + 'px';
+    el.style.width = rct.width + 'px';
+    el.style.height = rct.height + 'px';
     var st = el.querySelector(dir > 0 ? '.g-stamp.g-know' : '.g-stamp.g-rep'); if (st) st.style.opacity = '1';
     var rot = clamp(x*0.035, -12, 12);
     var a = el.animate([
