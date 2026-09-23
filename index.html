@@ -270,7 +270,7 @@ window.ASSET_V = '20260923b';
   .g-card{position:absolute;left:0;top:0;width:100%;height:var(--gch,448px);border-radius:32px;overflow:visible;
     background:var(--glass);backdrop-filter:blur(26px) saturate(170%);-webkit-backdrop-filter:blur(26px) saturate(170%);
     border:1px solid var(--glass-border);box-shadow:0 14px 34px -18px rgba(0,0,0,.35);
-    transform-origin:50% 50%;transition:transform 430ms cubic-bezier(.22,.78,.2,1),opacity 320ms ease;
+    transform-origin:50% 50%;transition:transform 560ms cubic-bezier(.16,.84,.26,1),opacity 420ms ease;
     user-select:none;-webkit-user-select:none;-webkit-user-drag:none;touch-action:pan-y;outline:none;}
   .g-card:focus-visible{outline:3px solid var(--lime);outline-offset:2px;}
   .g-card.g-s0{z-index:4;transform:translate3d(0,0,0) rotate(0) scale(1,1);cursor:grab;box-shadow:0 22px 48px -20px rgba(0,0,0,calc(.32 + var(--sh,0)));}
@@ -280,7 +280,9 @@ window.ASSET_V = '20260923b';
   .g-card.g-dragging{transition:none;cursor:grabbing;will-change:transform;}
   .g-card.g-preview{transition:none;will-change:transform;}
   .g-card.g-preview .g-tint{transition:none;}
-  .g-card.g-entering{opacity:0;}
+  /* Новая карточка приходит снизу стопки, а не возникает на месте: без сдвига глаз
+     читает появление как рывок и переспрашивает, та же это карточка или уже другая. */
+  .g-card.g-entering{opacity:0;transform:translate3d(-11px,74px,0) rotate(9deg) scale(.78,.77);}
   .g-card.g-leaving{z-index:30;pointer-events:none;}
   .g-tint{position:absolute;inset:0;z-index:20;border-radius:inherit;pointer-events:none;transition:opacity 360ms cubic-bezier(.22,.78,.2,1),background-color 430ms;}
   .g-s0 .g-tint{background:rgba(255,255,255,.6);opacity:0;}
@@ -2224,9 +2226,12 @@ function renderGame(u){
     var w = sample.getBoundingClientRect().width;
     if (w < 100) { deckMeasured = false; return; }
     deckMeasured = true;
+    /* Пробник живёт ВНУТРИ карточки, а не в body: половина правил подложки записана как
+       `.g-card .g-body`, и снаружи он получал чужие отступы и мерил текст короче реального.
+       Из-за этого колода считалась ниже, чем нужно, и нижняя строка всё равно пряталась. */
     var probe = sample.cloneNode(false);
-    probe.style.cssText += ';position:absolute;visibility:hidden;left:-9999px;top:auto;bottom:auto;height:auto;overflow:visible;width:' + w + 'px';
-    document.body.appendChild(probe);
+    probe.style.cssText += ';position:absolute;visibility:hidden;pointer-events:none;left:0;right:auto;top:0;bottom:auto;height:auto;max-height:none;overflow:visible;width:' + w + 'px';
+    sample.parentNode.appendChild(probe);
     var top = parseFloat(getComputedStyle(sample).top) || 198;
     var need = DECK_MIN;
     ALL.forEach(function(c){
@@ -2234,14 +2239,23 @@ function renderGame(u){
       need = Math.max(need, Math.ceil(top + probe.getBoundingClientRect().height + 12));
     });
     probe.remove();
-    deck.style.setProperty('--gch', Math.min(DECK_MAX, need) + 'px');
+    var cur = parseFloat(deck.style.getPropertyValue('--gch')) || 0;
+    deck.style.setProperty('--gch', Math.min(DECK_MAX, Math.max(cur, need)) + 'px');
   }
 
   /* Страховка на случай, когда высоты всё же не хватило: текст можно прокрутить внутри
      подложки. `touch-action:pan-y` оставляет горизонтальный свайп карточке. */
   function fitBody(el){
     var b = el.querySelector('.g-body'); if (!b) return;
-    el.classList.toggle('g-fitscroll', b.scrollHeight > b.clientHeight + 1);
+    var over = b.scrollHeight - b.clientHeight;
+    if (over > 1) {
+      /* Общий замер мог недосчитать: другой шрифт у человека, узкий экран, длинное слово.
+         Колода растёт под эту карточку и больше не уменьшается — иначе стопка скачет. */
+      var cur = parseFloat(getComputedStyle(deck).getPropertyValue('--gch')) || DECK_MIN;
+      var next = Math.min(DECK_MAX, Math.ceil(cur + over));
+      if (next > cur) { deck.style.setProperty('--gch', next + 'px'); over = b.scrollHeight - b.clientHeight; }
+    }
+    el.classList.toggle('g-fitscroll', over > 1);
   }
 
   function layout(){
@@ -2419,16 +2433,16 @@ function renderGame(u){
     var rot = clamp(x*0.035, -12, 12);
     var a = el.animate([
       {transform:'translate3d('+x+'px,'+y+'px,0) rotate('+rot+'deg)', opacity:1},
-      {transform:'translate3d('+(dir*560)+'px,'+(y + Math.min(72, Math.abs(x)*0.16))+'px,0) rotate('+(dir*20)+'deg)', opacity:0.15}
-    ], {duration: reduced.matches ? 1 : 430, easing:'cubic-bezier(.2,.72,.18,1)', fill:'forwards'});
+      {transform:'translate3d('+(dir*560)+'px,'+(y + Math.min(72, Math.abs(x)*0.16))+'px,0) rotate('+(dir*20)+'deg)', opacity:0}
+    ], {duration: reduced.matches ? 1 : 500, easing:'cubic-bezier(.2,.72,.18,1)', fill:'forwards'});
     queue.shift();
     if (dir > 0) { knownIds.add(card.id); save(); } else { queue.push(card); } // «повторить» — в конец этой же партии
     els.delete(card.id);
     releasePreview(queue[0]);
     layout();
     live.textContent = (dir > 0 ? 'Знаю: ' : 'Повторить: ') + card.title;
-    var dur = reduced.matches ? 1 : 430, ended = false;
-    var fin = function(){ if (ended) return; ended = true; clearTimeout(tm); el.remove(); setTimeout(function(){ locked = false; }, reduced.matches ? 1 : 160); };
+    var dur = reduced.matches ? 1 : 500, ended = false;
+    var fin = function(){ if (ended) return; ended = true; clearTimeout(tm); el.remove(); setTimeout(function(){ locked = false; }, reduced.matches ? 1 : 120); };
     var tm = setTimeout(fin, dur + 250);
     a.finished.then(fin, fin);
   }
@@ -2443,6 +2457,12 @@ function renderGame(u){
   btnKnow.addEventListener('click', function(){ throwTop(1); });
   btnRep.addEventListener('click', function(){ throwTop(-1); });
   layout(); measureDeckHeight(); ready = true;
+  /* Экран «Тренажёр» до первого показа скрыт, ширина колоды равна нулю, и замер пропускается.
+     Раньше повторить его было не по чему: layout() при показе экрана не вызывается.
+     Наблюдатель за размером ловит именно момент, когда колода получает ширину. */
+  if (window.ResizeObserver) new ResizeObserver(function(){
+    if (deck.getBoundingClientRect().width > 100) measureDeckHeight();
+  }).observe(deck);
   /* Шрифты Unbounded и Montserrat приезжают с Google Fonts уже после первой раскладки:
      до них строка короче, и замер решает, что всё влезает. */
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(function(){
