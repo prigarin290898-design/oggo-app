@@ -266,8 +266,8 @@ window.ASSET_V = '20260923b';
   .g-bar i{display:block;height:100%;width:0;background:var(--lime);border-radius:99px;transition:width .4s cubic-bezier(.22,.78,.2,1);}
 
 
-  .g-deck{position:relative;height:512px;margin:56px 6px 0;}
-  .g-card{position:absolute;left:0;top:0;width:100%;height:448px;border-radius:32px;overflow:visible;
+  .g-deck{position:relative;height:calc(var(--gch,448px) + 64px);margin:56px 6px 0;}
+  .g-card{position:absolute;left:0;top:0;width:100%;height:var(--gch,448px);border-radius:32px;overflow:visible;
     background:var(--glass);backdrop-filter:blur(26px) saturate(170%);-webkit-backdrop-filter:blur(26px) saturate(170%);
     border:1px solid var(--glass-border);box-shadow:0 14px 34px -18px rgba(0,0,0,.35);
     transform-origin:50% 50%;transition:transform 430ms cubic-bezier(.22,.78,.2,1),opacity 320ms ease;
@@ -2210,18 +2210,38 @@ function renderGame(u){
     return el;
   }
 
-  /* Длинное правило не влезает в подложку — отдаём ему место картинки, двумя ступенями,
-     и только если и этого мало, разрешаем прокрутку. Порядок именно такой: ужать картинку
-     дешевле для человека, чем заставить его листать текст внутри карточки. */
+  /* Высота карточки считается один раз по самому длинному правилу колоды и ставится всем
+     сразу. Ужимать окно объекта под каждое длинное правило нельзя: мелкий предмет перестаёт
+     читаться, а карточки скачут по высоте при листании. Место на экране есть — берём его.
+     Замер идёт в невидимой копии подложки той же ширины и с теми же стилями. */
+  var DECK_MIN = 448, DECK_MAX = 620, deckMeasured = false;
+  function measureDeckHeight(){
+    var sample = deck.querySelector('.g-card .g-body');
+    if (!sample) return;
+    /* Экран «Тренажёр» до первого показа скрыт, и ширина подложки равна нулю:
+       текст в нуле ширины меряется бесконечно высоким, и колода уезжала в потолок.
+       Меряем только когда экран реально виден. */
+    var w = sample.getBoundingClientRect().width;
+    if (w < 100) { deckMeasured = false; return; }
+    deckMeasured = true;
+    var probe = sample.cloneNode(false);
+    probe.style.cssText += ';position:absolute;visibility:hidden;left:-9999px;top:auto;bottom:auto;height:auto;overflow:visible;width:' + w + 'px';
+    document.body.appendChild(probe);
+    var top = parseFloat(getComputedStyle(sample).top) || 198;
+    var need = DECK_MIN;
+    ALL.forEach(function(c){
+      probe.innerHTML = '<div class="g-title">'+c.title+'</div><div class="g-key"><b>Главное</b><span>'+c.key+'</span></div><p class="g-more">'+c.more+'</p>';
+      need = Math.max(need, Math.ceil(top + probe.getBoundingClientRect().height + 12));
+    });
+    probe.remove();
+    deck.style.setProperty('--gch', Math.min(DECK_MAX, need) + 'px');
+  }
+
+  /* Страховка на случай, когда высоты всё же не хватило: текст можно прокрутить внутри
+     подложки. `touch-action:pan-y` оставляет горизонтальный свайп карточке. */
   function fitBody(el){
     var b = el.querySelector('.g-body'); if (!b) return;
-    el.classList.remove('g-fit1','g-fit2','g-fitscroll');
-    if (b.scrollHeight <= b.clientHeight + 1) return;
-    el.classList.add('g-fit1');
-    if (b.scrollHeight <= b.clientHeight + 1) return;
-    el.classList.remove('g-fit1'); el.classList.add('g-fit2');
-    if (b.scrollHeight <= b.clientHeight + 1) return;
-    el.classList.add('g-fitscroll');
+    el.classList.toggle('g-fitscroll', b.scrollHeight > b.clientHeight + 1);
   }
 
   function layout(){
@@ -2247,7 +2267,10 @@ function renderGame(u){
     stats();
     /* Второй замер кадром позже: в момент раскладки шрифт ещё может не встать,
        и текст меряется короче, чем окажется на экране. Дёшево и снимает мигание. */
-    requestAnimationFrame(function(){ var top = deck.querySelector('.g-card.g-s0'); if (top) fitBody(top); });
+    requestAnimationFrame(function(){
+      if (!deckMeasured) measureDeckHeight();
+      var top = deck.querySelector('.g-card.g-s0'); if (top) fitBody(top);
+    });
   }
 
   function stats(){
@@ -2419,13 +2442,17 @@ function renderGame(u){
 
   btnKnow.addEventListener('click', function(){ throwTop(1); });
   btnRep.addEventListener('click', function(){ throwTop(-1); });
-  layout(); ready = true;
+  layout(); measureDeckHeight(); ready = true;
   /* Шрифты Unbounded и Montserrat приезжают с Google Fonts уже после первой раскладки:
-     до них строка короче, и подгонка успевает решить, что всё влезает. */
+     до них строка короче, и замер решает, что всё влезает. */
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(function(){
+    measureDeckHeight();
     var top = deck.querySelector('.g-card.g-s0'); if (top) fitBody(top);
   });
-  window.addEventListener('resize', function(){ var top = deck.querySelector('.g-card.g-s0'); if (top) fitBody(top); });
+  window.addEventListener('resize', function(){
+    measureDeckHeight();
+    var top = deck.querySelector('.g-card.g-s0'); if (top) fitBody(top);
+  });
 }
 
 function renderAll(u){
@@ -3119,25 +3146,27 @@ body.bg-start .bgfield::after{content:'';position:absolute;inset:0;background:rg
 .g-card.g-s0{background:rgba(255,255,255,.16)!important;border:1px solid rgba(255,255,255,.34)!important;
   border-top-color:rgba(255,255,255,.55)!important;
   backdrop-filter:blur(34px) saturate(180%)!important;-webkit-backdrop-filter:blur(34px) saturate(180%)!important;}
-.g-card.g-s0 .g-title{color:#211f1b!important;}
-.g-card.g-s0 .g-more{color:rgba(0,0,0,.62)!important;}
+.g-card .g-title{color:#211f1b!important;}
+.g-card .g-more{color:rgba(0,0,0,.62)!important;}
 /* Текст карточки живёт на белой подложке внутри стекла: стекло остаётся стеклом,
-   а правило читается чёрным по белому. Плашка «главное» — реверс внутри подложки. */
-.g-card.g-s0 .g-body{
+   а правило читается чёрным по белому. Плашка «главное» — реверс внутри подложки.
+   Подложка у всех карточек стопки, а не только у передней: когда она была только
+   у передней, при каждой смене карточки белое пятно возникало рывком. */
+.g-card .g-body{
   left:12px!important;right:12px!important;bottom:12px!important;top:198px!important;
   background:#F9F9F9!important;border-radius:22px!important;
   padding:15px 16px 12px!important;overflow:hidden!important;
   box-shadow:0 10px 26px -18px rgba(0,0,0,.8)!important;}
-.g-card.g-s0 .g-body *{color:#211f1b!important;}
-.g-card.g-s0 .g-key{background:#000!important;}
-.g-card.g-s0 .g-key,.g-card.g-s0 .g-key *{color:#fff!important;}
+.g-card .g-body *{color:#211f1b!important;}
+.g-card .g-key{background:#000!important;}
+.g-card .g-key,.g-card .g-key *{color:#fff!important;}
 /* Стикер категории — та же логика: белая подложка, чёрные буквы.
    Счётчик «1/10» остаётся реверсом, иначе два одинаковых пятна в одном ряду. */
 .g-chip:not(.g-cnt),.g-chip:not(.g-cnt) *{background:#F9F9F9!important;color:#211f1b!important;
   border:1px solid rgba(0,0,0,.10)!important;}
 .g-chip:not(.g-cnt) *{background:transparent!important;border:0!important;}
 .g-chip.g-cnt,.g-chip.g-cnt *{background:#000!important;color:#fff!important;border-color:#000!important;}
-.g-card.g-s0 .g-more{color:rgba(0,0,0,.62)!important;}
+.g-card .g-more{color:rgba(0,0,0,.62)!important;}
 .g-card.g-s1{background:#000 url("assets/bg/card-plate.webp") center/cover no-repeat!important;
   border:1px solid rgba(255,255,255,.16)!important;
   backdrop-filter:none!important;-webkit-backdrop-filter:none!important;}
@@ -3153,15 +3182,11 @@ body.bg-start .bgfield::after{content:'';position:absolute;inset:0;background:rg
 
 /* ===== Длинное правило важнее картинки =====
    Подложка с текстом — окно фиксированной высоты с обрезкой, и у длинных правил нижняя
-   строка («Источник: …») просто исчезала. Картинка декоративна, правило читают — поэтому
-   место отдаётся тексту: окно объекта ужимается на две ступени. Если и этого мало,
-   подложка начинает прокручиваться вертикально; `touch-action:pan-y` оставляет
-   горизонтальный свайп карточке, а вертикальный отдаёт прокрутке. */
-.g-card.g-s0.g-fit1 .g-art{height:140px!important;}
-.g-card.g-s0.g-fit1 .g-body{top:160px!important;}
-.g-card.g-s0.g-fit2 .g-art{height:104px!important;}
-.g-card.g-s0.g-fit2 .g-body{top:124px!important;}
-.g-card.g-s0.g-fitscroll .g-body{overflow:auto!important;touch-action:pan-y;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;}
+   строка («Источник: …») просто исчезала. Высота карточки теперь считается по самому
+   длинному правилу колоды и ставится всем сразу — см. `measureDeckHeight()`. Ужимать окно
+   объекта нельзя: мелкий предмет перестаёт читаться. Прокрутка подложки осталась
+   страховкой; `touch-action:pan-y` оставляет горизонтальный свайп карточке. */
+.g-card.g-fitscroll .g-body{overflow:auto!important;touch-action:pan-y;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;}
 
 /* ===== Лайм остаётся действием: текст на нём — --lime-ink, никогда не белый =====
    Общие правила «всё внутри блока белое» перекрашивали и лаймовые плашки:
@@ -3171,9 +3196,7 @@ body.bg-start .bgfield::after{content:'';position:absolute;inset:0;background:rg
 .g-pill.g-know,.g-pill.g-know *,.g-key b,.g-card .g-key b,
 /* .g-card.g-s0 .g-key * — три класса, поэтому побеждало белым; повторяем вес селектора */
 .g-card.g-s0 .g-key b,.g-card.g-s0 .g-key b *{color:var(--lime-ink)!important;}
-/* Карточки за передней лежат на тёмной плашке card-plate — подпись на них тоже светлая.
-   Видно в момент свайпа, когда следующая карточка выходит из-под верхней. */
-.g-card:not(.g-s0) .g-more{color:rgba(255,255,255,.72)!important;}
+
 
 @media (prefers-reduced-transparency:reduce){
   [class]{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;}
