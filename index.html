@@ -2449,6 +2449,13 @@ function renderGame(u){
     el.style.left = rct.left + 'px';
     el.style.width = rct.width + 'px';
     el.style.height = rct.height + 'px';
+    el.style.zIndex = '60';
+    /* И переносим прямо в body. `position:fixed` отсчитывается от экрана только пока ни у
+       одного предка нет `transform`, `perspective`, `filter` или `backdrop-filter` — любое
+       из них делает предка точкой отсчёта, и карточка остаётся в потоке. В колоде такие
+       свойства появляются от оформления, и каждый раз это молча возвращает прыжок страницы
+       вверх при свайпе. В body предков нет вовсе — ломаться нечему. */
+    document.body.appendChild(el);
     var st = el.querySelector(dir > 0 ? '.g-stamp.g-know' : '.g-stamp.g-rep'); if (st) st.style.opacity = '1';
     var rot = clamp(x*0.035, -12, 12);
     var a = el.animate([
