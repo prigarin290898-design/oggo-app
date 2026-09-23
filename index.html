@@ -2157,7 +2157,11 @@ function renderGame(u){
   ALL = ALL.concat(EXTRA);
 
   var IMG = {rule:'01-calendar', tech:'02-flask', wo:'03-clipboard', goods:'04-box', order:'05-order', invoice:'06-invoice', receipt:'07-receipt-box', move:'08-pallet', inv:'09-shelf', phone:'10-phone-photo', laptop:'11-laptop-table', depot:'12-depot-pin', calc:'13-calculator', cart:'14-cart-check', truck:'15-truck', sign:'16-doc-signature', stamp:'17-stamp-check', call:'18-call-bubble', lock:'19-padlock', lens:'20-lens-layers', cubes3:'21-cubes-three', clock:'22-alarm-clock', emptybox:'23-box-empty', stairs:'24-stairs-four', hourglass:'25-hourglass', calendarlock:'26-calendar-lock', docplus:'27-docs-plus', tag:'28-price-tag', key:'29-key', docpen:'30-doc-pencil', copy:'31-docs-copy', scales:'32-scales', check2:'33-checks-double', pie:'34-pie-chart', caliper:'35-caliper', stop:'36-stop-sign', scanner:'37-scanner', mega:'38-megaphone', envelope:'39-envelope', bubbles:'40-bubbles-two', tiles3:'41-tiles-three'};
-  var POSE = {rule:{s:1.46,t:-9,x:10,y:-8}, tech:{s:1.46,t:10,x:-9,y:-9}, wo:{s:1.44,t:-11,x:10,y:-8}, goods:{s:1.42,t:8,x:-10,y:-6}, order:{s:1.44,t:-8,x:9,y:-8}, invoice:{s:1.44,t:9,x:-9,y:-8}, receipt:{s:1.52,t:-7,x:6,y:-10}, move:{s:1.46,t:7,x:-6,y:-4}, inv:{s:1.48,t:-8,x:8,y:-6}};
+  /* Колода 23.09.2026: все 41 объекта отрисованы с одной камерой и в одном кадре, поэтому подгонки
+     под отдельные слоты больше нет — вся колода идёт общей позой из pose(). Прежние девять записей
+     компенсировали разнобой старой колоды поворотом до 11° и своим масштабом; на новой колоде поворот
+     вернул бы боковой завал, а масштаб 1.42–1.52 срезал бы предмет сверху и снизу. */
+  var POSE = {};
   function pose(k){ var p = POSE[k] || {s:1.3,t:0,x:0,y:-8}; return '--s:'+p.s+';--t:'+p.t+'deg;--x:'+p.x+'%;--y:'+p.y+'%'; }
   var KEY = 'oggo-deck-v1:' + ((u && u.key) || 'guest');
   var knownIds = new Set();
