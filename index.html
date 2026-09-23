@@ -266,7 +266,7 @@ window.ASSET_V = '20260923b';
   .g-bar i{display:block;height:100%;width:0;background:var(--lime);border-radius:99px;transition:width .4s cubic-bezier(.22,.78,.2,1);}
 
 
-  .g-deck{position:relative;height:calc(var(--gch,448px) + 196px);margin:56px 6px 0;perspective:1100px;perspective-origin:50% 0;}
+  .g-deck{position:relative;height:calc(var(--gch,448px) + 168px);margin:56px 6px 0;perspective:1100px;perspective-origin:50% 0;}
   .g-card{position:absolute;left:0;top:0;width:100%;height:var(--gch,448px);border-radius:32px;overflow:visible;
     background:var(--glass);backdrop-filter:blur(26px) saturate(170%);-webkit-backdrop-filter:blur(26px) saturate(170%);
     border:1px solid var(--glass-border);box-shadow:0 14px 34px -18px rgba(0,0,0,.35);
@@ -281,14 +281,15 @@ window.ASSET_V = '20260923b';
      на глазах, а не подменяется резкой копией. Это и даёт эффект фокуса.
      Разрыв набран между первой и второй карточкой, а не внизу стопки: отодвигать
      нижние бессмысленно, расстояние до второй от этого не меняется, а именно она
-     выходит вперёд.
+     выходит вперёд. Нижние карточки, наоборот, собраны в плотную пачку, как было
+     изначально: разрывы 18 и 18 px против 36 и 32.
      Колода за первой лежит наклонённой (`rotateX`) и встаёт, выходя вперёд. Сдвиг и
      размытие глаз всё равно читал как «та же карточка вернулась на место»; вставание
      из наклона он читает как приход другого предмета. Сцене нужна `perspective`,
      иначе наклон выглядит сжатием по высоте. */
   .g-card.g-s1{z-index:3;transform:translate3d(-12px,104px,0) rotate(3.2deg) scale(.84,.83) rotateX(30deg);filter:blur(6px);}
-  .g-card.g-s2{z-index:2;transform:translate3d(-11px,140px,0) rotate(-7deg) scale(.77,.76) rotateX(42deg);filter:blur(9px);}
-  .g-card.g-s3{z-index:1;transform:translate3d(-15px,172px,0) rotate(10.5deg) scale(.71,.70) rotateX(52deg);filter:blur(12px);}
+  .g-card.g-s2{z-index:2;transform:translate3d(-10px,122px,0) rotate(-5deg) scale(.80,.79) rotateX(40deg);filter:blur(9px);}
+  .g-card.g-s3{z-index:1;transform:translate3d(-13px,140px,0) rotate(8deg) scale(.76,.75) rotateX(48deg);filter:blur(12px);}
   /* Пауза перед движением стопки. Без неё задняя карточка едет одновременно с броском,
      и к моменту, когда верхняя ушла, новая уже стоит на месте — смены не видно.
      Задержка только на подтягивание; сам бросок начинается сразу по пальцу. */
@@ -298,7 +299,7 @@ window.ASSET_V = '20260923b';
   .g-card.g-preview .g-tint{transition:none;}
   /* Новая карточка приходит снизу стопки, а не возникает на месте: без сдвига глаз
      читает появление как рывок и переспрашивает, та же это карточка или уже другая. */
-  .g-card.g-entering{opacity:0;transform:translate3d(-16px,206px,0) rotate(12.5deg) scale(.66,.65) rotateX(62deg);filter:blur(14px);}
+  .g-card.g-entering{opacity:0;transform:translate3d(-14px,164px,0) rotate(10deg) scale(.72,.71) rotateX(58deg);filter:blur(14px);}
   .g-card.g-leaving{z-index:30;pointer-events:none;filter:blur(0);}
   .g-tint{position:absolute;inset:0;z-index:20;border-radius:inherit;pointer-events:none;transition:opacity 360ms cubic-bezier(.22,.78,.2,1),background-color 430ms;}
   .g-s0 .g-tint{background:rgba(255,255,255,.6);opacity:0;}
