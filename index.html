@@ -266,23 +266,27 @@ window.ASSET_V = '20260923b';
   .g-bar i{display:block;height:100%;width:0;background:var(--lime);border-radius:99px;transition:width .4s cubic-bezier(.22,.78,.2,1);}
 
 
-  .g-deck{position:relative;height:calc(var(--gch,448px) + 64px);margin:56px 6px 0;}
+  .g-deck{position:relative;height:calc(var(--gch,448px) + 128px);margin:56px 6px 0;}
   .g-card{position:absolute;left:0;top:0;width:100%;height:var(--gch,448px);border-radius:32px;overflow:visible;
     background:var(--glass);backdrop-filter:blur(26px) saturate(170%);-webkit-backdrop-filter:blur(26px) saturate(170%);
     border:1px solid var(--glass-border);box-shadow:0 14px 34px -18px rgba(0,0,0,.35);
-    transform-origin:50% 50%;transition:transform 560ms cubic-bezier(.16,.84,.26,1),opacity 420ms ease;
+    transform-origin:50% 50%;transition:transform 760ms cubic-bezier(.16,.86,.24,1),opacity 620ms ease;
     user-select:none;-webkit-user-select:none;-webkit-user-drag:none;touch-action:pan-y;outline:none;}
   .g-card:focus-visible{outline:3px solid var(--lime);outline-offset:2px;}
   .g-card.g-s0{z-index:4;transform:translate3d(0,0,0) rotate(0) scale(1,1);cursor:grab;box-shadow:0 22px 48px -20px rgba(0,0,0,calc(.32 + var(--sh,0)));}
-  .g-card.g-s1{z-index:3;transform:translate3d(-8px,24px,0) rotate(1.15deg) scale(.94,.93);}
-  .g-card.g-s2{z-index:2;transform:translate3d(-7px,40px,0) rotate(-4.5deg) scale(.88,.87);}
-  .g-card.g-s3{z-index:1;transform:translate3d(-11px,58px,0) rotate(7.5deg) scale(.82,.81);}
+  .g-card.g-s1{z-index:3;transform:translate3d(-10px,46px,0) rotate(2deg) scale(.90,.89);}
+  .g-card.g-s2{z-index:2;transform:translate3d(-9px,80px,0) rotate(-5.5deg) scale(.82,.81);}
+  .g-card.g-s3{z-index:1;transform:translate3d(-13px,110px,0) rotate(9deg) scale(.74,.73);}
+  /* Пауза перед движением стопки. Без неё задняя карточка едет одновременно с броском,
+     и к моменту, когда верхняя ушла, новая уже стоит на месте — смены не видно.
+     Задержка только на подтягивание; сам бросок начинается сразу по пальцу. */
+  .g-deck.g-advancing .g-card:not(.g-leaving){transition-delay:110ms;}
   .g-card.g-dragging{transition:none;cursor:grabbing;will-change:transform;}
   .g-card.g-preview{transition:none;will-change:transform;}
   .g-card.g-preview .g-tint{transition:none;}
   /* Новая карточка приходит снизу стопки, а не возникает на месте: без сдвига глаз
      читает появление как рывок и переспрашивает, та же это карточка или уже другая. */
-  .g-card.g-entering{opacity:0;transform:translate3d(-11px,74px,0) rotate(9deg) scale(.78,.77);}
+  .g-card.g-entering{opacity:0;transform:translate3d(-14px,140px,0) rotate(11deg) scale(.68,.67);}
   .g-card.g-leaving{z-index:30;pointer-events:none;}
   .g-tint{position:absolute;inset:0;z-index:20;border-radius:inherit;pointer-events:none;transition:opacity 360ms cubic-bezier(.22,.78,.2,1),background-color 430ms;}
   .g-s0 .g-tint{background:rgba(255,255,255,.6);opacity:0;}
@@ -2195,7 +2199,7 @@ function renderGame(u){
   var live = document.getElementById('gLive');
   var btnRep = document.getElementById('gBtnRep');
   var btnKnow = document.getElementById('gBtnKnow');
-  var drag = null, locked = false, ready = false;
+  var drag = null, locked = false, ready = false, advTm = null;
 
   function makeEl(card){
     var el = document.createElement('article');
@@ -2434,14 +2438,19 @@ function renderGame(u){
     var a = el.animate([
       {transform:'translate3d('+x+'px,'+y+'px,0) rotate('+rot+'deg)', opacity:1},
       {transform:'translate3d('+(dir*560)+'px,'+(y + Math.min(72, Math.abs(x)*0.16))+'px,0) rotate('+(dir*20)+'deg)', opacity:0}
-    ], {duration: reduced.matches ? 1 : 500, easing:'cubic-bezier(.2,.72,.18,1)', fill:'forwards'});
+    ], {duration: reduced.matches ? 1 : 620, easing:'cubic-bezier(.22,.66,.2,1)', fill:'forwards'});
     queue.shift();
     if (dir > 0) { knownIds.add(card.id); save(); } else { queue.push(card); } // «повторить» — в конец этой же партии
     els.delete(card.id);
     releasePreview(queue[0]);
+    if (!reduced.matches) {
+      deck.classList.add('g-advancing');
+      clearTimeout(advTm);
+      advTm = setTimeout(function(){ deck.classList.remove('g-advancing'); }, 960);
+    }
     layout();
     live.textContent = (dir > 0 ? 'Знаю: ' : 'Повторить: ') + card.title;
-    var dur = reduced.matches ? 1 : 500, ended = false;
+    var dur = reduced.matches ? 1 : 620, ended = false;
     var fin = function(){ if (ended) return; ended = true; clearTimeout(tm); el.remove(); setTimeout(function(){ locked = false; }, reduced.matches ? 1 : 120); };
     var tm = setTimeout(fin, dur + 250);
     a.finished.then(fin, fin);
