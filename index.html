@@ -6,6 +6,12 @@
 <meta name="theme-color" content="#F9F9F9">
 <title>OGGO — база знаний</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script>
+/* Версия картинок колоды. Имена файлов при замене колоды не меняются, поэтому WebView Telegram
+   отдаёт старые картинки даже после обновления index.html. Меняем это число при каждой замене
+   колоды — адрес каждой картинки становится новым, и кэш обходится. */
+window.ASSET_V = '20260923b';
+</script>
 <style>
   :root{
     color-scheme:light;
@@ -1789,7 +1795,7 @@ function showWhatsNew(){
   if(!host) return;
   host.innerHTML = '<div class="nt-in">'+
     '<div class="nt-track" id="ntTrack">'+NEW_SLIDES.map((s,i)=>'<section class="nt-s">'+
-      '<div class="nt-art"><img src="assets/cards/'+s.img+'.webp" alt="" draggable="false"></div>'+
+      '<div class="nt-art"><img src="assets/cards/'+s.img+'.webp?v='+window.ASSET_V+'" alt="" draggable="false"></div>'+
       '<div class="nt-t">'+s.t+'</div><p class="nt-p">'+s.p+'</p>'+
       (i === NEW_SLIDES.length - 1 ? '<button class="nt-go" type="button" id="ntGo">Приступить к работе</button>' : '<div class="nt-hint">Листайте дальше</div>')+
     '</section>').join('')+'</div>'+
@@ -2193,7 +2199,7 @@ function renderGame(u){
     var el = document.createElement('article');
     el.className = 'g-card';
     el.dataset.id = card.id;
-    el.innerHTML = '<div class="g-art" style="background:'+card.bg+'"><div class="g-art-in"><div class="g-obj" style="'+pose(card.art)+'"><img src="assets/cards/'+IMG[card.art]+'.webp" alt="" draggable="false"></div></div>'+
+    el.innerHTML = '<div class="g-art" style="background:'+card.bg+'"><div class="g-art-in"><div class="g-obj" style="'+pose(card.art)+'"><img src="assets/cards/'+IMG[card.art]+'.webp?v='+window.ASSET_V+'" alt="" draggable="false"></div></div>'+
       '<span class="g-chip g-tag">'+card.tag+'</span><span class="g-chip g-cnt">'+(card._n || 1)+' / '+batchSize+'</span></div>'+
       '<div class="g-body"><div class="g-title">'+card.title+'</div><div class="g-key"><b>Главное</b><span>'+card.key+'</span></div><p class="g-more">'+card.more+'</p></div>'+
       '<div class="g-stamp g-know">ЗНАЮ</div><div class="g-stamp g-rep">ПОВТОРИТЬ</div><span class="g-tint"></span>';
