@@ -2192,7 +2192,30 @@ function renderGame(u){
   var KEY = 'oggo-deck-v1:' + ((u && u.key) || 'guest');
   var knownIds = new Set();
   try { var saved = JSON.parse(localStorage.getItem(KEY) || 'null'); if (saved && Array.isArray(saved.known)) knownIds = new Set(saved.known); } catch(e) {}
-  function save(){ try { localStorage.setItem(KEY, JSON.stringify({known:Array.from(knownIds)})); } catch(e) {} }
+  /* Прогресс приезжает и с сервера: до 24.09 он жил только в localStorage, и смена телефона
+     обнуляла обучение. Множества объединяем, а не заменяем одно другим — иначе человек,
+     прошедший десять карточек на другом телефоне, потеряет либо те, либо эти. */
+  if (window.DECK_REMOTE && Array.isArray(window.DECK_REMOTE.ids)) {
+    window.DECK_REMOTE.ids.forEach(function(id){ knownIds.add(id); });
+  }
+  /* Отправка прогресса на сервер. Пачкой через секунду после последнего свайпа: во время
+     быстрого листания иначе уходит десяток запросов подряд. Молча глотаем ошибку — учёт
+     не повод мешать человеку учиться. */
+  var deckSendTm = null;
+  function sendDeck(){
+    clearTimeout(deckSendTm);
+    deckSendTm = setTimeout(function(){
+      if (!tg || !tg.initData) return;
+      try {
+        fetch(apiBase() + '/deck', {
+          method: 'POST',
+          headers: {Authorization: 'tma ' + tg.initData, 'Content-Type': 'application/json'},
+          body: JSON.stringify({known: knownCount(), total: ALL.length, ids: Array.from(knownIds)})
+        }).catch(function(){});
+      } catch(e) {}
+    }, 1000);
+  }
+  function save(){ try { localStorage.setItem(KEY, JSON.stringify({known:Array.from(knownIds)})); } catch(e) {} sendDeck(); }
   function knownCount(){ return ALL.filter(function(c){ return knownIds.has(c.id); }).length; }
 
   var BATCH = 10; // партия обучения: маленькими порциями запоминается лучше, чем за один присест
@@ -2963,6 +2986,7 @@ function applyRemote(d){
   window.GROW_SCORE = d.growScore || null;
   window.BONUS = d.bonus || null;
   window.DISCIPLINE = d.discipline || null;
+  window.DECK_REMOTE = d.deck || null;
   if(d.ops) OPS = d.ops;
 }
 
