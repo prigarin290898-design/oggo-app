@@ -2531,66 +2531,93 @@ function renderGame(u){
 
   btnKnow.addEventListener('click', function(){ throwTop(1); });
   btnRep.addEventListener('click', function(){ throwTop(-1); });
-  /* ===== Вопрос дня =====
-     Вопрос собирается здесь, а не на сервере: колода живёт только в приложении. Наружу уходит
-     один результат — верно или нет. Вопрос одинаковый весь день и не меняется от перезагрузки:
-     номер карточки берётся от даты, а не случайно, иначе можно было бы крутить до знакомого. */
-  function qdPick(){
-    var д = new Date(); var ключ = д.getFullYear()*10000 + (д.getMonth()+1)*100 + д.getDate();
-    var seed = ключ % 2147483647;
+  /* ===== Разминка дня =====
+     Механика Duolingo: набор из пяти вопросов, неверный ответ не заканчивает разминку и не рвёт
+     серию — вопрос уходит в конец очереди и вернётся. День засчитывается, когда все вопросы взяты
+     верно. Серию рвёт только пропущенный день.
+     Отдельно считаем, сколько взято с первого раза: серия меряет привычку, первый раз — понимание.
+     Вопросы собираются здесь: колода живёт только в приложении. Набор одинаковый весь день и не
+     меняется от перезагрузки — номер берётся от даты, иначе можно было бы крутить до знакомого. */
+  var QD_N = 5;
+  function qdBuild(){
+    var д = new Date(); var seed = (д.getFullYear()*10000 + (д.getMonth()+1)*100 + д.getDate()) % 2147483647;
     var rnd = function(){ seed = (seed * 48271) % 2147483647; return seed / 2147483647; };
-    if (!ALL.length) return null;
-    var прав = ALL[Math.floor(rnd() * ALL.length)];
-    var чужие = ALL.filter(function(c){ return c.id !== прав.id && c.title !== прав.title; });
-    var варианты = [прав];
-    while (варианты.length < 4 && чужие.length) варианты.push(чужие.splice(Math.floor(rnd() * чужие.length), 1)[0]);
-    for (var i = варианты.length - 1; i > 0; i--) { var j = Math.floor(rnd() * (i + 1)); var t = варианты[i]; варианты[i] = варианты[j]; варианты[j] = t; }
-    return {right: прав, options: варианты};
+    var пул = ALL.slice();
+    var набор = [];
+    while (набор.length < Math.min(QD_N, ALL.length) && пул.length) {
+      var прав = пул.splice(Math.floor(rnd() * пул.length), 1)[0];
+      var чужие = ALL.filter(function(c){ return c.id !== прав.id && c.title !== прав.title; });
+      var варианты = [прав];
+      while (варианты.length < 4 && чужие.length) варианты.push(чужие.splice(Math.floor(rnd() * чужие.length), 1)[0]);
+      for (var i = варианты.length - 1; i > 0; i--) { var j = Math.floor(rnd() * (i + 1)); var t = варианты[i]; варианты[i] = варианты[j]; варианты[j] = t; }
+      набор.push({right: прав, options: варианты, tried: false});
+    }
+    return набор;
   }
   function qdFire(st){
     if (!st || !st.days) return '<span class="qd-fire off">серия 0</span>';
-    return '<span class="qd-fire">серия ' + st.days + ' ' + (st.days % 10 === 1 && st.days % 100 !== 11 ? 'день' : (st.days % 10 >= 2 && st.days % 10 <= 4 && (st.days % 100 < 10 || st.days % 100 >= 20)) ? 'дня' : 'дней') + '</span>';
+    var n = st.days, сл = n % 10 === 1 && n % 100 !== 11 ? 'день' : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? 'дня' : 'дней';
+    return '<span class="qd-fire">серия ' + n + ' ' + сл + '</span>';
   }
   function renderQday(){
     var host = document.getElementById('qDay'); if (!host) return;
     var st = window.STREAK || null;
     if (st && st.answeredToday) {
-      host.innerHTML = '<div class="qd-top"><span class="qd-cap">Вопрос дня</span>' + qdFire(st) + '</div>' +
-        '<p class="qd-q" style="margin:0;">Сегодня вы уже отвечали. Следующий вопрос завтра — серия держится, пока вы отвечаете каждый день.</p>';
+      host.innerHTML = '<div class="qd-top"><span class="qd-cap">Разминка дня</span>' + qdFire(st) + '</div>' +
+        '<p class="qd-q" style="margin:0;">Сегодня разминка пройдена. Следующая завтра — серия держится, пока вы отвечаете каждый день.</p>';
       return;
     }
-    var q = qdPick(); if (!q) { host.innerHTML = ''; return; }
-    host.innerHTML = '<div class="qd-top"><span class="qd-cap">Вопрос дня</span>' + qdFire(st) + '</div>' +
-      '<p class="qd-q">К какому правилу это относится?<br><b>' + q.right.key + '</b></p>' +
-      '<div class="qd-opts">' + q.options.map(function(c,i){ return '<button class="qd-o" type="button" data-i="' + i + '">' + c.title + '</button>'; }).join('') + '</div>';
-    host.querySelectorAll('.qd-o').forEach(function(b){
-      b.addEventListener('click', function(){
-        var верно = q.options[Number(b.dataset.i)].id === q.right.id;
-        host.querySelectorAll('.qd-o').forEach(function(x, i){
-          x.disabled = true;
-          if (q.options[i].id === q.right.id) x.classList.add('ok');
-          else if (x === b) x.classList.add('no');
+    var набор = qdBuild(); if (!набор.length) { host.innerHTML = ''; return; }
+    var очередь = набор.slice(), всего = набор.length, сПервого = 0, готово = 0;
+
+    function шаг(){
+      if (!очередь.length) return конец();
+      var q = очередь[0];
+      host.innerHTML = '<div class="qd-top"><span class="qd-cap">Разминка дня</span>' +
+        '<span class="qd-cap" style="margin-left:6px;">' + (готово + 1) + ' / ' + всего + '</span>' + qdFire(st) + '</div>' +
+        '<p class="qd-q">К какому правилу это относится?<br><b>' + q.right.key + '</b></p>' +
+        '<div class="qd-opts">' + q.options.map(function(c,i){ return '<button class="qd-o" type="button" data-i="' + i + '">' + c.title + '</button>'; }).join('') + '</div>';
+      host.querySelectorAll('.qd-o').forEach(function(b){
+        b.addEventListener('click', function(){
+          var верно = q.options[Number(b.dataset.i)].id === q.right.id;
+          host.querySelectorAll('.qd-o').forEach(function(x, i){
+            x.disabled = true;
+            if (q.options[i].id === q.right.id) x.classList.add('ok');
+            else if (x === b) x.classList.add('no');
+          });
+          if (tg && tg.HapticFeedback) { try { tg.HapticFeedback.notificationOccurred(верно ? 'success' : 'warning'); } catch(e) {} }
+          if (верно) {
+            if (!q.tried) сПервого += 1;
+            очередь.shift(); готово += 1;
+            host.insertAdjacentHTML('beforeend', '<p class="qd-r">' + (очередь.length ? 'Верно. Дальше.' : 'Верно.') + '</p>');
+          } else {
+            q.tried = true;
+            очередь.push(очередь.shift());
+            host.insertAdjacentHTML('beforeend', '<p class="qd-r">Не то правило. Верное подсвечено — этот вопрос вернётся в конце.</p>');
+          }
+          setTimeout(шаг, 1100);
         });
-        // Серию не рвём за неверный ответ: иначе перестанут отвечать там, где не уверены,
-        // а это ровно те случаи, ради которых вопрос и задаётся.
-        var st2 = Object.assign({days: 0}, window.STREAK || {}, {answeredToday: true});
-        st2.days = (st2.days || 0) + 1;
-        window.STREAK = st2;
-        var хвост = верно ? 'Верно. Серия ' + st2.days + '.' : 'Не то правило. Верное подсвечено — оно есть в колоде, прогоните его ещё раз.';
-        host.insertAdjacentHTML('beforeend', '<p class="qd-r">' + хвост + '</p>');
-        host.querySelector('.qd-fire').outerHTML = qdFire(st2);
-        if (tg && tg.HapticFeedback) { try { tg.HapticFeedback.notificationOccurred(верно ? 'success' : 'warning'); } catch(e) {} }
-        if (tg && tg.initData) {
-          try {
-            fetch(apiBase() + '/quiz', {
-              method: 'POST',
-              headers: {Authorization: 'tma ' + tg.initData, 'Content-Type': 'application/json'},
-              body: JSON.stringify({cardId: q.right.id, correct: верно})
-            }).catch(function(){});
-          } catch(e) {}
-        }
       });
-    });
+    }
+
+    function конец(){
+      var st2 = Object.assign({days: 0}, window.STREAK || {}, {answeredToday: true});
+      st2.days = (st2.days || 0) + 1;
+      window.STREAK = st2;
+      host.innerHTML = '<div class="qd-top"><span class="qd-cap">Разминка дня</span>' + qdFire(st2) + '</div>' +
+        '<p class="qd-q" style="margin:0;">Разминка пройдена: с первого раза ' + сПервого + ' из ' + всего + '. Завтра новая — серия держится, пока вы отвечаете каждый день.</p>';
+      if (tg && tg.initData) {
+        try {
+          fetch(apiBase() + '/quiz', {
+            method: 'POST',
+            headers: {Authorization: 'tma ' + tg.initData, 'Content-Type': 'application/json'},
+            body: JSON.stringify({asked: всего, rightFirst: сПервого})
+          }).catch(function(){});
+        } catch(e) {}
+      }
+    }
+
+    шаг();
   }
   renderQday();
 
