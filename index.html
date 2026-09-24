@@ -266,6 +266,32 @@ window.ASSET_V = '20260923b';
   .g-bar i{display:block;height:100%;width:0;background:var(--lime);border-radius:99px;transition:width .4s cubic-bezier(.22,.78,.2,1);}
 
 
+  /* Плитка ударного режима на профиле — быстрый переход в «Изучать». */
+  .strk{display:flex;align-items:center;gap:12px;width:100%;text-align:left;cursor:pointer;
+    border-radius:22px;padding:14px 16px;margin:0 0 12px;
+    background:var(--glass);border:1px solid var(--glass-border);color:var(--ink);
+    backdrop-filter:blur(26px) saturate(170%);-webkit-backdrop-filter:blur(26px) saturate(170%);}
+  .strk.on{border-color:rgba(219,255,61,.45);}
+  .strk-fire{flex:0 0 auto;width:42px;height:42px;border-radius:14px;display:flex;align-items:center;justify-content:center;
+    background:rgba(255,255,255,.14);color:#fff;}
+  .strk.on .strk-fire{background:var(--lime);color:var(--lime-ink);}
+  .strk-txt{display:flex;flex-direction:column;gap:3px;min-width:0;}
+  .strk-top{line-height:1.1;}
+  .strk-sub{font-size:11.5px;line-height:1.35;color:var(--ink-dim);}
+  .strk-arw{margin-left:auto;flex:0 0 auto;opacity:.6;display:flex;}
+  /* Огонь в блоке имени. Кнопка без фона: рамка спорила бы с карточкой имени. */
+  .fireb{position:absolute;top:10px;right:10px;display:flex;align-items:center;gap:7px;
+    background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.12);border-radius:18px;
+    padding:7px 12px 7px 9px;cursor:pointer;color:#fff;
+    backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);}
+  .fireb-n{display:flex;flex-direction:column;align-items:flex-start;line-height:1;}
+  .fireb-n b{font-family:var(--font-display);font-size:19px;line-height:1;}
+  .fireb-c{font-size:9px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:rgba(255,255,255,.62);line-height:1;margin-top:3px;}
+  .strk-fire{background:none!important;}
+  /* Та же плитка внутри «Тренажёра»: без своей рамки и фона — она уже лежит на стекле блока. */
+  .strk.strk-in{background:none;border:0;padding:0;margin:0 0 12px;backdrop-filter:none;-webkit-backdrop-filter:none;cursor:default;}
+  .strk.strk-in .qd-cap{margin-left:auto;flex:0 0 auto;}
+
   /* ===== Вопрос дня и ударный режим =====
      Серия считает дни с ответом, а не со свайпами: пролистать десять карточек «знаю» можно
      за десять секунд не читая, а выбрать из четырёх — нет. За серию не дают ни баллов, ни
@@ -1402,6 +1428,99 @@ function teamTree(u){
   '</div>';
 }
 
+/* Ударный режим на профиле: быстрый переход в «Изучать».
+   Плитка сама рассказывает состояние — серия и пройдена ли сегодня разминка, — поэтому
+   человеку не надо открывать «Тренажёр», чтобы узнать, горит у него ещё огонёк или уже нет.
+   Огонёк контурный, эмодзи в интерфейсе не используем. */
+/* Огонь рисуется двумя контурами: внешнее пламя и язык внутри. Одного контура мало —
+   без внутреннего языка силуэт читается каплей, а не огнём. Обводка, а не эмодзи:
+   эмодзи в интерфейсе у нас не используются и на разных телефонах выглядят по-своему. */
+const FIRE_SVG = (size, inner) => '<svg viewBox="0 0 24 24" width="'+size+'" height="'+size+'" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
+  '<path d="M12 2.6c.5 2.6 1.9 4.3 3.3 5.8C16.9 10.1 18 11.9 18 14.2a6 6 0 0 1-12 0c0-2 .8-3.6 2-5 .3 .9 .9 1.6 1.7 2 .5-3 1.2-5.6 .3-8.6z"/>'+
+  (inner === false ? '' : '<path d="M12 20.4a3.2 3.2 0 0 0 3.2-3.2c0-1.3-.8-2.2-1.6-3-.5-.5-.9-1.1-1.1-1.8-.8 1-1.7 1.7-2.4 2.6-.6 .8-1.3 1.6-1.3 2.5a3.2 3.2 0 0 0 3.2 2.9z"/>')+
+  '</svg>';
+const DAY_WORD = n => n % 10 === 1 && n % 100 !== 11 ? 'день' : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? 'дня' : 'дней';
+
+/* Огонь с числом дней внутри. Заливка, а не обводка: по контуру цифру не прочитать.
+   Красный берём из фирменного градиента (--grad-2 #C10801), а не --danger: danger у нас
+   означает ошибку, и огонь его цветом читался бы как «у тебя проблема».
+   Погасшая серия — тот же огонь серым, число 0: пустое место человек не замечает,
+   а серый ноль видно. */
+let FIRE_UID = 0;
+/* Огонь без числа внутри. Число в пламя не ставим: форма сужается кверху, читаемая площадь
+   маленькая и не прямоугольная — двузначное влезает впритык, трёхзначное только уменьшением
+   до нечитаемого. В Duolingo число тоже стоит рядом, а не внутри.
+   Заливка градиентом от оранжевого к красному, обе точки из фирменного градиента
+   (--grad-3 #F16001 и --grad-2 #C10801): один плоский красный тонет в тёплом фоне приложения.
+   Погасшая серия — тот же огонь серым. */
+const FIRE_ICON = (days, size) => {
+  const on = Number(days) > 0;
+  const id = 'fg' + (++FIRE_UID);
+  const заливка = on
+    ? '<defs><linearGradient id="' + id + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F16001"/><stop offset="1" stop-color="#C10801"/></linearGradient></defs>'
+    : '';
+  const цвет = on ? 'url(#' + id + ')' : 'rgba(255,255,255,.22)';
+  return '<svg viewBox="0 0 24 26" width="' + size + '" height="' + Math.round(size * 26 / 24) + '" aria-hidden="true">' + заливка +
+    '<path fill="' + цвет + '" d="M12 .8c.6 3.2 2.3 5.2 4 6.9C17.9 9.7 19.4 12 19.4 15.2 19.4 21 15.8 25.2 12 25.2S4.6 21 4.6 15.2c0-2.6 1-4.7 2.6-6.5.4 1.2 1.1 2.1 2.2 2.6C10 7.4 13 5 12 .8z"/>' +
+    '</svg>';
+};
+
+/* Одна и та же плитка на профиле и в «Тренажёре»: человек должен видеть состояние серии
+   там, где он о ней вспомнил, и там, где её продлевают. Разница только в стрелке —
+   на профиле плитка ведёт в «Изучать», в самом «Тренажёре» вести некуда. */
+function streakInner(st){
+  const дней = (st && st.days) || 0;
+  const пройдена = !!(st && st.answeredToday);
+  const слева = дней ? `<b style="font-size:20px;font-family:var(--font-display);">${дней}</b> <span style="font-size:12.5px;">${DAY_WORD(дней)} подряд</span>`
+                     : '<b style="font-size:15px;">Серия не начата</b>';
+  const снизу = пройдена ? 'Разминка сегодня пройдена. Завтра новая.'
+              : дней ? 'Разминка сегодня ещё не пройдена — серия сгорит в полночь.'
+                     : 'Пять вопросов в день. Ошибка ничего не стоит, пропуск дня обнуляет серию.';
+  return `<span class="strk-fire">${FIRE_ICON((st && st.days) || 0, 30)}</span>
+      <span class="strk-txt"><span class="strk-top">${слева}</span><span class="strk-sub">${снизу}</span></span>`;
+}
+/* Огонь в блоке имени: короткий путь в «Изучать» с того экрана, куда человек заходит первым.
+   Подпись под ним — чтобы число в огне читалось как дни, а не как счёт чего-то ещё. */
+function streakBadge(){
+  const st = window.STREAK || null;
+  const дней = (st && st.days) || 0;
+  const пройдена = !!(st && st.answeredToday);
+  const подпись = дней ? DAY_WORD(дней) : 'серия';
+  const title = пройдена ? 'Разминка сегодня пройдена' : дней ? 'Разминка сегодня ещё не пройдена' : 'Разминка ещё не начата';
+  return `<button type="button" class="fireb" id="strkGo" aria-label="${title}, открыть Изучать" title="${title}">
+      ${FIRE_ICON(дней, 30)}
+      <span class="fireb-n"><b>${дней}</b><span class="fireb-c">${подпись}</span></span>
+    </button>`;
+}
+
+/* После пройденной разминки серия меняется, а огонь в блоке имени нарисован раньше и об этом
+   не знает. Перерисовываем оба места разом: человек возвращается на профиль и видит новое
+   число, а не вчерашнее. */
+function streakPaint(){
+  const b = document.getElementById('strkGo');
+  if (b) {
+    const st = window.STREAK || null, дней = (st && st.days) || 0;
+    b.innerHTML = FIRE_ICON(дней, 30) + '<span class="fireb-n"><b>' + дней + '</b><span class="fireb-c">' + (дней ? DAY_WORD(дней) : 'серия') + '</span></span>';
+  }
+  document.querySelectorAll('.strk.strk-in').forEach(el=>{
+    const счёт = el.querySelector('.qd-cap');
+    el.innerHTML = streakInner(window.STREAK || null) + (счёт ? счёт.outerHTML : '');
+    el.classList.toggle('on', !!(window.STREAK && window.STREAK.answeredToday));
+  });
+}
+
+// Переход открывает «Тренажёр» тем же путём, что и нижняя навигация: иначе экран считается
+// неактивным, и разминка не пересобирается.
+function streakBind(){
+  const b = document.getElementById('strkGo');
+  if(!b) return;
+  b.addEventListener('click', ()=>{
+    const ni = document.querySelector('.botnav .ni[data-s="game"]');
+    if(ni) ni.click();
+    setTimeout(()=>{ const q = document.getElementById('qDay'); if(q) q.scrollIntoView({behavior:'smooth', block:'center'}); }, 220);
+  });
+}
+
 function renderProfile(u){
   const el = document.getElementById('s-profile');
   if(!u){ el.innerHTML = `<div class="empty">Не удалось определить, кто вы.<br>Откройте кнопку бота внутри Telegram.</div>`; return; }
@@ -1438,7 +1557,8 @@ function renderProfile(u){
 
   const r = ROLES[u.key];
   el.innerHTML = `
-    <div class="glass" style="text-align:center;padding:22px 16px;">
+    <div class="glass" style="text-align:center;padding:22px 16px;position:relative;">
+      ${streakBadge()}
       <div class="avatar" style="width:60px;height:60px;font-size:21px;margin:0 auto 10px;">${u.initials}</div>
       <div class="name">${u.name}</div>
       <div class="muted" style="margin-top:2px;">${u.role}</div>
@@ -1815,11 +1935,15 @@ let SCEN = [];
 // ===== «Что нового» =====
 // Показывается один раз на версию и по ссылке из письма бота. Карточки листаются, последняя —
 // кнопка «Приступить к работе». Письмо об обновлении — постоянно разрешённый тип сообщения (решение 22.09).
-const NEW_VERSION = '2026-09-24';
+const NEW_VERSION = '2026-09-24b';
+// Тур покрывает и вчерашний выпуск: письмо об обновлении по нему не ушло (в RELEASE_VERSION
+// стояло старое значение), и люди тёмную тему с новой колодой не видели объявленными.
 const NEW_SLIDES = [
   {img:'10-phone-photo', t:'Приложение стало тёмным', p:'Так меньше слепит в цеху и лучше видно на экране с бликом. Ничего не переехало: экраны, кнопки и порядок прежние, поменялся только цвет.'},
-  {img:'21-cubes-three', t:'Карточки правил перерисованы', p:'Сорок один объект в одном стиле вместо старой сборной солянки. Карточка стала выше: правило теперь видно целиком, нижняя строка с источником больше не обрезается.'},
-  {img:'41-tiles-three', t:'Видно, что карточка сменилась', p:'Раньше новая карточка появлялась на месте старой, и было непонятно, та же она или следующая. Теперь верхняя улетает, а следующая встаёт из стопки и наводится на резкость. Свайп прежний: вправо — «Знаю», влево — «Повторить».'}
+  {img:'21-cubes-three', t:'Карточки правил перерисованы', p:'Сорок один объект в одном стиле. Карточка стала выше — правило видно целиком, нижняя строка с источником больше не обрезается. Верхняя карточка улетает, следующая встаёт из стопки: видно, что она сменилась.'},
+  {img:'09-shelf',       t:'Инвентаризация и приёмка — по шагам', p:'В операции «Провожу инвентаризацию» появился порядок дня: восемь шагов, три контура, заморозка движения наружу периметра, фото ИНВ-3 последним. Приёмка переведена на цепочку: приёмка на основании заказа → печать листа → пересчёт по листу → внесение факта → фото в чат «Документы».'},
+  {img:'33-checks-double', t:'Разминка дня', p:'Пять вопросов по правилам за минуту. Ошибся — верное правило подсветится, а вопрос вернётся в конце: разминка закрывается только верными ответами. Это не экзамен, баллы за неё не ставят.'},
+  {img:'25-hourglass',  t:'Ударный режим', p:'Каждый день с пройденной разминкой продлевает серию. Огонёк рядом с ней показывает, сколько дней подряд вы держитесь. Серия не даёт ни баллов, ни премии — её просто жалко терять. Пропустили день — начинается заново.'}
 ];
 
 function newSeen(){
@@ -2157,8 +2281,11 @@ function renderGame(u){
   if (!root) return;
   root.innerHTML = '<div class="lime-heading">Тренажёр</div>'+
     '<div class="honest" style="margin:-4px 0 12px 4px;">Правило дня и правила, которые спрашивают в игре «Банк» и на аттестации. Свайп вправо — знаю, влево — повторить.</div>'+
-    '<div class="g-stats"><span class="g-pill g-know" id="gPKnow"></span><span class="g-pill g-left" id="gPLeft"></span><span class="g-bar" aria-hidden="true"><i id="gBar"></i></span></div>'+
+    // Порядок: сначала разминка с ударным режимом, потом счётчик колоды. Счётчик относится
+    // к карточкам и должен стоять вплотную к ним — иначе при переходе к колоде он уезжает
+    // за верхний край и человек его не видит.
     '<div class="qd" id="qDay"></div>'+
+    '<div class="g-stats"><span class="g-pill g-know" id="gPKnow"></span><span class="g-pill g-left" id="gPLeft"></span><span class="g-bar" aria-hidden="true"><i id="gBar"></i></span></div>'+
     '<div class="g-deck" id="gDeck" aria-label="Колода карточек"><div class="g-done" id="gDone" hidden></div></div>'+
     '<div class="g-consent">'+ic('<circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16"/><line x1="12" y1="7.6" x2="12" y2="7.7"/>',18)+'<span>Нажимая «Знаю», вы подтверждаете, что знаете это правило. Ошибка по нему после этого считается повторной.</span></div>'+
     '<div class="g-actions"><button class="g-btn" id="gBtnRep">'+ic('<line x1="19" y1="12" x2="5" y2="12"/><polyline points="11 6 5 12 11 18"/>',16)+'Повторить</button><button class="g-btn g-know" id="gBtnKnow">Знаю'+ic('<line x1="5" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/>',16)+'</button></div>'+
@@ -2538,64 +2665,55 @@ function renderGame(u){
      Отдельно считаем, сколько взято с первого раза: серия меряет привычку, первый раз — понимание.
      Вопросы собираются здесь: колода живёт только в приложении. Набор одинаковый весь день и не
      меняется от перезагрузки — номер берётся от даты, иначе можно было бы крутить до знакомого. */
-  var QD_N = 5;
-  function qdBuild(){
-    var д = new Date(); var seed = (д.getFullYear()*10000 + (д.getMonth()+1)*100 + д.getDate()) % 2147483647;
-    var rnd = function(){ seed = (seed * 48271) % 2147483647; return seed / 2147483647; };
-    var пул = ALL.slice();
-    var набор = [];
-    while (набор.length < Math.min(QD_N, ALL.length) && пул.length) {
-      var прав = пул.splice(Math.floor(rnd() * пул.length), 1)[0];
-      var чужие = ALL.filter(function(c){ return c.id !== прав.id && c.title !== прав.title; });
-      var варианты = [прав];
-      while (варианты.length < 4 && чужие.length) варианты.push(чужие.splice(Math.floor(rnd() * чужие.length), 1)[0]);
-      for (var i = варианты.length - 1; i > 0; i--) { var j = Math.floor(rnd() * (i + 1)); var t = варианты[i]; варианты[i] = варианты[j]; варианты[j] = t; }
-      набор.push({right: прав, options: варианты, tried: false});
-    }
-    return набор;
-  }
-  function qdFire(st){
-    if (!st || !st.days) return '<span class="qd-fire off">серия 0</span>';
-    var n = st.days, сл = n % 10 === 1 && n % 100 !== 11 ? 'день' : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? 'дня' : 'дней';
-    return '<span class="qd-fire">серия ' + n + ' ' + сл + '</span>';
+  /* ===== Разминка дня =====
+     Вопросы приходят с сервера из банка `bank_questions` — того же, что у игры «Банк» и
+     аттестации. Они написаны руками: настоящие отвлекающие варианты, объяснение и источник.
+     Собирать вопросы из карточек колоды пробовали и отказались: у карточки заголовок и текст
+     «Главное» почти совпадают, вопрос отвечал сам на себя.
+     Механика Duolingo: неверный ответ не заканчивает разминку и не рвёт серию — вопрос уходит
+     в конец очереди и вернётся. День засчитывается, когда весь набор взят верно. */
+  // Шапка блока — та же плитка, что на профиле, без стрелки: отсюда вести уже некуда.
+  function qdHead(st, шаг){
+    var счёт = шаг ? '<span class="qd-cap">' + шаг + '</span>' : '';
+    return '<div class="strk strk-in' + (st && st.answeredToday ? ' on' : '') + '">' + streakInner(st) + счёт + '</div>';
   }
   function renderQday(){
     var host = document.getElementById('qDay'); if (!host) return;
     var st = window.STREAK || null;
-    if (st && st.answeredToday) {
-      host.innerHTML = '<div class="qd-top"><span class="qd-cap">Разминка дня</span>' + qdFire(st) + '</div>' +
-        '<p class="qd-q" style="margin:0;">Сегодня разминка пройдена. Следующая завтра — серия держится, пока вы отвечаете каждый день.</p>';
-      return;
-    }
-    var набор = qdBuild(); if (!набор.length) { host.innerHTML = ''; return; }
-    var очередь = набор.slice(), всего = набор.length, сПервого = 0, готово = 0;
+    if (st && st.answeredToday) { host.innerHTML = qdHead(st); return; }
+    var вопросы = window.QUIZ;
+    // Банк не приехал — блока нет вовсе. Придумывать вопрос на месте нельзя: именно так и
+    // получилась разминка, в которой вопрос отвечал сам на себя.
+    if (!вопросы || !вопросы.length) { host.innerHTML = ''; return; }
+    var очередь = вопросы.map(function(q){ return {q: q, tried: false}; });
+    var всего = очередь.length, сПервого = 0, готово = 0;
 
     function шаг(){
       if (!очередь.length) return конец();
-      var q = очередь[0];
-      host.innerHTML = '<div class="qd-top"><span class="qd-cap">Разминка дня</span>' +
-        '<span class="qd-cap" style="margin-left:6px;">' + (готово + 1) + ' / ' + всего + '</span>' + qdFire(st) + '</div>' +
-        '<p class="qd-q">К какому правилу это относится?<br><b>' + q.right.key + '</b></p>' +
-        '<div class="qd-opts">' + q.options.map(function(c,i){ return '<button class="qd-o" type="button" data-i="' + i + '">' + c.title + '</button>'; }).join('') + '</div>';
+      var it = очередь[0], q = it.q;
+      host.innerHTML = qdHead(st, (готово + 1) + ' / ' + всего) +
+        '<p class="qd-q">' + q.q + '</p>' +
+        '<div class="qd-opts">' + q.options.map(function(o,i){ return '<button class="qd-o" type="button" data-i="' + i + '">' + o + '</button>'; }).join('') + '</div>';
       host.querySelectorAll('.qd-o').forEach(function(b){
         b.addEventListener('click', function(){
-          var верно = q.options[Number(b.dataset.i)].id === q.right.id;
+          var верно = Number(b.dataset.i) === Number(q.right);
           host.querySelectorAll('.qd-o').forEach(function(x, i){
             x.disabled = true;
-            if (q.options[i].id === q.right.id) x.classList.add('ok');
+            if (i === Number(q.right)) x.classList.add('ok');
             else if (x === b) x.classList.add('no');
           });
           if (tg && tg.HapticFeedback) { try { tg.HapticFeedback.notificationOccurred(верно ? 'success' : 'warning'); } catch(e) {} }
           if (верно) {
-            if (!q.tried) сПервого += 1;
+            if (!it.tried) сПервого += 1;
             очередь.shift(); готово += 1;
-            host.insertAdjacentHTML('beforeend', '<p class="qd-r">' + (очередь.length ? 'Верно. Дальше.' : 'Верно.') + '</p>');
+            // Объяснение показываем и при верном ответе: оно короче правила и держит формулировку.
+            host.insertAdjacentHTML('beforeend', '<p class="qd-r">' + (q.explain || 'Верно.') + '</p>');
           } else {
-            q.tried = true;
+            it.tried = true;
             очередь.push(очередь.shift());
-            host.insertAdjacentHTML('beforeend', '<p class="qd-r">Не то правило. Верное подсвечено — этот вопрос вернётся в конце.</p>');
+            host.insertAdjacentHTML('beforeend', '<p class="qd-r">' + (q.explain || 'Не то.') + ' Вопрос вернётся в конце.</p>');
           }
-          setTimeout(шаг, 1100);
+          setTimeout(шаг, верно ? 1500 : 2600);
         });
       });
     }
@@ -2604,8 +2722,9 @@ function renderGame(u){
       var st2 = Object.assign({days: 0}, window.STREAK || {}, {answeredToday: true});
       st2.days = (st2.days || 0) + 1;
       window.STREAK = st2;
-      host.innerHTML = '<div class="qd-top"><span class="qd-cap">Разминка дня</span>' + qdFire(st2) + '</div>' +
-        '<p class="qd-q" style="margin:0;">Разминка пройдена: с первого раза ' + сПервого + ' из ' + всего + '. Завтра новая — серия держится, пока вы отвечаете каждый день.</p>';
+      host.innerHTML = qdHead(st2) +
+        '<p class="qd-r" style="margin:10px 0 0;">С первого раза ' + сПервого + ' из ' + всего + '.</p>';
+      if (typeof streakPaint === 'function') streakPaint();
       if (tg && tg.initData) {
         try {
           fetch(apiBase() + '/quiz', {
@@ -2643,6 +2762,7 @@ function renderGame(u){
 function renderAll(u){
   SQ_IDX = sqBuild(u);
   renderProfile(u);
+  streakBind();
   renderTasks(u);
   renderGrowth(u);
   renderErrors(u);
@@ -3100,6 +3220,7 @@ function applyRemote(d){
   window.DISCIPLINE = d.discipline || null;
   window.DECK_REMOTE = d.deck || null;
   window.STREAK = d.streak || null;
+  window.QUIZ = Array.isArray(d.quiz) ? d.quiz : null;
   if(d.ops) OPS = d.ops;
 }
 
