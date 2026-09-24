@@ -266,6 +266,27 @@ window.ASSET_V = '20260923b';
   .g-bar i{display:block;height:100%;width:0;background:var(--lime);border-radius:99px;transition:width .4s cubic-bezier(.22,.78,.2,1);}
 
 
+  /* ===== Вопрос дня и ударный режим =====
+     Серия считает дни с ответом, а не со свайпами: пролистать десять карточек «знаю» можно
+     за десять секунд не читая, а выбрать из четырёх — нет. За серию не дают ни баллов, ни
+     денег (решение директора 24.09.2026) — ровно поэтому её незачем накручивать. */
+  .qd{margin:0 6px 14px;border-radius:22px;padding:14px 16px 16px;
+    background:var(--glass);border:1px solid var(--glass-border);
+    backdrop-filter:blur(26px) saturate(170%);-webkit-backdrop-filter:blur(26px) saturate(170%);}
+  .qd:empty{display:none;}
+  .qd-top{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+  .qd-cap{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-dim);}
+  .qd-fire{margin-left:auto;font-size:11.5px;font-weight:700;border-radius:99px;padding:4px 10px;
+    background:var(--lime);color:var(--lime-ink);}
+  .qd-fire.off{background:rgba(255,255,255,.16);color:#fff;}
+  .qd-q{font-family:var(--font-body);font-size:14.5px;line-height:1.45;margin:0 0 12px;}
+  .qd-opts{display:grid;gap:8px;}
+  .qd-o{text-align:left;font-family:var(--font-body);font-size:13.5px;line-height:1.35;
+    border-radius:16px;padding:11px 13px;border:1px solid rgba(0,0,0,.08);background:#F9F9F9;color:#211f1b;cursor:pointer;}
+  .qd-o.ok{background:var(--lime);color:var(--lime-ink);border-color:transparent;}
+  .qd-o.no{background:var(--danger-bg);color:var(--danger);border-color:transparent;}
+  .qd-o[disabled]{cursor:default;}
+  .qd-r{margin:12px 0 0;font-size:13px;line-height:1.5;}
   .g-deck{position:relative;height:calc(var(--gch,448px) + 72px);margin:56px 6px 0;}
   .g-card{position:absolute;left:0;top:0;width:100%;height:var(--gch,448px);border-radius:32px;overflow:visible;
     background:var(--glass);backdrop-filter:blur(26px) saturate(170%);-webkit-backdrop-filter:blur(26px) saturate(170%);
@@ -2137,6 +2158,7 @@ function renderGame(u){
   root.innerHTML = '<div class="lime-heading">Тренажёр</div>'+
     '<div class="honest" style="margin:-4px 0 12px 4px;">Правило дня и правила, которые спрашивают в игре «Банк» и на аттестации. Свайп вправо — знаю, влево — повторить.</div>'+
     '<div class="g-stats"><span class="g-pill g-know" id="gPKnow"></span><span class="g-pill g-left" id="gPLeft"></span><span class="g-bar" aria-hidden="true"><i id="gBar"></i></span></div>'+
+    '<div class="qd" id="qDay"></div>'+
     '<div class="g-deck" id="gDeck" aria-label="Колода карточек"><div class="g-done" id="gDone" hidden></div></div>'+
     '<div class="g-consent">'+ic('<circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16"/><line x1="12" y1="7.6" x2="12" y2="7.7"/>',18)+'<span>Нажимая «Знаю», вы подтверждаете, что знаете это правило. Ошибка по нему после этого считается повторной.</span></div>'+
     '<div class="g-actions"><button class="g-btn" id="gBtnRep">'+ic('<line x1="19" y1="12" x2="5" y2="12"/><polyline points="11 6 5 12 11 18"/>',16)+'Повторить</button><button class="g-btn g-know" id="gBtnKnow">Знаю'+ic('<line x1="5" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/>',16)+'</button></div>'+
@@ -2509,6 +2531,69 @@ function renderGame(u){
 
   btnKnow.addEventListener('click', function(){ throwTop(1); });
   btnRep.addEventListener('click', function(){ throwTop(-1); });
+  /* ===== Вопрос дня =====
+     Вопрос собирается здесь, а не на сервере: колода живёт только в приложении. Наружу уходит
+     один результат — верно или нет. Вопрос одинаковый весь день и не меняется от перезагрузки:
+     номер карточки берётся от даты, а не случайно, иначе можно было бы крутить до знакомого. */
+  function qdPick(){
+    var д = new Date(); var ключ = д.getFullYear()*10000 + (д.getMonth()+1)*100 + д.getDate();
+    var seed = ключ % 2147483647;
+    var rnd = function(){ seed = (seed * 48271) % 2147483647; return seed / 2147483647; };
+    if (!ALL.length) return null;
+    var прав = ALL[Math.floor(rnd() * ALL.length)];
+    var чужие = ALL.filter(function(c){ return c.id !== прав.id && c.title !== прав.title; });
+    var варианты = [прав];
+    while (варианты.length < 4 && чужие.length) варианты.push(чужие.splice(Math.floor(rnd() * чужие.length), 1)[0]);
+    for (var i = варианты.length - 1; i > 0; i--) { var j = Math.floor(rnd() * (i + 1)); var t = варианты[i]; варианты[i] = варианты[j]; варианты[j] = t; }
+    return {right: прав, options: варианты};
+  }
+  function qdFire(st){
+    if (!st || !st.days) return '<span class="qd-fire off">серия 0</span>';
+    return '<span class="qd-fire">серия ' + st.days + ' ' + (st.days % 10 === 1 && st.days % 100 !== 11 ? 'день' : (st.days % 10 >= 2 && st.days % 10 <= 4 && (st.days % 100 < 10 || st.days % 100 >= 20)) ? 'дня' : 'дней') + '</span>';
+  }
+  function renderQday(){
+    var host = document.getElementById('qDay'); if (!host) return;
+    var st = window.STREAK || null;
+    if (st && st.answeredToday) {
+      host.innerHTML = '<div class="qd-top"><span class="qd-cap">Вопрос дня</span>' + qdFire(st) + '</div>' +
+        '<p class="qd-q" style="margin:0;">Сегодня вы уже отвечали. Следующий вопрос завтра — серия держится, пока вы отвечаете каждый день.</p>';
+      return;
+    }
+    var q = qdPick(); if (!q) { host.innerHTML = ''; return; }
+    host.innerHTML = '<div class="qd-top"><span class="qd-cap">Вопрос дня</span>' + qdFire(st) + '</div>' +
+      '<p class="qd-q">К какому правилу это относится?<br><b>' + q.right.key + '</b></p>' +
+      '<div class="qd-opts">' + q.options.map(function(c,i){ return '<button class="qd-o" type="button" data-i="' + i + '">' + c.title + '</button>'; }).join('') + '</div>';
+    host.querySelectorAll('.qd-o').forEach(function(b){
+      b.addEventListener('click', function(){
+        var верно = q.options[Number(b.dataset.i)].id === q.right.id;
+        host.querySelectorAll('.qd-o').forEach(function(x, i){
+          x.disabled = true;
+          if (q.options[i].id === q.right.id) x.classList.add('ok');
+          else if (x === b) x.classList.add('no');
+        });
+        // Серию не рвём за неверный ответ: иначе перестанут отвечать там, где не уверены,
+        // а это ровно те случаи, ради которых вопрос и задаётся.
+        var st2 = Object.assign({days: 0}, window.STREAK || {}, {answeredToday: true});
+        st2.days = (st2.days || 0) + 1;
+        window.STREAK = st2;
+        var хвост = верно ? 'Верно. Серия ' + st2.days + '.' : 'Не то правило. Верное подсвечено — оно есть в колоде, прогоните его ещё раз.';
+        host.insertAdjacentHTML('beforeend', '<p class="qd-r">' + хвост + '</p>');
+        host.querySelector('.qd-fire').outerHTML = qdFire(st2);
+        if (tg && tg.HapticFeedback) { try { tg.HapticFeedback.notificationOccurred(верно ? 'success' : 'warning'); } catch(e) {} }
+        if (tg && tg.initData) {
+          try {
+            fetch(apiBase() + '/quiz', {
+              method: 'POST',
+              headers: {Authorization: 'tma ' + tg.initData, 'Content-Type': 'application/json'},
+              body: JSON.stringify({cardId: q.right.id, correct: верно})
+            }).catch(function(){});
+          } catch(e) {}
+        }
+      });
+    });
+  }
+  renderQday();
+
   layout(); measureDeckHeight(); ready = true;
   /* Экран «Тренажёр» до первого показа скрыт, ширина колоды равна нулю, и замер пропускается.
      Раньше повторить его было не по чему: layout() при показе экрана не вызывается.
@@ -2987,6 +3072,7 @@ function applyRemote(d){
   window.BONUS = d.bonus || null;
   window.DISCIPLINE = d.discipline || null;
   window.DECK_REMOTE = d.deck || null;
+  window.STREAK = d.streak || null;
   if(d.ops) OPS = d.ops;
 }
 
