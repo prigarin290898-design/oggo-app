@@ -630,7 +630,7 @@ window.ASSET_V = '20260923b';
   .sq-none{padding:22px 16px;text-align:center;font-size:13px;line-height:1.5;color:var(--ink-soft);}
   .sq-on > .sq-rest{display:none;}
 
-  /* Баллы за месяц, аттестация, игра «Банк» */
+  /* Баллы за месяц, аттестация, тренажёр */
   .at-score{border-radius:22px;padding:16px;background:var(--glass);border:1px solid var(--glass-border);-webkit-backdrop-filter:blur(26px) saturate(170%);backdrop-filter:blur(26px) saturate(170%);margin-bottom:12px;}
   .at-cols{display:flex;align-items:stretch;gap:6px;margin-top:8px;}
   .at-col{flex:1;min-width:0;border-radius:16px;padding:12px 6px;text-align:center;background:rgba(0,0,0,.04);}
@@ -711,6 +711,17 @@ window.ASSET_V = '20260923b';
   .gp-head{display:flex;align-items:center;justify-content:space-between;gap:10px;}
   .gp-draft{font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--orange);border:1px dashed var(--orange);border-radius:99px;padding:4px 10px;}
   .gp-rows{margin-top:14px;border-top:1px solid var(--line);}
+  /* Переключатель месяцев на «Росте»: название и счёт месяца в одной кнопке,
+     чтобы динамика читалась без прокрутки. Три месяца помещаются в строку на телефоне;
+     станет больше — полоса скроллится горизонтально, а не переносится. */
+  .ec-bar{display:flex;gap:6px;margin-top:14px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+  .ec-bar::-webkit-scrollbar{display:none;}
+  .ec-m{flex:1 1 0;min-width:96px;display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:10px 12px;border-radius:16px;
+        background:var(--glass);backdrop-filter:blur(26px) saturate(170%);-webkit-backdrop-filter:blur(26px) saturate(170%);
+        border:1px solid var(--glass-border);color:var(--ink);font-family:var(--font-body);cursor:pointer;text-align:left;}
+  .ec-m.on{background:#000;color:#fff;border-color:#000;box-shadow:0 14px 30px -16px rgba(0,0,0,.45);}
+  .ec-nm{font-weight:800;font-size:12.5px;line-height:1;text-transform:capitalize;}
+  .ec-pt{min-width:0;padding:4px 8px;font-size:11px;}
   .gp-row{display:flex;align-items:baseline;gap:10px;padding:11px 0;border-bottom:1px solid var(--line);font-size:13px;}
   .gp-row .l{flex:1;min-width:0;font-weight:600;}
   .gp-row .m{color:var(--ink-dim);font-size:12px;font-variant-numeric:tabular-nums;}
@@ -987,7 +998,7 @@ const PLUS_RULES = [
   ['Месяц в зелёной зоне — до 10 штрафных баллов', '+5', ''],
   ['Сдана аттестация участка — за каждый участок', '+10', 'повтор того же участка — 0; плюсы идут с 02–03.11'],
   ['Сдана аттестация по всей зоне', '+25', 'один раз за сессию'],
-  ['Игра «Банк» — за верный ответ', '+1', 'не больше 4 плюсов в месяц'],
+  ['Тренажёр — за верный ответ', '+1', 'не больше 4 плюсов в месяц; денег плюсы не дают'],
   ['Задача, закрытая не позже срока', '+1', 'не больше 4 плюсов в месяц; задача без срока в счёт не идёт']
 ];
 
@@ -2005,7 +2016,7 @@ function renderTasks(u){
 }
 
 // ===== Мой рост =====
-// Личные баллы живут на экране «Изучать» (два счёта, премия, игра). Здесь — правила, по которым они считаются:
+// Личные баллы живут на экране «Мой рост» (два счёта, премия, тренажёр). Здесь — правила, по которым они считаются:
 // недельные цифры убраны, зона считается за календарный месяц (редакция 22.09.2026).
 function renderGrowth(u){
   const el = document.getElementById('s-growth');
@@ -2529,8 +2540,8 @@ function renderErrors(u){
 function renderGame(u){
   var root = document.getElementById('s-game');
   if (!root) return;
-  root.innerHTML = '<div class="lime-heading">Тренажёр</div>'+
-    '<div class="honest" style="margin:-4px 0 12px 4px;">Правило дня и правила, которые спрашивают в игре «Банк» и на аттестации. Свайп вправо — знаю, влево — повторить.</div>'+
+  root.innerHTML = '<div class="lime-heading">Обучение</div>'+
+    '<div class="honest" style="margin:-4px 0 12px 4px;">Правило дня и правила, которые спрашивают в тренажёре и на аттестации. Свайп вправо — знаю, влево — повторить.</div>'+
     // Порядок: сначала разминка с ударным режимом, потом счётчик колоды. Счётчик относится
     // к карточкам и должен стоять вплотную к ним — иначе при переходе к колоде он уезжает
     // за верхний край и человек его не видит.
@@ -2575,7 +2586,7 @@ function renderGame(u){
     {id:'supplierinvoice', title:'Счёт поставщика', tag:'Закупки', art:'invoice', bg:'rgba(219,255,61,.45)', key:'Сверить счёт сразу после отправки заказа.', more:'До передачи платёжного поручения.'},
   ];
 
-  /* Правила из игры «Банк»: то, что спрашивают в аттестации и игре */
+  /* Правила из банка вопросов: то, что спрашивают в аттестации и тренажёре */
   var EXTRA = [{"id": "r-move1", "title": "Передача — только по перемещению", "tag": "Движение материалов и бумаги", "art": "move", "bg": "rgba(0,0,0,.07)", "key": "Сначала перемещение в программе, печать и две подписи — потом передача.", "more": "Источник: Документ «Перемещение»."}, {"id": "r-move2", "title": "Фото — после перемещения, в день движения", "tag": "Движение материалов и бумаги", "art": "move", "bg": "rgba(0,0,0,.07)", "key": "Фото уходит после физического перемещения, в день движения.", "more": "Пока фото не отправлено, движение не считается закрытым. Источник: Общие правила «Бумажное сопровождение»."}, {"id": "r-move3", "title": "Факт перемещения — в программе", "tag": "Движение материалов и бумаги", "art": "move", "bg": "rgba(0,0,0,.07)", "key": "Факт правим в программе, иначе перемещение остаётся расчётным.", "more": "Источник: Документ «Перемещение»."}, {"id": "r-move4", "title": "Перемещаем на склад площадки, не на «СТМ»", "tag": "Движение материалов и бумаги", "art": "move", "bg": "rgba(0,0,0,.07)", "key": "«СТМ» в программе — группа складов площадок, а не склад.", "more": "Перемещаем на конкретный склад ХП или РЕЛЛ. Источник: Запреты по движению материалов."}, {"id": "r-move5", "title": "Перемещение — только по расчёту", "tag": "Движение материалов и бумаги", "art": "move", "bg": "rgba(0,0,0,.07)", "key": "Собирать перемещение «от себя» запрещено: только на основании расчёта в «Снабжении».", "more": "Источник: Запреты по движению материалов."}, {"id": "r-move6", "title": "«Заказать» = 0 перед отправкой", "tag": "Движение материалов и бумаги", "art": "move", "bg": "rgba(0,0,0,.07)", "key": "Пока «Заказать» не равно 0, на площадку не отправляем.", "more": "Источник: Документ «Перемещение»."}, {"id": "r-move7", "title": "Отгрузка — со склада площадки", "tag": "Движение материалов и бумаги", "art": "move", "bg": "rgba(0,0,0,.07)", "key": "Отгрузка одна — напрямую со склада ХП или РЕЛЛ, создаёт Михаил.", "more": "ГП на основной склад не возвращается. Триггер — выпуск ГП Антоном по отчёту площадки. Источник: Шаг 12."}, {"id": "r-move8", "title": "Фото с подписями, не PDF", "tag": "Движение материалов и бумаги", "art": "move", "bg": "rgba(0,0,0,.07)", "key": "PDF без подписей не заменяет фото подписанного документа.", "more": "Источник: Общие правила «Бумажное сопровождение»."}, {"id": "r-wo1", "title": "П/з — только после «Подтверждён»", "tag": "Производственное задание", "art": "wo", "bg": "rgba(255,171,94,.42)", "key": "П/з создаётся строго после «Подтверждён» и только на основании заказа, без исключений.", "more": "Источник: Документ «Производственное задание»."}, {"id": "r-wo2", "title": "Ошибка в п/з — не трогаем", "tag": "Производственное задание", "art": "wo", "bg": "rgba(255,171,94,.42)", "key": "П/з хранит в себе ошибки: не отменяем, не правим, ничего нового не создаём.", "more": "Сначала созвон с директором. Источник: Документ «Производственное задание»."}, {"id": "r-wo3", "title": "Проведение закрытого п/з не снимаем", "tag": "Производственное задание", "art": "wo", "bg": "rgba(255,171,94,.42)", "key": "Откат проведения закрытого задания стирает факт из истории.", "more": "Без зафиксированной причины это запрещено. Источник: Запреты по п/з."}, {"id": "r-wo4", "title": "Стоп-проверка состава п/з на ГП", "tag": "Производственное задание", "art": "wo", "bg": "rgba(255,171,94,.42)", "key": "Стоп-проверка состава, иначе ошибка задвоится в документах.", "more": "Источник: Шаг 4."}, {"id": "r-wo5", "title": "Склады в п/з на ГП совпадают", "tag": "Производственное задание", "art": "wo", "bg": "rgba(255,171,94,.42)", "key": "В п/з на ГП склады материалов, списания и выпуска совпадают и выставляются сразу.", "more": "Для п/ф это правило не действует. Источник: Документ «Производственное задание»."}, {"id": "r-wo6", "title": "Факт выпуска — в день отчёта", "tag": "Производственное задание", "art": "wo", "bg": "rgba(255,171,94,.42)", "key": "Факт вносится в день отчёта.", "more": "Источник: Шаг 11."}, {"id": "r-wo7", "title": "Без полного количества материалов — не в работу", "tag": "Производственное задание", "art": "wo", "bg": "rgba(255,171,94,.42)", "key": "Задание нельзя отдать в работу, если материалов нет в полном количестве.", "more": "Источник: Шаг 8."}, {"id": "r-wo8", "title": "Не больше 4 уровней п/з", "tag": "Производственное задание", "art": "wo", "bg": "rgba(255,171,94,.42)", "key": "ГП, премикс, концентрат, основа — максимум 4 уровня, каждый отдельным п/з.", "more": "Источник: Шаг 5."}, {"id": "r-dates1", "title": "Дата п/з — текущая", "tag": "Даты и сроки", "art": "rule", "bg": "rgba(219,255,61,.5)", "key": "Для п/з только текущая дата; ранняя — лишь с комментарием «исправление».", "more": "Источник: Общие правила «Даты и сроки»."}, {"id": "r-dates2", "title": "Больше суток назад — «восстановительный»", "tag": "Даты и сроки", "art": "rule", "bg": "rgba(219,255,61,.5)", "key": "Больше суток задним числом — только как «восстановительный документ» с явной пометкой.", "more": "Источник: Общие правила «Даты и сроки»."}, {"id": "r-dates3", "title": "Дату в будущем ставить нельзя", "tag": "Даты и сроки", "art": "rule", "bg": "rgba(219,255,61,.5)", "key": "Дата в будущем запрещена.", "more": "Источник: Запреты по датам и срокам."}, {"id": "r-order1", "title": "После «Подтверждён» — доп. заказ", "tag": "Заказ покупателя", "art": "order", "bg": "rgba(219,255,61,.45)", "key": "После «Подтверждён» заказ не меняется, правки не принимаются.", "more": "Корректировка — только дополнительным заказом покупателя. Источник: Шаг 1."}, {"id": "r-order2", "title": "Цены в заказе проверяет Михаил", "tag": "Заказ покупателя", "art": "order", "bg": "rgba(219,255,61,.45)", "key": "До «Подтверждён» Михаил проверяет цены.", "more": "Заказ создаёт и подтверждает директор. Источник: Шаг 1."}, {"id": "r-order3", "title": "Заказ до «Подтверждён» не берём", "tag": "Заказ покупателя", "art": "order", "bg": "rgba(219,255,61,.45)", "key": "Брать заказ в работу, пока он не «Подтверждён», запрещено.", "more": "Источник: Запреты по заказу."}, {"id": "r-tech1", "title": "Техкарты — только Михаил, по запросу", "tag": "Техкарты и номенклатура", "art": "tech", "bg": "rgba(255,171,94,.42)", "key": "Только Михаил, по согласованному запросу директору с письменным обоснованием.", "more": "Источник: Документ «Техкарта»."}, {"id": "r-tech2", "title": "Порядок правки техкарты", "tag": "Техкарты и номенклатура", "art": "tech", "bg": "rgba(255,171,94,.42)", "key": "Порядок: запрос редактирования, правка, сверка изменений и согласование директором.", "more": "Источник: Документ «Техкарта»."}, {"id": "r-tech3", "title": "Техкарты проверяем до п/з", "tag": "Техкарты и номенклатура", "art": "tech", "bg": "rgba(255,171,94,.42)", "key": "Проверка идёт до создания п/з.", "more": "Источник: Шаг 2."}, {"id": "r-tech4", "title": "Похожий товар — копия «(2)»", "tag": "Техкарты и номенклатура", "art": "tech", "bg": "rgba(255,171,94,.42)", "key": "Оригинал не правим: правится только копия с «(2)».", "more": "Источник: Документ «Техкарта»."}, {"id": "r-tech5", "title": "Карточка товара — сразу с ценой продажи", "tag": "Техкарты и номенклатура", "art": "tech", "bg": "rgba(255,171,94,.42)", "key": "Карточка создаётся сразу с ценой продажи, по образцу существующей продукции.", "more": "Источник: Общие правила «Цены и номенклатура»."}, {"id": "r-recv1", "title": "Нет документов — считаем по факту", "tag": "Приёмка", "art": "receipt", "bg": "rgba(219,255,61,.45)", "key": "Нет документов — количество строго по факту пересчёта.", "more": "Источник: Документ «Приёмка»."}, {"id": "r-recv2", "title": "Приёмка — дважды: УПД и пересчёт", "tag": "Приёмка", "art": "receipt", "bg": "rgba(219,255,61,.45)", "key": "Количество сверяется дважды — по УПД и физическим пересчётом.", "more": "Источник: Документ «Приёмка»."}, {"id": "r-inv1", "title": "Выборочная проверка: 30%, Антон и Арсений", "tag": "Инвентаризация и остатки", "art": "inv", "bg": "rgba(0,0,0,.07)", "key": "Перед каждым п/з, включая вложенные: 30% позиций этого п/з, проверяют Антон и Арсений.", "more": "Источник: Шаг 0."}, {"id": "r-inv2", "title": "Допуск 5% — по каждой позиции", "tag": "Инвентаризация и остатки", "art": "inv", "bg": "rgba(0,0,0,.07)", "key": "Порог 5% считается по каждой позиции отдельно; избыток тоже нарушение.", "more": "Источник: Документ «Инвентаризация»."}, {"id": "r-inv3", "title": "Расхождение больше 5% — стоп и разбор", "tag": "Инвентаризация и остатки", "art": "inv", "bg": "rgba(0,0,0,.07)", "key": "Больше 5% — стоп, разбор и внеплановая инвентаризация этих позиций.", "more": "Источник: Шаг 0."}, {"id": "r-inv4", "title": "Склад на инвентаризации не двигаем", "tag": "Инвентаризация и остатки", "art": "inv", "bg": "rgba(0,0,0,.07)", "key": "Запрет действует до согласования инвентаризации директором и только по этому складу.", "more": "Источник: Общие правила «Даты и сроки»."}, {"id": "r-inv5", "title": "Оприходование и списание — только при инвентаризации", "tag": "Инвентаризация и остатки", "art": "inv", "bg": "rgba(0,0,0,.07)", "key": "Оприходование и списание — только при инвентаризации.", "more": "Выпуск ГП идёт через «Выполнение этапа» в п/з. Источник: Документ «Инвентаризация»."}, {"id": "r-disc1", "title": "Заявил сам — ноль баллов", "tag": "Дисциплина и баллы", "art": "rule", "bg": "rgba(255,171,94,.42)", "key": "Заявил сам — ноль баллов, всегда, без исключений.", "more": "Источник: Регламент KPI."}, {"id": "r-disc2", "title": "Заявить о проблеме — за 2 дня", "tag": "Дисциплина и баллы", "art": "rule", "bg": "rgba(255,171,94,.42)", "key": "Норма эскалации — 2 дня.", "more": "Вскрылось позже и не было заявлено — уровень 3 как сокрытие. Источник: Регламент KPI."}, {"id": "r-disc3", "title": "Что такое сокрытие", "tag": "Дисциплина и баллы", "art": "rule", "bg": "rgba(255,171,94,.42)", "key": "Сокрытие — это проблема, о которой не заявили в срок и которая вскрылась позже.", "more": "Это уровень 3. Источник: Регламент KPI."}, {"id": "r-disc4", "title": "Уровень 3 — всегда разговор", "tag": "Дисциплина и баллы", "art": "rule", "bg": "rgba(255,171,94,.42)", "key": "Любое нарушение уровня 3 тянет разговор независимо от суммы.", "more": "Скрыл проблему — обсуждаем, даже если в остальном чисто. Источник: Регламент KPI."}, {"id": "r-disc5", "title": "Счётчик обнуляют три чистые операции", "tag": "Дисциплина и баллы", "art": "rule", "bg": "rgba(255,171,94,.42)", "key": "Время счётчик не обнуляет.", "more": "Источник: Регламент KPI."}, {"id": "r-move9", "title": "Перемещение — на основании п/з", "tag": "Движение материалов и бумаги", "art": "move", "bg": "rgba(0,0,0,.07)", "key": "У перемещения должен быть документ-основание — производственное задание.", "more": "Перемещение без основания машина находит сама: уровень 2. Источник: Приложение 2, решение 22.09.2026."}, {"id": "r-move10", "title": "Машина — после сборки и сверки", "tag": "Движение материалов и бумаги", "art": "truck", "bg": "rgba(0,0,0,.07)", "key": "Машину заказываем, только когда перемещение создано, груз собран и комплектация сверена с расчётом из п/з.", "more": "Три условия сразу. Раньше — уровень 3. Источник: решение №26."}, {"id": "r-order4", "title": "Отгрузка — на основании заказа", "tag": "Заказ покупателя", "art": "cart", "bg": "rgba(219,255,61,.45)", "key": "Отгрузка создаётся только на основании заказа покупателя.", "more": "Заказ — план, отгрузка — факт. Без связи отклонение заказано/отгружено не посчитать. Источник: решение 22.09.2026."}, {"id": "r-order5", "title": "Счёт — на основании отгрузки", "tag": "Заказ покупателя", "art": "invoice", "bg": "rgba(219,255,61,.45)", "key": "Счёт покупателю создаётся только на основании отгрузки.", "more": "Цепочка: заказ → отгрузка → счёт. Источник: решение 22.09.2026."}, {"id": "r-disc6", "title": "Утреннее окно — час на исправление", "tag": "Дисциплина и баллы", "art": "hourglass", "bg": "rgba(255,171,94,.42)", "key": "Нарушение уровня 1 или 2, устранённое в течение часа после утреннего созвона, баллов не даёт.", "more": "Уровень 3 в окне не снимается. Снимает балл только устранение, не ответ и не обещание. Источник: регламент KPI, редакция 22.09.2026."}, {"id": "r-disc7", "title": "Оспорить — 3 рабочих дня", "tag": "Дисциплина и баллы", "art": "scales", "bg": "rgba(255,171,94,.42)", "key": "Не согласны с баллом — оспаривание в течение 3 рабочих дней: комментарий по существу и категория.", "more": "Решает только директор. Оспаривание не освобождает от устранения. Источник: Положение о премировании, §7."}, {"id": "r-disc8", "title": "Задача в срок — плюс в «Рост»", "tag": "Дисциплина и баллы", "art": "check2", "bg": "rgba(255,171,94,.42)", "key": "Задача, закрытая не позже срока, даёт +1 в счёт «Рост», не больше 4 плюсов в месяц.", "more": "Задача без срока в счёт не идёт. Счёт дисциплины премию не снижает, влияет только на рост. Источник: решение 22.09.2026."}];
   var ARTMAP = {"move1": "move", "move2": "phone", "move3": "laptop", "move4": "depot", "move5": "calc", "move6": "cart", "move7": "truck", "move8": "sign", "wo1": "stamp", "wo2": "call", "wo3": "lock", "wo4": "lens", "wo5": "cubes3", "wo6": "clock", "wo7": "emptybox", "wo8": "stairs", "dates1": "rule", "dates2": "hourglass", "dates3": "calendarlock", "dates4": "rule", "order1": "docplus", "order2": "tag", "order3": "lock", "tech1": "key", "tech2": "docpen", "tech3": "tech", "tech4": "copy", "tech5": "tag", "recv1": "scales", "recv2": "check2", "inv1": "pie", "inv2": "caliper", "inv3": "stop", "inv4": "lock", "inv5": "scanner", "disc1": "mega", "disc2": "clock", "disc3": "envelope", "disc4": "bubbles", "disc5": "tiles3", "move9": "move", "move10": "truck", "order4": "cart", "order5": "invoice", "disc6": "hourglass", "disc7": "scales", "disc8": "check2"};
   EXTRA.forEach(function(c){ var k = ARTMAP[c.id.replace(/^r-/, '')]; if(k) c.art = k; });
@@ -2747,7 +2758,7 @@ function renderGame(u){
     var left = pool().length;
     var head = '<div class="g-ok">'+ic('<polyline points="4 12 10 18 20 6"/>',34)+'</div>';
     if (!left) {
-      done.innerHTML = head+'<h3>Все карточки — знаю!</h3><p>Пройдено '+ALL.length+' из '+ALL.length+'. Это те же правила, что спрашивают в игре «Банк» и на аттестации.</p><button class="g-again" id="gBtnAgain">Пройти снова</button>';
+      done.innerHTML = head+'<h3>Все карточки — знаю!</h3><p>Пройдено '+ALL.length+' из '+ALL.length+'. Это те же правила, что спрашивают в тренажёре и на аттестации.</p><button class="g-again" id="gBtnAgain">Пройти снова</button>';
       document.getElementById('gBtnAgain').addEventListener('click', function(){ knownIds.clear(); save(); batchNo = 0; more(); });
       return;
     }
@@ -2916,7 +2927,7 @@ function renderGame(u){
      Вопросы собираются здесь: колода живёт только в приложении. Набор одинаковый весь день и не
      меняется от перезагрузки — номер берётся от даты, иначе можно было бы крутить до знакомого. */
   /* ===== Разминка дня =====
-     Вопросы приходят с сервера из банка `bank_questions` — того же, что у игры «Банк» и
+     Вопросы приходят с сервера из банка `bank_questions` — того же, что у тренажёра и
      аттестации. Они написаны руками: настоящие отвлекающие варианты, объяснение и источник.
      Собирать вопросы из карточек колоды пробовали и отказались: у карточки заголовок и текст
      «Главное» почти совпадают, вопрос отвечал сам на себя.
@@ -3188,7 +3199,7 @@ function sqMount(hostId, u, o){
   resEl.addEventListener('click', ev=>{ const r = ev.target.closest('.sq-row'); if(r) sqOpen(cur[+r.dataset.i]); });
 }
 
-// ===== Баллы за месяц, аттестация, игра «Банк» =====
+// ===== Баллы за месяц, аттестация, тренажёр =====
 async function appApi(method, path, body){
   const r = await fetch(API_URL.replace(/\/data$/, '') + path, {method, headers:Object.assign({Authorization:'tma '+((tg && tg.initData) || '')}, body ? {'Content-Type':'application/json'} : {}), body: body ? JSON.stringify(body) : undefined});
   if(!r.ok){ const e = new Error('http '+r.status); e.status = r.status; throw e; }
@@ -3263,7 +3274,7 @@ function atGrowthHtml(g){
     {l:'Месяц в зелёной зоне', m:g.greenMonths+' × +5', v:g.greenMonths*5},
     {l:'Аттестация участка', m:g.sectionAttest+' × +10', v:g.sectionAttest*10},
     {l:'Аттестация по всей зоне', m:g.zoneAttest+' × +25', v:g.zoneAttest*25},
-    {l:'Игра «Банк»', m:'до +4 в месяц', v:g.game || 0},
+    {l:'Тренажёр', m:'до +4 в месяц', v:g.game || 0},
     // Задачи, закрытые в срок: +1 за задачу, не больше 4 в месяц (решение 22.09.2026). Считает сервер по Трекеру.
     {l:'Задачи в срок', m:'до +4 в месяц', v:(window.DISCIPLINE && window.DISCIPLINE.plus) || 0}
   ];
@@ -3287,11 +3298,11 @@ async function atGameCta(box){
   if(!window.GROW_SCORE) return;
   let g; try{ g = await appApi('GET','/game'); }catch(e){ return; }
   let h;
-  if(g.state === 'ready') h = '<button class="at-cta" type="button" data-go="play">Играть · до +4 в месяц</button>';
-  else if(g.state === 'done') h = '<button class="at-cta" type="button" disabled>Сыграно на этой неделе · следующая с '+AT_DM(g.nextAt)+'</button>';
-  else if(g.state === 'weekend') h = '<button class="at-cta" type="button" disabled>Игра открыта в будни · с '+AT_DM(g.nextAt)+'</button>';
+  if(g.state === 'ready') h = '<button class="at-cta" type="button" data-go="play">Тренажёр · закрывает блоки аттестации</button>';
+  else if(g.state === 'done') h = '<button class="at-cta" type="button" disabled>Подход на этой неделе был · следующий с '+AT_DM(g.nextAt)+'</button>';
+  else if(g.state === 'weekend') h = '<button class="at-cta" type="button" disabled>Тренажёр открыт в будни · с '+AT_DM(g.nextAt)+'</button>';
   else if(g.state === 'cap') h = '<button class="at-cta" type="button" disabled>Лимит месяца +4 набран</button>';
-  else h = '<button class="at-cta" type="button" disabled>Игра откроется после аттестации</button>';
+  else h = '<button class="at-cta" type="button" disabled>Тренажёр закрыт</button>';
   const old = box.querySelector('.at-cta'); if(old) old.remove();
   box.insertAdjacentHTML('beforeend', h);
   const bt = box.querySelector('[data-go="play"]');
@@ -3381,26 +3392,53 @@ function errItemRow(it){
     '<div class="muted" style="margin-top:4px;">'+SQ_ESC(it.what || '')+'</div>'+
     '<div class="row" style="gap:6px;margin-top:6px;flex-wrap:wrap;">'+chips+'</div></div>';
 }
+// Баллы по месяцам: сверху переключатель, ниже — начисления ТОЛЬКО выбранного месяца
+// (требование директора 01.10: «пусть будет сверху переключение в виде календаря»).
+// Сплошной лист за три месяца делал экран длинным, и динамика — то, ради чего экран и открывают, —
+// пряталась за прокруткой. Рядом с названием месяца стоит его счёт: сентябрь −17, октябрь −2
+// читаются как улучшение сразу, без прокрутки.
+//
+// Месяц по умолчанию — текущий (первый в ответе сервера). Месяц без начислений не скрывается:
+// отсутствие ошибок — это результат, и его надо видеть.
+let ERR_CAL_N = 0;
 function errHistoryHtml(h, own){
-  const months = (h.months || []).map(m=>{
+  const id = 'errCal' + (++ERR_CAL_N);
+  const months = h.months || [];
+  ERR_CAL[id] = { months, own };
+  const tabs = months.map((m, i) => {
     const z = AT_ZONE(m.points);
-    const n = (m.items || []).length;
-    return '<div class="gp-row"><span class="l">'+SQ_ESC(m.month)+(m.closed ? '' : ' · предварительно')+'</span>'+
-      '<span class="m">'+(n ? n+' '+AT_PL(n,'начисление','начисления','начислений') : 'начислений нет')+'</span>'+
-      '<span class="v"><span class="ov '+z.k+'" style="min-width:0;padding:5px 9px;font-size:11px;">'+AT_NEG(m.points)+'</span></span></div>';
+    return '<button class="ec-m' + (i === 0 ? ' on' : '') + '" type="button" data-cal="' + id + '" data-i="' + i + '">' +
+      '<span class="ec-nm">' + SQ_ESC(m.month) + '</span>' +
+      '<span class="ov ' + z.k + ' ec-pt">' + AT_NEG(m.points) + '</span></button>';
   }).join('');
-  let list;
-  if(h.unavailable) list = '<div class="at-note">Начисления не прочитаны: ежедневная проверка учёта не отвечает. Это сбой, а не «ошибок нет» — скажите директору.</div>';
-  else if(!(h.items || []).length) list = '<div class="at-note">За три месяца начислений нет.</div>';
-  else list = (h.months || []).filter(m=>(m.items || []).length).map(m=>
-    '<div class="cz-cap" style="margin-top:14px;">'+SQ_ESC(m.month)+'</div>'+m.items.map(errItemRow).join('')).join('');
-  return '<div class="gp-head"><div class="cz-cap" style="margin:0;">Баллы за три месяца</div><span class="gp-draft">'+(own ? 'Только свои' : 'Счёт сотрудника')+'</span></div>'+
-    '<div class="gp-rows">'+months+'</div>'+
-    '<div class="at-note">Месяц закрывается разбором 2–4 числа следующего. До закрытия баллы предварительные.</div>'+
-    list+
-    (own ? '<div class="at-note">Не согласны с начислением — напишите боту «оспорить N» с номером из утреннего письма и пояснением по существу. Срок — 3 рабочих дня с уведомления.</div>'+
+  return '<div class="gp-head"><div class="cz-cap" style="margin:0;">Баллы по месяцам</div><span class="gp-draft">' + (own ? 'Только свои' : 'Счёт сотрудника') + '</span></div>' +
+    '<div class="ec-bar">' + tabs + '</div>' +
+    '<div id="' + id + '">' + errMonthHtml(h, months[0], own) + '</div>' +
+    (own ? '<div class="at-note">Не согласны с начислением — напишите боту «оспорить N» с номером из утреннего письма и пояснением по существу. Срок — 3 рабочих дня с уведомления.</div>' +
            '<div class="at-note">Свой счёт видите только вы: чужие баллы приложение не показывает. Личные счета разбираются один на один (решение 25.09).</div>' : '');
 }
+// Состояние переключателей: экран «Рост» и шторка счёта сотрудника рисуются одним кодом,
+// поэтому у каждого свой ключ и своя копия месяцев.
+const ERR_CAL = {};
+function errMonthHtml(h, m, own){
+  if(h.unavailable) return '<div class="at-note">Начисления не прочитаны: ежедневная проверка учёта не отвечает. Это сбой, а не «ошибок нет» — скажите директору.</div>';
+  if(!m) return '<div class="at-note">Месяц не выбран.</div>';
+  const items = m.items || [];
+  const head = '<div class="at-note">' + SQ_ESC(m.month) + (m.closed ? ' — месяц закрыт разбором.' : ' — баллы предварительные, месяц закрывается разбором 2–4 числа следующего.') + '</div>';
+  if(!items.length) return head + '<div class="cz-note"><div class="cz-cap">Начислений нет</div><div class="cz-txt">За этот месяц у вас ни одного начисления. Это результат, а не пустой экран.</div></div>';
+  return head + items.map(errItemRow).join('');
+}
+// Переключение месяца — делегированием: блоки перерисовываются, и слушатели на кнопках бы терялись.
+document.addEventListener('click', function(e){
+  const b = e.target.closest && e.target.closest('.ec-m');
+  if(!b) return;
+  const id = b.dataset.cal, i = Number(b.dataset.i);
+  const st = ERR_CAL[id];
+  const host = document.getElementById(id);
+  if(!st || !host) return;
+  document.querySelectorAll('.ec-m[data-cal="' + id + '"]').forEach(x => x.classList.toggle('on', x === b));
+  host.innerHTML = errMonthHtml({ unavailable: false }, st.months[i], st.own);
+});
 // Свой счёт тянем один раз на открытие приложения: его просят и «Рост», и «Мои ошибки».
 let MY_SCORE = null;
 function myScore(){
@@ -3751,14 +3789,18 @@ function gmCreditHtml(c){
   if(!c) return '';
   const done = (c.blocks || []).filter(b=>b.credited);
   const pct = x => Math.round(x * 100) + '%';
-  if(c.share === null) return '<div class="at-note">Зачёт блоков аттестации через игру готов, но порог ещё не назначен директором. Пока он не назначен, игра на аттестацию не влияет — ответы всё равно записываются и зачтутся, когда порог появится.</div>';
-  if(c.appliesTo === null) return '<div class="at-note">Ближайшая аттестация установочная: она без очков и без последствий, поэтому блоки игрой на ней не зачитываются. Зачёт начинает работать с первой реальной аттестации 02–03.11.</div>';
+  if(c.share === null) return '<div class="at-note">Зачёт блоков аттестации через тренажёр готов, но порог ещё не назначен директором. Пока он не назначен, тренажёр на аттестацию не влияет — ответы всё равно записываются и зачтутся, когда порог появится.</div>';
+  if(c.appliesTo === null) return '<div class="at-note">Ближайшая аттестация установочная: она без очков и без последствий, поэтому блоки тренажёром на ней не зачитываются. Зачёт начинает работать с первой реальной аттестации 02–03.11.</div>';
   const head = '<div class="at-note">Блок аттестации считается закрытым, если вы ответили верно с первого раза на '+pct(c.share)+' его вопросов, и таких вопросов было не меньше '+c.minAsked+'. Вопросы выбираются случайно.</div>';
   if(!done.length) return head;
   return head+'<div class="gp-rows">'+done.map(b=>'<div class="gp-row"><span class="l">Блок «'+SQ_ESC(b.block)+'»</span><span class="m">'+b.right+' из '+b.asked+' с первого раза</span><span class="v"><span class="ov g" style="min-width:0;padding:5px 9px;font-size:10.5px;">закрыт</span></span></div>').join('')+'</div>';
 }
 
-// --- Игра «Банк» (в «Тренажёре»): очки идут только в «Рост», «Ошибки» не меняются
+// --- Тренажёр (бывшая игра «Банк»): очки идут только в «Рост», «Ошибки» не меняются.
+// ponytail: в интерфейсе «Тренажёр», внутри всё ещё «game»/«bank» — таблицы bank_questions,
+// game_plays, game_answers и маршруты /api/app/game. Переименование базы и ручек ради названия
+// кнопки не стоит риска. Путь апгрейда, если понадобится: миграция с переименованием таблиц,
+// новые маршруты /api/app/training со старыми как синонимами на один выпуск, затем снос старых.
 function gmSet(mode){
   const root = document.getElementById('s-game'); if(!root) return;
   root.querySelectorAll('.gm-sw button').forEach(b=> b.classList.toggle('on', b.dataset.m === mode));
@@ -3772,21 +3814,22 @@ function gmMount(u){
   const learn = document.createElement('div'); learn.className = 'gm-learn'; kids.forEach(k=>learn.appendChild(k));
   const play = document.createElement('div'); play.className = 'gm-play'; play.hidden = true;
   const sw = document.createElement('div'); sw.className = 'gm-sw';
-  sw.innerHTML = '<button type="button" class="on" data-m="learn">Изучать</button><button type="button" data-m="play">Игра «Банк»</button>';
+  sw.innerHTML = '<button type="button" class="on" data-m="learn">Изучать</button><button type="button" data-m="play">Тренажёр</button>';
   root.appendChild(sw); root.appendChild(learn); root.appendChild(play);
   sw.querySelectorAll('button').forEach(b=> b.addEventListener('click', ()=> gmSet(b.dataset.m)));
 }
 async function gmStatus(play){
-  if(!window.GROW_SCORE){ play.innerHTML = '<div class="at-card dk"><div class="cz-cap">Игра «Банк»</div><div class="at-h">Игра откроется позже</div><p class="at-p">Играть смогут те, кто прошёл аттестацию. Очки пойдут в «Рост». Когда игра будет готова, мы скажем.</p></div>'; return; }
+  if(!window.GROW_SCORE){ play.innerHTML = '<div class="at-card dk"><div class="cz-cap">Тренажёр</div><div class="at-h">Тренажёр откроется позже</div><p class="at-p">Когда он будет готов, мы скажем.</p></div>'; return; }
   play.innerHTML = '<div class="at-card"><p class="at-p">Загрузка…</p></div>';
-  let g; try{ g = await appApi('GET','/game'); }catch(e){ play.innerHTML = '<div class="at-card"><div class="at-h">Нет связи</div><p class="at-p">Не удалось получить данные игры.</p><button class="at-cta" type="button" id="gmRe">Повторить</button></div>'; document.getElementById('gmRe').addEventListener('click', ()=>gmStatus(play)); return; }
+  let g; try{ g = await appApi('GET','/game'); }catch(e){ play.innerHTML = '<div class="at-card"><div class="at-h">Нет связи</div><p class="at-p">Не удалось получить данные тренажёра.</p><button class="at-cta" type="button" id="gmRe">Повторить</button></div>'; document.getElementById('gmRe').addEventListener('click', ()=>gmStatus(play)); return; }
   const info = window.GROW_SCORE ? '<div class="at-score dk" style="margin-top:12px;">'+atGrowthHtml(window.GROW_SCORE).score+'</div>' : '';
-  if(g.state === 'locked') play.innerHTML = '<div class="at-card dk"><div class="cz-cap">Игра «Банк»</div><div class="at-h">Игра закрыта</div><p class="at-p">Сейчас играть нельзя. Если это не ожидалось — скажите директору.</p></div>'+info;
-  else if(g.state === 'weekend') play.innerHTML = '<div class="at-card dk"><div class="cz-cap">Игра «Банк»</div><div class="at-h">Сейчас выходной</div><p class="at-p">Игра открыта в рабочие дни, с понедельника по пятницу, и открывается один раз в неделю. Следующая возможность: '+AT_DM(g.nextAt)+'.</p></div>'+info;
-  else if(g.state === 'cap') play.innerHTML = '<div class="at-card dk"><div class="cz-cap">Игра «Банк»</div><div class="at-h">Лимит месяца набран</div><p class="at-p">Из игры засчитано +4 в «Рост», больше в этом месяце не добавится. Новый счёт с '+AT_DM(g.nextAt)+'.</p></div>'+info;
-  else if(g.state === 'done') play.innerHTML = '<div class="at-card dk"><div class="cz-cap">Игра «Банк»</div><div class="at-h">На этой неделе вы уже играли</div><p class="at-p">Следующая игра с '+AT_DM(g.nextAt)+'.</p></div>'+info;
-  else { play.innerHTML = '<div class="at-card dk"><div class="cz-cap">Игра «Банк»</div><div class="at-h">'+g.total+' '+AT_PL(g.total,'вопрос','вопроса','вопросов')+' из банка</div><p class="at-p">Каждый верный ответ даёт +1 в «Рост», но не больше +4 в месяц. Неверный ответ ничего не отнимает, но покажет правильный. Счёт «Ошибки» игра не меняет. Играть можно в любой рабочий день недели, но один раз за неделю. Вопросы каждый раз выбираются случайно, в банке сейчас '+g.bank+' '+AT_PL(g.bank,'вопрос','вопроса','вопросов')+'.</p>'+
-    '<p class="at-sm">Плюсы — это права, а не деньги: меньше ручных проверок, выход на аттестацию, возврат забранных операций (решение 30.09).</p>'+
+  if(g.state === 'locked') play.innerHTML = '<div class="at-card dk"><div class="cz-cap">Тренажёр</div><div class="at-h">Тренажёр закрыт</div><p class="at-p">Сейчас заниматься нельзя. Если это не ожидалось — скажите директору.</p></div>'+info;
+  else if(g.state === 'weekend') play.innerHTML = '<div class="at-card dk"><div class="cz-cap">Тренажёр</div><div class="at-h">Сейчас выходной</div><p class="at-p">Тренажёр открыт в рабочие дни, с понедельника по пятницу, один подход в неделю. Следующий: '+AT_DM(g.nextAt)+'.</p></div>'+info;
+  else if(g.state === 'cap') play.innerHTML = '<div class="at-card dk"><div class="cz-cap">Тренажёр</div><div class="at-h">Лимит месяца набран</div><p class="at-p">В «Рост» засчитано +4, больше в этом месяце не добавится. Блоки аттестации тренажёр закрывает и после лимита: считаются верные ответы с первого раза, а не плюсы. Новый счёт с '+AT_DM(g.nextAt)+'.</p></div>'+info;
+  else if(g.state === 'done') play.innerHTML = '<div class="at-card dk"><div class="cz-cap">Тренажёр</div><div class="at-h">На этой неделе подход уже был</div><p class="at-p">Следующий с '+AT_DM(g.nextAt)+'.</p></div>'+info;
+  else { play.innerHTML = '<div class="at-card dk"><div class="cz-cap">Тренажёр</div><div class="at-h">'+g.total+' '+AT_PL(g.total,'вопрос','вопроса','вопросов')+' к аттестации</div><p class="at-p">Здесь спрашивают ровно то же, что на аттестации. Ответили верно с первого раза — блок закрывается, и на самой аттестации его спрашивать не будут. Занимаетесь — сдаёте меньше, быстрее снимаются ручные проверки и возвращаются забранные операции.</p>'+
+    '<p class="at-p">Неверный ответ ничего не отнимает, но покажет правильный. Счёт «Ошибки» тренажёр не меняет. Один подход в рабочий день недели, вопросы каждый раз выбираются случайно, всего их '+g.bank+'.</p>'+
+    '<p class="at-sm">Денег тренажёр не даёт и к премии не относится. Верные ответы идут в «Рост» (+1, не больше 4 в месяц), а плюсы — это права, а не рубли (решение 30.09).</p>'+
     gmCreditHtml(g.credit)+
     '<button class="at-cta" type="button" id="gmStart">Начать</button></div>'+info;
     document.getElementById('gmStart').addEventListener('click', async ()=>{ try{ const r = await appApi('POST','/game/start',{}); gmQuestion(play, r.question, r.n || 1, r.total, r.won || 0); }catch(e){ gmStatus(play); } }); }
@@ -3806,7 +3849,7 @@ function gmQuestion(play, q, n, total, won){
 }
 function gmSummary(play, total, won, nextAt){
   const g = window.GROW_SCORE;
-  play.innerHTML = '<div class="at-card dk"><div class="cz-cap">Игра «Банк»</div><div class="at-h">В «Рост» за игру: +'+won+'</div><p class="at-p">В этом месяце из игры: '+((g && g.gameMonth) || 0)+' из 4. Счёт «Ошибки» не изменился.</p><p class="at-sm">Следующая игра'+(nextAt ? ' с '+AT_DM(nextAt) : ' — на следующей неделе')+'.</p><button class="at-cta" type="button" id="gmDone">Готово</button></div>';
+  play.innerHTML = '<div class="at-card dk"><div class="cz-cap">Тренажёр</div><div class="at-h">Верных с первого раза: '+won+' из '+total+'</div><p class="at-p">В «Рост» в этом месяце: '+((g && g.gameMonth) || 0)+' из 4. Счёт «Ошибки» не изменился.</p><p class="at-sm">Следующий подход'+(nextAt ? ' с '+AT_DM(nextAt) : ' — на следующей неделе')+'.</p><button class="at-cta" type="button" id="gmDone">Готово</button></div>';
   document.getElementById('gmDone').addEventListener('click', ()=>{ const gb = document.getElementById('atGrowth'); if(gb && g){ gb.innerHTML = atGrowthHtml(g).score; atGameCta(gb); } gmStatus(play); });
 }
 
