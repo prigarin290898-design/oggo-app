@@ -3302,7 +3302,7 @@ async function atGameCta(box){
   else if(g.state === 'done') h = '<button class="at-cta" type="button" disabled>Подход на этой неделе был · следующий с '+AT_DM(g.nextAt)+'</button>';
   else if(g.state === 'weekend') h = '<button class="at-cta" type="button" disabled>Тренажёр открыт в будни · с '+AT_DM(g.nextAt)+'</button>';
   else if(g.state === 'cap') h = '<button class="at-cta" type="button" disabled>Лимит месяца +4 набран</button>';
-  else h = '<button class="at-cta" type="button" disabled>Тренажёр закрыт</button>';
+  else h = '<button class="at-cta" type="button" disabled>Тренажёр откроется после первой аттестации</button>';
   const old = box.querySelector('.at-cta'); if(old) old.remove();
   box.insertAdjacentHTML('beforeend', h);
   const bt = box.querySelector('[data-go="play"]');
@@ -3823,7 +3823,7 @@ async function gmStatus(play){
   play.innerHTML = '<div class="at-card"><p class="at-p">Загрузка…</p></div>';
   let g; try{ g = await appApi('GET','/game'); }catch(e){ play.innerHTML = '<div class="at-card"><div class="at-h">Нет связи</div><p class="at-p">Не удалось получить данные тренажёра.</p><button class="at-cta" type="button" id="gmRe">Повторить</button></div>'; document.getElementById('gmRe').addEventListener('click', ()=>gmStatus(play)); return; }
   const info = window.GROW_SCORE ? '<div class="at-score dk" style="margin-top:12px;">'+atGrowthHtml(window.GROW_SCORE).score+'</div>' : '';
-  if(g.state === 'locked') play.innerHTML = '<div class="at-card dk"><div class="cz-cap">Тренажёр</div><div class="at-h">Тренажёр закрыт</div><p class="at-p">Сейчас заниматься нельзя. Если это не ожидалось — скажите директору.</p></div>'+info;
+  if(g.state === 'locked') play.innerHTML = '<div class="at-card dk"><div class="cz-cap">Тренажёр</div><div class="at-h">Откроется после первой аттестации</div><p class="at-p">Сначала аттестация, потом тренажёр: к первой сдаче готовятся по карточкам в соседней вкладке «Изучать». Как только директор объявит ваш результат, тренажёр откроется и будет закрывать блоки следующей аттестации.</p></div>'+info;
   else if(g.state === 'weekend') play.innerHTML = '<div class="at-card dk"><div class="cz-cap">Тренажёр</div><div class="at-h">Сейчас выходной</div><p class="at-p">Тренажёр открыт в рабочие дни, с понедельника по пятницу, один подход в неделю. Следующий: '+AT_DM(g.nextAt)+'.</p></div>'+info;
   else if(g.state === 'cap') play.innerHTML = '<div class="at-card dk"><div class="cz-cap">Тренажёр</div><div class="at-h">Лимит месяца набран</div><p class="at-p">В «Рост» засчитано +4, больше в этом месяце не добавится. Блоки аттестации тренажёр закрывает и после лимита: считаются верные ответы с первого раза, а не плюсы. Новый счёт с '+AT_DM(g.nextAt)+'.</p></div>'+info;
   else if(g.state === 'done') play.innerHTML = '<div class="at-card dk"><div class="cz-cap">Тренажёр</div><div class="at-h">На этой неделе подход уже был</div><p class="at-p">Следующий с '+AT_DM(g.nextAt)+'.</p></div>'+info;
