@@ -1743,6 +1743,7 @@ function renderProfile(u){
       <div class="muted" style="margin-top:2px;">${u.role}</div>
       <div class="row" style="justify-content:center;gap:8px;margin-top:10px;"><span class="tag">${u.dept}</span></div>
     </div>
+    <div id="homeAtt"></div>
     <div class="glass tblack">
       <div class="cz-cap" style="margin-bottom:10px;">Команда отдела</div>
       ${teamTree(u)}
@@ -1778,6 +1779,7 @@ function renderProfile(u){
       list: i=>groups[i].a.map(t=>czItem(t, groups[i].bad)).join('')
     });
   }
+  atHomeBanner();
 }
 
 // ===== Задачи =====
@@ -3638,6 +3640,29 @@ function atWrongHtml(list, blocks){
     '<div class="at-ans no">Вы ответили: '+SQ_ESC(w.options[w.chosen])+'</div><div class="at-ans">Верно: '+SQ_ESC(w.options[w.right])+'<br>'+SQ_ESC(w.explain||'')+'</div></div>').join('');
 }
 function atResultChips(blocks){ return '<div class="at-verd">'+blocks.map(b=>'<span class="ov '+(b.pass?'g':'r')+'">'+b.id+' · '+(b.pass?'Зачтён':'Не зачтён')+' · '+b.correct+'/'+b.total+'</span>').join('')+'</div>'; }
+// Баннер на стартовой: аттестацию не должно быть нужно искать. Экран «Мой рост» длинный,
+// а сдавать надо в конкретные два дня — поэтому статус висит там, куда человек попадает первым.
+async function atHomeBanner(){
+  const host = document.getElementById('homeAtt');
+  if(!host) return;
+  let A; try{ A = await appApi('GET','/attestation'); }catch(e){ return; }
+  if(!A || !A.eligible) return;
+  const w = A.window || {};
+  const open = A.status === 'open' || A.status === 'inprogress';
+  if(!open && A.status !== 'scheduled') return;
+  const title = A.status === 'inprogress' ? 'Аттестация начата' : (open ? 'Открыта аттестация' : 'Аттестация назначена');
+  const sub = A.status === 'inprogress' ? ('Отвечено ' + A.answered + ' из ' + A.total + ' — продолжить')
+    : open ? (A.total + ' ' + AT_PL(A.total,'вопрос','вопроса','вопросов') + ' по вашим блокам — пройти сейчас')
+    : ('Тест откроется ' + AT_DM(w.submitOn) + ', лист уже готов');
+  host.innerHTML = '<button class="at-cta" type="button" id="homeAttGo" style="width:100%;display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:14px 18px;margin:0 0 12px;background:var(--lime);color:var(--lime-ink);border-radius:20px;text-align:left;">'+
+    '<span style="font-family:var(--font-display);font-size:17px;font-weight:700;line-height:1.2;">'+title+'</span>'+
+    '<span style="font-size:12px;font-weight:600;opacity:.62;line-height:1.3;">'+sub+'</span></button>';
+  document.getElementById('homeAttGo').onclick = ()=>{
+    const btn = document.querySelector('.botnav .ni[data-s="growth"]');
+    if(btn) btn.click();
+    setTimeout(()=>{ const b = document.getElementById('atBox'); if(b) b.scrollIntoView({behavior:'smooth', block:'start'}); }, 150);
+  };
+}
 async function atMountEmployee(host){
   const box = document.createElement('div'); box.className = 'at-card dk'; box.id = 'atBox'; box.hidden = true;
   atPut(host, box, 3);
@@ -3646,7 +3671,8 @@ async function atMountEmployee(host){
 }
 function atRenderEmployee(box, A){
   const w = A.window || {};
-  const head = '<div class="cz-cap">Аттестация'+(w.title ? ' · '+w.title : '')+'</div>';
+  // Заголовок как у «Мой рост»: зелёная плашка, крупный текст, дата подписью под ним.
+  const head = CZ_HEAD('Аттестация', w.title || '');
   if(!A.eligible){
     box.innerHTML = head+'<div class="at-h">Сдача не нужна</div><p class="at-p">'+(A.reason || 'Повода нет: нет забранных операций и режима обязательной проверки.')+'</p><p class="at-sm">Сдача — право, а не обязанность. Ближайшая: '+AT_DM(w.submitOn)+'–'+AT_DM(w.checkOn)+'.</p>';
     return;
