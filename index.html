@@ -1007,20 +1007,35 @@ const DISPUTE_RULES = [
   'Решение принимает только директор. Нерассмотренное к закрытию месяца замораживается и переезжает на следующий месяц.'
 ];
 
-// Приложение 2 — закрытый перечень того, что машина начисляет сама (22.09.2026)
+// Приложение 2 — закрытый перечень того, что машина начисляет сама (редакция 22.09.2026).
+// Формулировки и машинные признаки — дословно из перечня, чтобы человек нашёл в приложении ту же
+// строку, что стоит в Положении, включая исключения («своё производство по нулю — норма»).
+// on: true — машина проверяет и ставит предварительный балл сама;
+// on: false — строка в перечне есть, но проверки в коде пока нет: фиксирует директор вручную.
 const MACHINE_CHECKS = [
-  ['Документ не распечатан — перемещение, приёмка, отгрузка (исключение: приёмка на склад «Услуги»)', 1],
-  ['Документ или п/з не проведён на следующий рабочий день', 2],
-  ['П/з не текущей датой без комментария «исправление»', 1],
-  ['Дата документа в будущем', 1],
-  ['Нулевая цена покупной позиции — у позиции без техкарты; своё производство по нулю это норма', 2],
-  ['Склады в п/з ГП не совпадают — материалы, списание, выпуск', 2],
-  ['Перемещение не привязано к п/з', 2],
-  ['Оприходование или списание вне инвентаризации', 2],
-  ['Карточка номенклатуры создана не Михаилом', 2],
-  ['Заказ покупателя правился после «Подтверждён»', 2],
-  ['Отгрузка создана не на основании заказа покупателя', 2],
-  ['Счёт покупателю создан не на основании отгрузки', 2]
+  {v:'Документ не распечатан — перемещение, приёмка, отгрузка', s:'нет отметки «распечатан»; исключение — приёмки на склад «Услуги»', l:1, on:true},
+  {v:'Документ или п/з не проведён', s:'не проведён на следующий рабочий день; выпуск ГП не считается', l:2, on:true},
+  {v:'П/з не текущей датой без комментария «исправление»', s:'дата документа ≠ дата создания, комментария нет', l:1, on:true},
+  {v:'Дата документа в будущем', s:'дата больше текущей', l:1, on:true},
+  {v:'Нулевая цена покупной позиции', s:'цена 0 у позиции без техкарты; своё производство по нулю — норма', l:2, on:true},
+  {v:'Склады в п/з ГП не совпадают', s:'три склада в шапке разные', l:2, on:true},
+  {v:'Перемещение не привязано к п/з', s:'нет документа-основания', l:2, on:true},
+  {v:'Оприходование или списание вне инвентаризации', s:'нет связанной инвентаризации', l:2, on:true},
+  {v:'Карточка номенклатуры создана не Михаилом', s:'владелец ≠ prod1', l:2, on:true},
+  {v:'Заказ покупателя правился после «Подтверждён»', s:'журнал аудита: изменение позже перехода в статус', l:2, on:false},
+  {v:'Отгрузка создана не на основании заказа', s:'нет документа-основания', l:2, on:false},
+  {v:'Счёт покупателю создан не на основании отгрузки', s:'нет документа-основания', l:2, on:false}
+];
+// Чего в Приложении 2 нет вовсе. Машина этого не начисляет и начислять не может — фиксирует
+// директор вручную. Список нужен ровно для того, чтобы работник видел границу закрытого перечня.
+const MANUAL_ONLY = [
+  ['Правка техкарты без согласования', 'машина не знает, было ли согласование, а нарушение именно в его отсутствии'],
+  ['Проведение выпуска ГП', 'машина не знает дату отчёта площадки'],
+  ['План и факт, норматив ±3%', 'строки производственного задания программой пока не читаются'],
+  ['П/з закрыто «скопом», факт выпуска не замерен', 'признак найден 30.09, но в перечень не внесён и порог по времени не назван'],
+  ['Фото документа в чате «Документы», подписи', 'бот видит отсутствие фото и пишет об этом директору, но балла за это не ставит'],
+  ['Выборочная проверка остатков 30% перед п/з', 'следа в программе не оставляет'],
+  ['Движение по инвентаризируемому складу до согласования', 'не работает, пока в Мой Складе не создан статус «Согласована»']
 ];
 
 let ERROR_LOG = [];
@@ -1995,16 +2010,42 @@ function renderGrowth(u){
   if(!u){ el.innerHTML = '<div class="empty">Раздел доступен после определения пользователя.</div>'; return; }
   const important = '<div class="attn"><div class="eb">Важно</div><p>Счёт идёт с 21.09.2026, у всех с нуля. Заявил проблему сам — ноль баллов, всегда. Плюс не отменяет минус.</p></div>';
   // Карточки счетов («Ошибки», «Премия», «Рост», аттестация) вставляет сюда же atMountScore — сразу после заголовка.
-  const where = u.key === 'director'
-    ? '<div class="cz-fact"><b style="font-size:12.5px;">Счета сотрудников в приложении не сведены.</b><div class="muted" style="margin-top:4px;">Предварительные баллы Аудитор ставит в день обнаружения, в зачёт месяца они идут после вашего утверждения на закрытии 2–4 числа. Дисциплина по задачам — на экране «Задачи».</div></div>'
-    : '';
+  // Счета сотрудников директору вставляет atMountScores (ОЧ-47). Раньше здесь стояла заглушка
+  // «Счета сотрудников в приложении не сведены» — связки находок со счётом не было ни в одном звене.
+  const where = '';
   // Плитки со счетами и карточки премии/аттестации вставляет atMountScore — сразу после заголовка.
   el.innerHTML = CZ_HEAD('Мой рост','Три счёта, премия и правила, по которым они считаются')+
     where+
     '<div class="at-tiles" id="atTiles"></div><div id="atCards"></div>'+
     important+
+    '<button class="at-cta" type="button" id="czMachine">Что машина начисляет сама · Приложение 2</button>'+
     '<div id="czScale"></div>';
+  const mb = document.getElementById('czMachine');
+  if(mb) mb.addEventListener('click', machineSheet);
   scaleBlock();
+}
+
+// Приложение 2 целиком: нарушение · машинный признак · уровень (ОЧ-48). До 30.09 в приложении
+// стоял только список нарушений без признаков, и проверить «входит ли мой случай» было нечем.
+function machineListHtml(){
+  const rows = MACHINE_CHECKS.map(m=>
+    '<div class="cz-fact"><b style="font-size:12.5px;">'+m.v+'</b>'+
+      '<div class="muted" style="margin-top:5px;"><b>Признак:</b> '+m.s+'</div>'+
+      '<div class="row" style="gap:6px;margin-top:7px;flex-wrap:wrap;"><span class="tag">уровень '+m.l+'</span>'+
+      (m.on ? '<span class="ov g" style="min-width:0;padding:5px 9px;font-size:10.5px;">начисляет машина</span>'
+            : '<span class="ov y" style="min-width:0;padding:5px 9px;font-size:10.5px;">фиксирует директор</span>')+'</div>'+
+      (m.on ? '' : '<div class="muted" style="margin-top:5px;">Проверки в программе пока нет: строка в перечне есть, балл ставит директор вручную.</div>')+
+    '</div>').join('');
+  const off = MACHINE_CHECKS.filter(m=>!m.on).length;
+  return '<div class="cz-note"><div class="cz-cap">Закрытый список · '+(MACHINE_CHECKS.length - off)+' из '+MACHINE_CHECKS.length+' проверяет машина</div>'+
+    '<div class="cz-txt">Чего здесь нет — Аудитор не начисляет, даже если видит. Изменение списка — только решением директора. Балл идёт владельцу документа. Повторность машина не ставит: повышенную ставку определяет директор при закрытии месяца.</div></div>'+rows;
+}
+function machineSheet(){
+  openSheet({cap:'Приложение 2', title:'Что начисляет машина', icon:IC.list,
+    sub:'Нарушение · машинный признак · уровень',
+    body: '<div class="at-score dk">'+machineListHtml()+'</div>'+
+      '<div class="at-score dk"><div class="cz-cap">Чего в перечне нет — фиксирует директор вручную</div>'+
+      MANUAL_ONLY.map(x=>czItem('<b>'+x[0]+'</b> — '+x[1], 'risk', 'вручную')).join('')+'</div>'});
 }
 
 function scaleBlock(){
@@ -2023,9 +2064,10 @@ function scaleBlock(){
   const order = ORDER_RULES.map(x=>czItem(x, 'ok')).join('');
   const dispute = DISPUTE_RULES.map(x=>czItem(x, 'ok')).join('')+
     '<div class="cz-note"><div class="cz-cap">Категория оспаривания</div><div class="cz-txt">документ есть, машина не увидела · действие согласовано · исполнитель другой · правило понял иначе · другое. Номер документа подставляется сам.</div></div>';
-  const machine = '<div class="cz-note"><div class="cz-cap">Закрытый список</div><div class="cz-txt">Чего здесь нет — Аудитор не начисляет, даже если видит. Изменение списка — только решением директора. Балл идёт владельцу документа. Повторность машина не ставит: повышенную ставку определяет директор при закрытии месяца.</div></div>'+
-    MACHINE_CHECKS.map(m=>czItem(m[0], m[1]===3?'bad':m[1]===2?'risk':'ok', 'уровень '+m[1])).join('')+
-    czItem('Только через директора: правка техкарт · проведение выпуска ГП · план/факт и ±3% · фото и подписи · выборочная проверка остатков.', 'risk');
+  // Шапку «закрытый список» рисует machineListHtml — одна и та же для карусели и для шторки.
+  const machine = machineListHtml()+
+    '<div class="cz-note"><div class="cz-cap">Чего в перечне нет — фиксирует директор вручную</div><div class="cz-txt">Машина этого не начисляет: строки в Приложении 2 нет, а перечень закрытый.</div>'+
+    MANUAL_ONLY.map(x=>czItem('<b>'+x[0]+'</b> — '+x[1], 'risk', 'вручную')).join('')+'</div>';
   const ways = COMEBACK.map(c=>'<div class="cz-fact"><b style="font-size:12.5px;">'+c.way+'</b><div style="font-size:12px;margin-top:4px;"><span class="muted">Нужно:</span> '+c.need+'</div><div style="font-size:12px;margin-top:2px;"><span class="muted">Даёт:</span> '+c.gives+'</div></div>').join('');
   const att = '<div class="cz-note"><div class="cz-cap">Аттестация</div><div class="cz-txt">Ежемесячно, два дня: 01–02.10 (установочная, очков не даёт) · 02–03.11 (первая реальная) · 01–02.12. Сдача — право, не обязанность: тратит время только тот, у кого есть повод вернуть операцию, снять обязательную проверку или претендовать на расширение полномочий.</div></div>';
   const items = [
@@ -3159,8 +3201,8 @@ function atMountAll(u){
   if(!u) return;
   atHookBack();
   const g = document.getElementById('s-growth');
-  if(u.key === 'director'){ if(g) atMountQueue(g); return; }
-  if(g){ atMountScore(g); atMountEmployee(g); }
+  if(u.key === 'director'){ if(g){ atMountQueue(g); atMountScores(g); } return; }
+  if(g){ atMountScore(g); atMountErrors(g); atMountEmployee(g); }
   gmMount(u);
 }
 
@@ -3216,7 +3258,27 @@ async function atGameCta(box){
   const bt = box.querySelector('[data-go="play"]');
   if(bt) bt.addEventListener('click', ()=>{ document.querySelector('.botnav .ni[data-s="game"]').click(); gmSet('play'); });
 }
+// Конструкция октября: премия двумя частями, ворота по инвентаризации, плюсы без денег.
+// Показывается, только когда директор включил её на сервере (KPI_OCT). Суммы не считаются:
+// порог по документам не назван, а ворота требуют расчёта доли стоимости остатка, которого нет.
+// Выдумать число здесь было бы хуже, чем честно написать, что считает директор.
+function atOctHtml(b){
+  const o = b.oct, fmt = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' ₽';
+  const parts = o.parts.map(x=>'<div class="gp-row"><span class="l">'+x.title+'<span class="muted" style="display:block;font-weight:500;font-size:11px;margin-top:2px;">'+x.how+'</span></span><span class="v" style="min-width:90px;">'+fmt(x.amount)+'</span></div>').join('');
+  return '<div class="gp-head"><div class="cz-cap" style="margin:0;">Премия · '+b.month+'</div><span class="gp-draft">Справочно</span></div>'+
+    '<div class="ge-top"><div class="ge-n">до '+fmt(o.total)+'</div></div>'+
+    '<div class="ge-sub">Две части, считаются отдельно. До подписи Положения суммы справочные: пороги и суммы пересматриваются по итогам октября.</div>'+
+    '<div class="gp-rows">'+parts+'</div>'+
+    czItem('Ворота по инвентаризации на этот месяц — <b>'+o.gate+'%</b> стоимости склада, уложившейся в норму 5% по позиции.', 'ok')+
+    czItem('Недостача сверх ворот обнуляет премию целиком — обе части.', 'bad')+
+    czItem('Плюсы денег больше не дают. Они дают права: аттестацию, возврат забранных операций, расширение полномочий.', 'risk')+
+    (o.docsLimit === null
+      ? '<div class="at-note">Порог по документам директором пока не назван — часть за документы считается вручную при закрытии месяца.</div>'
+      : czItem('Порог по документам: не больше <b>'+o.docsLimit+'</b> штрафных баллов за месяц.', 'ok'))+
+    '<div class="at-note">Ваши баллы за месяц: '+AT_NEG(b.points)+(b.preliminary ? ' (предварительно, месяц закрывается 2–4 числа)' : '')+'.</div>';
+}
 function atBonusHtml(b){
+  if(b.oct) return atOctHtml(b);
   const fmt = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' ₽';
   const st = b.steps.find(x=>x.k === b.step) || b.steps[0];
   const ladder = b.steps.map(x=>'<div class="gp-row"><span class="l"><span class="ov '+x.k+(x.k === b.step ? ' now' : '')+'" style="min-width:0;padding:6px 10px;font-size:11px;">'+x.range+'</span></span><span class="v" style="min-width:90px;">'+fmt(x.amount)+'</span></div>').join('');
@@ -3226,7 +3288,7 @@ function atBonusHtml(b){
   else prog = '<div class="gp-bar" role="img" aria-label="Плюсов за месяц: '+b.plus+' из '+b.need+'"><i style="width:'+Math.min(100, Math.round(b.plus / b.need * 100))+'%"></i></div><div class="at-note">До ступени выше: '+b.plus+' из '+b.need+' плюсов за месяц. Повышение не больше чем на одну ступень.</div>';
   return '<div class="gp-head"><div class="cz-cap" style="margin:0;">Премия · '+b.month+'</div><span class="gp-draft">'+(b.from ? 'С '+b.from : 'Ориентир')+'</span></div>'+
     '<div class="ge-top"><div class="ge-n">'+fmt(b.amount)+'</div><span class="ov '+st.k+'">'+st.range+'</span></div>'+
-    '<div class="ge-sub">Ступень по баллам за календарный месяц.'+(b.from ? ' Премия работает с '+b.from+', до этого это ориентир.' : '')+'</div>'+
+    '<div class="ge-sub">Ступень по баллам за календарный месяц'+(b.preliminary ? ' ('+AT_NEG(b.points)+', предварительно — месяц закрывается 2–4 числа следующего)' : ' ('+AT_NEG(b.points)+')')+'.'+(b.from ? ' Премия работает с '+b.from+', до этого это ориентир.' : '')+'</div>'+
     '<div class="gp-rows">'+ladder+'</div>'+prog;
 }
 // Карточки складываем в контейнер экрана, если он есть: порядок задаётся разметкой, а не счётом детей.
@@ -3258,6 +3320,81 @@ function atMountScore(host){
   }
   // Премия остаётся карточкой: ради неё экран и открывают.
   if(window.BONUS){ const bb = document.createElement('div'); bb.className = 'at-score'; bb.id = 'atBonus'; bb.innerHTML = atBonusHtml(window.BONUS); atPut(host, bb, 2); }
+}
+
+// --- Баллы за три месяца и свои начисления (ОЧ-47, требование директора 30.09) ---
+// «Вкладка Рост должна давать возможность просмотра баллов сотруднику за 3 месяца — тем самым он
+// и будет смотреть этот рост, и список его ошибок». Список — свой и только свой: сервер отдаёт
+// начисления по ключу из подписанного initData, параметра «чей счёт» у ручки нет вовсе.
+const ERR_TYPES = {productiontask:'П/з', move:'Перемещение', supply:'Приёмка', demand:'Отгрузка',
+  customerorder:'Заказ покупателя', purchaseorder:'Заказ поставщику', enter:'Оприходование', loss:'Списание',
+  inventory:'Инвентаризация', invoiceout:'Счёт покупателю', product:'Карточка номенклатуры',
+  productionstagecompletion:'Выполнение этапа'};
+const errType = t => ERR_TYPES[t] || (t ? SQ_ESC(t) : 'Документ');
+function errItemRow(it){
+  const head = errType(it.docType)+(it.doc ? ' '+SQ_ESC(it.doc) : '')+(it.docDate ? ' от '+AT_DM(it.docDate) : '');
+  const chips = (it.status === 'accepted' ? '<span class="ov g" style="min-width:0;padding:5px 9px;font-size:10.5px;">утверждено</span>'
+                                          : '<span class="ov y" style="min-width:0;padding:5px 9px;font-size:10.5px;">предварительно</span>')+
+    '<span class="tag">уровень '+it.level+'</span>'+
+    '<span class="tag">'+(it.machine ? 'нашла машина' : 'фиксация директора')+'</span>'+
+    (it.clause ? '<span class="tag">'+SQ_ESC(it.clause)+'</span>' : '');
+  return '<div class="cz-fact"><div class="between"><b style="font-size:12.5px;">'+head+'</b><span class="tag" style="flex:0 0 auto;">'+AT_NEG(it.points)+'</span></div>'+
+    '<div class="muted" style="margin-top:4px;">'+SQ_ESC(it.what || '')+'</div>'+
+    '<div class="row" style="gap:6px;margin-top:6px;flex-wrap:wrap;">'+chips+'</div></div>';
+}
+function errHistoryHtml(h, own){
+  const months = (h.months || []).map(m=>{
+    const z = AT_ZONE(m.points);
+    const n = (m.items || []).length;
+    return '<div class="gp-row"><span class="l">'+SQ_ESC(m.month)+(m.closed ? '' : ' · предварительно')+'</span>'+
+      '<span class="m">'+(n ? n+' '+AT_PL(n,'начисление','начисления','начислений') : 'начислений нет')+'</span>'+
+      '<span class="v"><span class="ov '+z.k+'" style="min-width:0;padding:5px 9px;font-size:11px;">'+AT_NEG(m.points)+'</span></span></div>';
+  }).join('');
+  let list;
+  if(h.unavailable) list = '<div class="at-note">Начисления не прочитаны: ежедневная проверка учёта не отвечает. Это сбой, а не «ошибок нет» — скажите директору.</div>';
+  else if(!(h.items || []).length) list = '<div class="at-note">За три месяца начислений нет.</div>';
+  else list = (h.months || []).filter(m=>(m.items || []).length).map(m=>
+    '<div class="cz-cap" style="margin-top:14px;">'+SQ_ESC(m.month)+'</div>'+m.items.map(errItemRow).join('')).join('');
+  return '<div class="gp-head"><div class="cz-cap" style="margin:0;">Баллы за три месяца</div><span class="gp-draft">'+(own ? 'Только свои' : 'Счёт сотрудника')+'</span></div>'+
+    '<div class="gp-rows">'+months+'</div>'+
+    '<div class="at-note">Месяц закрывается разбором 2–4 числа следующего. До закрытия баллы предварительные.</div>'+
+    list+
+    (own ? '<div class="at-note">Не согласны с начислением — напишите боту «оспорить N» с номером из утреннего письма и пояснением по существу. Срок — 3 рабочих дня с уведомления.</div>'+
+           '<div class="at-note">Свой счёт видите только вы: чужие баллы приложение не показывает. Личные счета разбираются один на один (решение 25.09).</div>' : '');
+}
+async function atMountErrors(host){
+  const box = document.createElement('div'); box.className = 'at-score'; box.id = 'atErrList'; box.hidden = true;
+  atPut(host, box, 3);
+  let h;
+  try{ h = await appApi('GET','/score'); }
+  catch(e){ box.innerHTML = '<div class="at-note">Начисления не загрузились. Откройте экран ещё раз, а если не появятся — скажите директору.</div>'; box.hidden = false; return; }
+  box.innerHTML = errHistoryHtml(h, true);
+  box.hidden = false;
+}
+// Директору — счета всех, он единственный, кто видит чужие.
+async function atMountScores(host){
+  const box = document.createElement('div'); box.id = 'atAllScores'; box.hidden = true;
+  atSlot(host, box, 2);
+  let A;
+  try{ A = await appApi('GET','/score/all'); }
+  catch(e){ box.innerHTML = '<div class="cz-fact"><b style="font-size:12.5px;">Счета сотрудников не загрузились.</b></div>'; box.hidden = false; return; }
+  const rows = (A.employees || []).map((emp,i)=>{
+    const now = (emp.months || [])[0] || {points:0, month:'', items:[]};
+    const z = AT_ZONE(now.points);
+    const n = (now.items || []).length;
+    return '<button class="at-row" type="button" data-i="'+i+'"><span class="nm">'+SQ_ESC(emp.name)+
+      '<span class="sb">'+SQ_ESC(now.month)+' · '+(n ? n+' '+AT_PL(n,'начисление','начисления','начислений') : 'начислений нет')+
+      (now.closed ? ' · закрыт' : ' · предварительно')+'</span></span><span class="ov '+z.k+'">'+AT_NEG(now.points)+'</span></button>';
+  }).join('');
+  box.innerHTML = CZ_HEAD('Счета сотрудников','Баллы за три месяца и начисления по каждому')+
+    (rows || '<div class="cz-fact"><b style="font-size:12.5px;">Сотрудников со счётом нет.</b></div>')+
+    '<div class="honest" style="margin:10px 0 14px 4px;">Предварительные баллы ставит проверка в день обнаружения. В зачёт месяца они идут после вашего утверждения на закрытии 2–4 числа. Дисциплина по задачам — на экране «Задачи».</div>';
+  box.querySelectorAll('.at-row').forEach(r=> r.addEventListener('click', ()=>{
+    const emp = A.employees[+r.dataset.i];
+    openSheet({cap:'Счёт сотрудника', title:emp.name, icon:IC.flag, sub:'Три месяца · начисления',
+      body:'<div class="at-score dk">'+errHistoryHtml(emp, false)+'</div>'});
+  }));
+  box.hidden = false;
 }
 
 // --- Аттестация: сотрудник (тест «вопрос — 4 варианта — один верный»)
