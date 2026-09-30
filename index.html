@@ -888,6 +888,8 @@ window.ASSET_V = '20260923b';
 
   <!-- 3. ОШИБКИ -->
   <div class="section" id="s-errors">
+    <div id="myErrors"></div>
+    <div id="myErrCatalog"></div>
     <div class="lime-heading">Ошибки</div>
     <div class="honest" id="errHonest" style="margin:-4px 0 12px 4px;"></div>
     <div class="glass">
@@ -2382,9 +2384,40 @@ const PR_MOVE_ALWAYS = '<div class="attn col"><div class="eb">Всегда, пр
 const PR_TABS = [
   {k:'docs',  t:'Документы',              head:'Памятка документы',        sub:'Правила, запреты и прошлые ошибки по каждому документу', body:'<div id="docBlocks"></div>',   mount:()=>renderDocBlocks()},
   {k:'flow',  t:'Эталон п/з',             head:'Эталонный процесс п/з',    sub:'Редакция 19.09.2026, правки 25.09 · шаги 0–12',            body:'<div id="flowBlocks"></div>',  mount:()=>renderFlow()},
+  {k:'sfp',   t:'Выпуск п/ф',             head:'Выпуск полуфабриката',     sub:'Шесть шагов · формулировка директора 30.09.2026',      body:'<div id="sfpBlocks"></div>', mount:()=>renderSfp()},
   {k:'move',  t:'Движение',               head:'Движение документов',      sub:'Откуда, куда, что печатать и когда',                   body:'<div id="moveMap"></div>'+PR_MOVE_ALWAYS, mount:()=>renderMoveMap()},
   {k:'rules', t:'Правила',                head:'Общие правила',            sub:'Действуют для любого документа',                       body:'<div id="ruleAccordion"></div>', mount:()=>renderRules()}
 ];
+
+// ===== Выпуск полуфабриката: шесть шагов =====
+// Последовательность продиктована директором 30.09.2026 дословно:
+// произведено → перелито → промаркировано → взвешано → поправлено в «Выполнении этапа» →
+// перемещено на «Основной склад». Это выпуск П/Ф, а не готовой продукции: решение 25.09
+// «ГП на основной склад не возвращается» относится к готовой продукции и отгрузке
+// со складов группы СТМ — другой контур, он здесь не затрагивается.
+//
+// Смысл блока — два шага, которые пропускают. Ошибка описана директором так:
+// «выпустить всё как есть, не взвешать, никому не передать». Это механика нарушения
+// «задание проведено скопом» по п/з 00066 и 00067, за которое начислено по −3.
+const SFP_STEPS = [
+  {t:'Произведено', d:'Полуфабрикат сварен по техкарте задания. Работа идёт по шаблону п/з с материалами, а не по нормам техкарты: списывается то, что выдано перемещением.'},
+  {t:'Перелито',    d:'Продукт перелит в тару, в которой он будет храниться и уедет дальше. До этого шага вес снимать бессмысленно: часть остаётся в оборудовании.'},
+  {t:'Промаркировано', d:'На таре стоит маркировка: что внутри, из какого задания, когда сделано. Без неё на складе стоит безымянная канистра, и на инвентаризации её не с чем сверить.'},
+  {t:'Взвешано', key:true, d:'Снимается фактический вес. Это единственная цифра, которой можно закрыть выпуск: норматив по выпуску п/ф ±3%, и равенство плана с фактом при нём физически невозможно. Не взвесили — значит закрываете по плану, а фактического расхода не знает никто.'},
+  {t:'Поправлено в документе «Выполнение этапа»', key:true, d:'Фактический вес вносится в «Выполнение этапа» — документ, которым в системе фиксируется факт производства. Сюда попадает цифра с весов, а не количество из техкарты. Проведённое и закрытое задание потом не откатывают: откат стирает сам факт, это уровень 3.'},
+  {t:'Перемещено на «Основной склад»', key:true, d:'Полуфабрикат передаётся перемещением с Производства на Основной склад — это передача другому человеку, стык между Антоном и Арсением. Без неё п/ф числится там, где его физически нет. Принимающий пересчитывает и взвешивает сам, а не принимает по документу.'}
+];
+function renderSfp(){
+  const host = document.getElementById('sfpBlocks');
+  if(!host) return;
+  const steps = SFP_STEPS.map((s,i)=> accHtml(String(i+1), s.t, s.key ? 'шаг, который пропускают' : '', '<p style="margin:0;">'+s.d+'</p>')).join('');
+  host.innerHTML =
+    '<div class="cz-note"><div class="cz-cap">Что пропускают</div><div class="cz-txt">Выпуск закрывают «как есть»: фактический вес не снимают и полуфабрикат никому не передают. Тогда выпуск закрыт по плановому количеству, себестоимость считается по норме техкарты, а недостача сырья вскрывается через месяц на инвентаризации, когда причину уже не найти. В перечне это «задание проведено скопом», уровень 2.</div></div>'+
+    '<div class="cz-stack">'+steps+'</div>'+
+    czItem('Взвешивание даёт цифру для «Выполнения этапа». Перемещение — передачу другому человеку. Пропущен любой из двух — выпуска фактически нет.', 'risk')+
+    czItem('Это выпуск полуфабриката. Готовая продукция на Основной склад не возвращается: она отгружается со склада площадки, ХП или РЕЛЛ (решение 25.09).', 'ok');
+  bindAcc(host);
+}
 let PR_TAB = 'docs';
 let PR_MODE = 'now'; // экран всегда открывается на «Сейчас» (решение 22.09), выбор не запоминается
 function renderProcess(u){
@@ -3184,6 +3217,8 @@ function atHookBack(){
   const back = ()=>{
     if(isOpen(tour)){ if(NT_CLOSE) NT_CLOSE(); return true; }
     if(isOpen(modal)){ closeDoc(); return true; }
+    // Идёт тест аттестации: «Назад» не уносит с экрана без подтверждения.
+    if(AT_RUNNING){ atLeaveGuard(); return true; }
     return false;
   };
   const bb = tg && tg.BackButton;
@@ -3203,6 +3238,10 @@ function atMountAll(u){
   const g = document.getElementById('s-growth');
   if(u.key === 'director'){ if(g){ atMountQueue(g); atMountScores(g); } return; }
   if(g){ atMountScore(g); atMountErrors(g); atMountEmployee(g); }
+  // «Мои ошибки» и «Что считается ошибкой» — на экране «Ошибки», у сотрудника.
+  // Директору свой счёт там не нужен: его экран — счета всех, на «Росте».
+  myErrorsMount();
+  catalogMount(u);
   gmMount(u);
 }
 
@@ -3362,14 +3401,163 @@ function errHistoryHtml(h, own){
     (own ? '<div class="at-note">Не согласны с начислением — напишите боту «оспорить N» с номером из утреннего письма и пояснением по существу. Срок — 3 рабочих дня с уведомления.</div>'+
            '<div class="at-note">Свой счёт видите только вы: чужие баллы приложение не показывает. Личные счета разбираются один на один (решение 25.09).</div>' : '');
 }
+// Свой счёт тянем один раз на открытие приложения: его просят и «Рост», и «Мои ошибки».
+let MY_SCORE = null;
+function myScore(){
+  if(!MY_SCORE) MY_SCORE = appApi('GET','/score').catch(e=>{ MY_SCORE = null; throw e; });
+  return MY_SCORE;
+}
 async function atMountErrors(host){
   const box = document.createElement('div'); box.className = 'at-score'; box.id = 'atErrList'; box.hidden = true;
   atPut(host, box, 3);
   let h;
-  try{ h = await appApi('GET','/score'); }
+  try{ h = await myScore(); }
   catch(e){ box.innerHTML = '<div class="at-note">Начисления не загрузились. Откройте экран ещё раз, а если не появятся — скажите директору.</div>'; box.hidden = false; return; }
   box.innerHTML = errHistoryHtml(h, true);
   box.hidden = false;
+}
+
+// --- «Мои ошибки»: эти ошибки у вас уже были (требование директора 30.09)
+// «Добавляем блок "Мои ошибки" — тем самым исключаем повтор, так как сотрудник не забудет,
+// что это было уже. И знает повтор.»
+//
+// Это перечень, а не вывод. Ставку повтора, справку по шкале и предупреждения про цену
+// следующего раза здесь не показываем сознательно: повторность машина не ставит, повышенную
+// ставку определяет директор при закрытии месяца. Строка «это повтор, будет −6» была бы
+// начислением, которого нет.
+//
+// Группируем по тексту нарушения: одинаковый текст — один и тот же вид. Своей классификации
+// не заводим, чтобы на экране не появилось деления, которого нет в перечне.
+function myErrGroups(items){
+  const by = new Map();
+  for(const it of (items || [])){
+    const k = (it.what || '').trim().toLowerCase().replace(/\s+/g,' ');
+    if(!by.has(k)) by.set(k, {what: it.what || 'Без описания', rows: []});
+    by.get(k).rows.push(it);
+  }
+  // Сначала то, что случалось чаще, внутри — от свежего к старому.
+  return [...by.values()]
+    .map(g=>({ ...g, rows: g.rows.slice().sort((a,b)=> String(b.docDate||b.detectedOn||'').localeCompare(String(a.docDate||a.detectedOn||''))) }))
+    .sort((a,b)=> b.rows.length - a.rows.length || a.what.localeCompare(b.what));
+}
+function myErrorsHtml(h){
+  const groups = myErrGroups(h.items);
+  if(h.unavailable) return CZ_HEAD('Мои ошибки','')+
+    '<div class="cz-note"><div class="cz-txt">Список не прочитан: ежедневная проверка учёта не отвечает. Это сбой, а не «ошибок нет» — скажите директору.</div></div>';
+  if(!groups.length) return CZ_HEAD('Мои ошибки','За три месяца записей нет')+
+    '<div class="cz-note"><div class="cz-txt">Записей по вам нет. Появятся — окажутся здесь, с датой и баллом по каждой.</div></div>';
+  const repeated = groups.filter(g=>g.rows.length > 1).length;
+  const cards = groups.map(g=>{
+    const n = g.rows.length;
+    const rows = g.rows.map(it=>{
+      const head = errType(it.docType)+(it.doc ? ' '+SQ_ESC(it.doc) : '');
+      const when = it.docDate ? AT_DM(it.docDate) : (it.detectedOn ? AT_DM(it.detectedOn) : '');
+      // Балл 0 — это история до старта счёта 21.09, а не «начислили ноль». Пишем словами.
+      const pts = Number(it.points) > 0 ? AT_NEG(it.points) : 'без начисления';
+      return '<div class="gp-row"><span class="l">'+head+'</span><span class="m">'+when+'</span>'+
+        '<span class="v"><span class="tag">'+pts+'</span></span></div>';
+    }).join('');
+    return '<div class="cz-fact">'+
+      '<div class="between"><b style="font-size:12.5px;">'+SQ_ESC(g.what)+'</b>'+
+        '<span class="tag" style="flex:0 0 auto;">'+n+' '+AT_PL(n,'раз','раза','раз')+'</span></div>'+
+      '<div class="gp-rows" style="margin-top:8px;">'+rows+'</div></div>';
+  }).join('');
+  return CZ_HEAD('Мои ошибки', 'Эти ошибки у вас уже были')+
+    '<div class="cz-note"><div class="cz-cap">'+groups.length+' '+AT_PL(groups.length,'вид нарушения','вида нарушений','видов нарушений')+
+      (repeated ? ' · повторялось: '+repeated : '')+'</div>'+
+      '<div class="cz-txt">Список за три месяца, по видам. Записи до 21.09.2026 показаны историей: счёт стартовал 21.09 в 9:15, и балла по ним нет. Не согласны с начислением — напишите боту «оспорить N» с номером из утреннего письма.</div></div>'+
+    cards;
+}
+// --- «Что считается ошибкой?» — свой перечень по роли (требование директора 30.09)
+// «Делаем список — "Что считается ошибкой?" в него все ошибки сотрудников по каждому свои.»
+//
+// Источник — перечень нарушений в 🎯 Дисциплинарном KPI (кэш контекст/kpi-деньги.md) и зоны
+// ответственности из роли-люди.md. Это НЕ Приложение 2: там закрытый список того, что машина
+// начисляет сама, он на экране «Мой рост» и остаётся отдельно. Здесь — что вообще считается
+// нарушением в зоне этого человека, независимо от того, видит это машина или директор.
+//
+// Уровень: 1 — формальное, материального следа нет · 2 — искажает остатки, себестоимость,
+// деньги · 3 — сокрытие, самодеятельность, обход процесса.
+const ERR_CATALOG = {
+  move: {t:'Перемещения', v:[
+    ['Не создано при физической передаче', 3], ['Машина заказана до создания документа, сборки и сверки комплектации с расчётом из п/з', 3],
+    ['Не тот тип документа: УПД вместо ТОРГ-13', 2], ['Неверные позиции', 2],
+    ['Собрано не полностью, потребовался догруз', 2], ['Собрано мимо расчёта в «Снабжении» — по заказу покупателя вместо потребности в материалах', 2],
+    ['Груз собран не по документу: позиция в документе есть, физически не положена', 2],
+    ['Нулевая цена покупной позиции', 2], ['Не привязано к п/з — нет документа-основания', 2],
+    ['Не распечатан, нет двух подписей', 1], ['Фото не отправлено в чат «Документы» в день движения', 1]
+  ]},
+  wo: {t:'Производственные задания', v:[
+    ['Работа без актуальной техкарты', 3], ['Откат проведения закрытого задания, удаление «Выполнения этапа»', 3],
+    ['Не проведено в срок', 2], ['Склады в п/з на ГП не совпадают', 2],
+    ['Проведено «скопом»: факт выпуска не замерен, план и факт внесены равными', 2],
+    ['Не текущей датой без комментария «исправление»', 1], ['Дата документа в будущем', 1]
+  ]},
+  recv: {t:'Закупки и приёмка', v:[
+    ['Товар принят без документов поставщика', 2], ['Приёмка не на основании заказа поставщику', 2],
+    ['Нулевая цена покупной позиции', 2], ['Заказ не по подтверждённой потребности', 2],
+    ['Документ не проведён', 2]
+  ]},
+  tech: {t:'Техкарты, номенклатура, цены', v:[
+    ['Правка техкарты без согласования', 3], ['Смена типа номенклатуры', 3],
+    ['Ошибка в техкарте', 2], ['Карточка без цены продажи', 2], ['Карточка создана не Михаилом', 2]
+  ]},
+  order: {t:'Заказ, отгрузка, счёт', v:[
+    ['Статус не подтверждён документом', 2], ['Взят в работу до статуса «Подтверждён»', 2],
+    ['Правился после «Подтверждён» — корректировка только дополнительным заказом', 2],
+    ['Отгрузка создана не на основании заказа', 2], ['Счёт создан не на основании отгрузки', 2],
+    ['Висит в статусе дольше 3–5 дней', 1]
+  ]},
+  inv: {t:'Инвентаризация и остатки', v:[
+    ['Отклонение выше 5% по позиции', 2], ['Оприходование или списание вне инвентаризации', 2],
+    ['Движение товаров по складу до статуса «Согласована»', 1]
+  ]},
+  disc: {t:'Дисциплина', v:[
+    ['Умалчивание дольше 2 дней', 3], ['Самодеятельность в чужом процессе', 3],
+    ['Опоздание или неявка на созвон', 1]
+  ]}
+};
+// Зона каждого: порядок в списке — порядок на экране, первым идёт то, за что человек отвечает сам.
+const ERR_ROLE = {
+  anton:   {t:'Ваша зона: производственные задания, перемещения, контроль', k:['wo','move','order','inv','disc']},
+  mihail:  {t:'Ваша зона: техкарты, номенклатура, закупки, цены, отгрузки со складов СТМ', k:['tech','recv','order','move','disc']},
+  arseniy: {t:'Ваша зона: приёмка, перемещения, инвентаризации, Ответ-хранения', k:['recv','move','inv','disc']}
+};
+function catalogSheet(u){
+  const role = ERR_ROLE[u && u.key];
+  const keys = role ? role.k : Object.keys(ERR_CATALOG);
+  const lvl = n => n === 3 ? 'r' : n === 2 ? 'y' : 'g';
+  const groups = keys.map(k=>{
+    const g = ERR_CATALOG[k];
+    if(!g) return '';
+    const rows = g.v.slice().sort((a,b)=>b[1]-a[1]).map(([t,n])=>
+      '<div class="cz-zone"><span class="ov '+lvl(n)+'" style="min-width:0;padding:5px 9px;font-size:10.5px;">−'+(n===3?10:n===2?3:1)+'</span><span class="cz-txt">'+t+'</span></div>').join('');
+    return '<div class="cz-note"><div class="cz-cap">'+g.t+' · '+g.v.length+'</div>'+rows+'</div>';
+  }).join('');
+  openSheet({cap:'Перечень нарушений', title:'Что считается ошибкой', icon:IC.list,
+    sub: role ? role.t : 'Все зоны',
+    body: '<div class="at-score dk">'+
+      '<div class="cz-note"><div class="cz-cap">Как читать</div><div class="cz-txt">Ставка первого раза: уровень 1 — −1, уровень 2 — −3, уровень 3 — −10. Повтор дороже, но повышенную ставку определяет директор при закрытии месяца, машина её не ставит. Заявили о проблеме сами — ноль баллов, всегда.</div></div>'+
+      groups+
+      '<div class="cz-note"><div class="cz-txt">Это перечень нарушений целиком, по вашей зоне. Часть из него машина находит сама — закрытый список на экране «Мой рост», кнопка «Что машина начисляет сама». Остальное фиксирует директор.</div></div>'+
+      '</div>'});
+}
+function catalogMount(u){
+  const host = document.getElementById('myErrCatalog');
+  if(!host) return;
+  const role = ERR_ROLE[u && u.key];
+  const n = (role ? role.k : Object.keys(ERR_CATALOG)).reduce((s,k)=> s + ((ERR_CATALOG[k] && ERR_CATALOG[k].v.length) || 0), 0);
+  host.innerHTML = '<button class="at-cta" type="button" id="czCatalog">Что считается ошибкой · '+n+' '+AT_PL(n,'пункт','пункта','пунктов')+' по вашей зоне</button>';
+  document.getElementById('czCatalog').addEventListener('click', ()=>catalogSheet(u));
+}
+
+async function myErrorsMount(){
+  const host = document.getElementById('myErrors');
+  if(!host) return;
+  let h;
+  try{ h = await myScore(); }
+  catch(e){ host.innerHTML = '<div class="cz-note"><div class="cz-txt">Свои ошибки не загрузились. Откройте экран ещё раз, а если не появятся — скажите директору.</div></div>'; return; }
+  host.innerHTML = myErrorsHtml(h);
 }
 // Директору — счета всех, он единственный, кто видит чужие.
 async function atMountScores(host){
@@ -3403,9 +3591,12 @@ function atPrepBlock(b){
   return accHtml(b.id, b.title, b.cases+' '+AT_PL(b.cases,'случай','случая','случаев')+' · уровень '+b.level+' · вопросов: '+b.n,
     sec('Что было', b.was)+sec('Какое правило нарушено', b.rule)+sec('На каком шаге процесса', b.step)+sec('Что должно было получиться', b.expected));
 }
-function atWrongHtml(list){
+function atWrongHtml(list, blocks){
   if(!list || !list.length) return '<p class="at-sm">Ошибок нет.</p>';
-  return list.map(w=>'<div class="at-sec"><div class="at-lab" style="color:var(--orange)">Блок '+SQ_ESC(w.block)+'</div><div class="at-tx"><b>'+SQ_ESC(w.q)+'</b></div>'+
+  // Заголовок блока вместо его кода: в разборе ошибок человек должен узнать тот же блок,
+  // который видел на экране подготовки, а не служебный id.
+  const bt = id => ((blocks || []).find(b=>b.id === id) || {}).title || id;
+  return list.map(w=>'<div class="at-sec"><div class="at-lab" style="color:var(--orange)">'+SQ_ESC(bt(w.block))+'</div><div class="at-tx"><b>'+SQ_ESC(w.q)+'</b></div>'+
     '<div class="at-ans no">Вы ответили: '+SQ_ESC(w.options[w.chosen])+'</div><div class="at-ans">Верно: '+SQ_ESC(w.options[w.right])+'<br>'+SQ_ESC(w.explain||'')+'</div></div>').join('');
 }
 function atResultChips(blocks){ return '<div class="at-verd">'+blocks.map(b=>'<span class="ov '+(b.pass?'g':'r')+'">'+b.id+' · '+(b.pass?'Зачтён':'Не зачтён')+' · '+b.correct+'/'+b.total+'</span>').join('')+'</div>'; }
@@ -3428,7 +3619,10 @@ function atRenderEmployee(box, A){
   let status = '', action = '';
   if(A.status === 'scheduled') status = '<div class="at-h">Ваш лист готов</div><p class="at-p">Тест откроется '+AT_DM(w.submitOn)+'. До этого изучите свои блоки: вопросы будут именно по ним. '+rule+'</p>';
   else if(A.status === 'open' || A.status === 'inprogress'){
-    status = '<div class="at-h">Сдача открыта</div><p class="at-p">'+A.total+' '+AT_PL(A.total,'вопрос','вопроса','вопросов')+', у каждого 4 варианта и один верный. Вернуться к прошлому вопросу нельзя. Результат объявит директор '+AT_DM(w.checkOn)+'. '+rule+'</p>';
+    status = '<div class="at-h">Сдача открыта</div><p class="at-p">'+A.total+' '+AT_PL(A.total,'вопрос','вопроса','вопросов')+', у каждого 4 варианта и один верный. Вернуться к прошлому вопросу нельзя. Результат объявит директор '+AT_DM(w.checkOn)+'. '+rule+'</p>'+
+      // Правда про защиту окна: запретить закрытие технически нельзя, обещать этого не будем.
+      '<p class="at-sm">Тест начат — приложение спросит подтверждение, если вы уходите с экрана или закрываете его. Закрыть его всё равно можно: каждый ответ уходит на сервер сразу, и вы вернётесь к тому же вопросу. Незаконченный тест виден директору как начатый, а с закрытием окна '+AT_DM(w.submitOn)+' он завершается сам — неотвеченные вопросы считаются неверными.</p>'+
+      (A.status === 'inprogress' && A.startedAt ? '<p class="at-sm">Начат '+AT_DM(A.startedAt)+', отвечено '+A.answered+' из '+A.total+'.</p>' : '');
     action = '<button class="at-cta" type="button" id="atStart">'+(A.status === 'inprogress' ? 'Продолжить · отвечено '+A.answered+' из '+A.total : 'Начать тест')+'</button>';
   }
   else if(A.status === 'submitted') status = '<div class="at-h">Тест сдан</div><p class="at-p">Результат объявит директор '+AT_DM(w.checkOn)+'. До этого итог не показывается.</p>';
@@ -3436,18 +3630,61 @@ function atRenderEmployee(box, A){
     const r = A.result || {blocks:[], wrong:[]};
     status = '<div class="at-h">Результат объявлен</div>'+atResultChips(r.blocks)+
       '<p class="at-sm">'+(w.kind === 'setup' ? 'Установочная аттестация: без последствий, счётчики не менялись.' : 'Счётчик повторов по зачтённым блокам обнулён, забранные операции по ним возвращаются. Незачтённые блоки: следующая попытка через месяц.')+'</p>'+
-      '<div class="at-blocks">'+accHtml('!', 'Разбор ошибок', (r.wrong||[]).length+' '+AT_PL((r.wrong||[]).length,'вопрос','вопроса','вопросов'), atWrongHtml(r.wrong))+'</div>';
+      '<div class="at-blocks">'+accHtml('!', 'Разбор ошибок', (r.wrong||[]).length+' '+AT_PL((r.wrong||[]).length,'вопрос','вопроса','вопросов'), atWrongHtml(r.wrong, r.blocks))+'</div>';
   }
   box.innerHTML = head+status+ban+action+(A.status === 'announced' ? '' : '<div class="at-blocks">'+blocks.map(atPrepBlock).join('')+'</div>');
   bindAcc(box);
   const st = document.getElementById('atStart');
   if(st) st.addEventListener('click', async ()=>{
-    try{ const r = await appApi('POST','/attestation/start',{}); atQuestion(box, A, r.question, r.n, r.total); }
+    try{
+      const r = await appApi('POST','/attestation/start',{});
+      if(!r.question){ A.status = 'submitted'; atRenderEmployee(box, A); return; }
+      atGuardOn();
+      atQuestion(box, A, r.question, r.n, r.total);
+    }
     catch(e){ st.textContent = 'Не удалось начать. Повторить'; }
   });
 }
+// --- Защита окна аттестации (требование директора 30.09: «нельзя закрыть до финала»)
+//
+// Чего сделать НЕЛЬЗЯ и это не обходится: Telegram mini app закрывается свайпом по шапке
+// и крестиком, и запретить это приложение не может — метода «не закрывайся» в Bot API нет.
+// Свернуть и убить приложение человек может в любой момент, как и выключить телефон.
+//
+// Что сделано вместо запрета:
+//   1. enableClosingConfirmation — Telegram спрашивает подтверждение при закрытии свайпом;
+//   2. уход по нижней навигации и системной «Назад» спрашивается отдельно;
+//   3. каждый ответ уходит на сервер сразу, набор вопросов и порядок вариантов зафиксированы
+//      при старте, поэтому возврат — в ту же точку, а не заново;
+//   4. «начал и не закончил» видно директору со временем старта, и незавершённый тест
+//      автозавершается при закрытии окна — неотвеченные считаются неверными.
+let AT_RUNNING = false;
+function atGuardOn(){
+  AT_RUNNING = true;
+  try{ tg && tg.enableClosingConfirmation && tg.enableClosingConfirmation(); }catch(e){}
+}
+function atGuardOff(){
+  AT_RUNNING = false;
+  try{ tg && tg.disableClosingConfirmation && tg.disableClosingConfirmation(); }catch(e){}
+}
+// true — уходить можно. Подтверждение в Telegram асинхронное, поэтому при наличии showConfirm
+// уход выполняем колбэком, а текущий клик отменяем.
+function atLeaveGuard(after){
+  if(!AT_RUNNING) return true;
+  const msg = 'Тест аттестации не закончен. Ответы сохранены, вы вернётесь к тому же вопросу. Выйти?';
+  if(tg && tg.showConfirm){
+    tg.showConfirm(msg, ok=>{ if(ok){ atGuardOff(); if(after) after(); } });
+    return false;
+  }
+  if(confirm(msg)){ atGuardOff(); return true; }
+  return false;
+}
 function atQuestion(box, A, q, n, total){
-  box.innerHTML = '<div class="cz-cap">Аттестация · '+(A.window && A.window.title || '')+'</div><div class="gm-prog"><span>Вопрос '+n+' из '+total+'</span><span class="gm-off">Блок '+SQ_ESC(q.block)+'</span></div><div class="gm-q">'+SQ_ESC(q.q)+'</div>'+
+  // Название блока, а не его код: сервер присылает id из листа («stores», «stage»),
+  // человеку в шапке вопроса нужен заголовок, который он читал на экране подготовки.
+  const blocks = (A.prep && A.prep.blocks) || [];
+  const bt = (blocks.find(b=>b.id === q.block) || {}).title || q.block;
+  box.innerHTML = '<div class="cz-cap">Аттестация · '+(A.window && A.window.title || '')+'</div><div class="gm-prog"><span>Вопрос '+n+' из '+total+'</span><span class="gm-off">'+SQ_ESC(bt)+'</span></div><div class="gm-q">'+SQ_ESC(q.q)+'</div>'+
     '<div class="gm-opts">'+q.options.map((o,i)=>'<button class="gm-opt" type="button" data-i="'+i+'"><span class="k">'+String.fromCharCode(65+i)+'</span><span>'+SQ_ESC(o)+'</span></button>').join('')+'</div>'+
     '<p class="at-sm">Ответ можно выбрать заново до нажатия «'+(n === total ? 'Завершить' : 'Дальше')+'». Верный ответ сейчас не показывается.</p><button class="at-cta" type="button" id="atNext" disabled>'+(n === total ? 'Завершить' : 'Дальше')+'</button>';
   let pick = -1;
@@ -3461,7 +3698,7 @@ function atQuestion(box, A, q, n, total){
     const btn = document.getElementById('atNext'); btn.disabled = true;
     let r; try{ r = await appApi('POST','/attestation/answer',{id:q.id, choice:pick}); }catch(e){ btn.disabled = false; btn.textContent = 'Не сохранилось. Повторить'; return; }
     if(r.next) atQuestion(box, A, r.next, r.n, total);
-    else { A.status = 'submitted'; atRenderEmployee(box, A); }
+    else { atGuardOff(); A.status = 'submitted'; atRenderEmployee(box, A); }
   });
 }
 
@@ -3474,17 +3711,21 @@ async function atMountQueue(host){
 }
 function atRenderQueue(box, Q){
   const w = Q.window || {};
-  const label = st => st === 'submitted' ? '<span class="ov y">Ждёт объявления</span>' : st === 'announced' ? '<span class="ov g">Объявлено</span>' : st === 'inprogress' ? '<span class="ov">Проходит</span>' : '<span class="ov">Не начал</span>';
+  const label = st => st === 'submitted' ? '<span class="ov y">Ждёт объявления</span>' : st === 'announced' ? '<span class="ov g">Объявлено</span>' : st === 'inprogress' ? '<span class="ov y">Начал, не закончил</span>' : '<span class="ov">Не начал</span>';
   const rows = (Q.items||[]).map((it,i)=>{
     const sum = it.blocks && it.blocks.length ? it.blocks.filter(b=>b.pass).length+' из '+it.blocks.length+' блоков зачтено' : 'Лист: '+((it.prep&&it.prep.blocks||[]).length)+' '+AT_PL((it.prep&&it.prep.blocks||[]).length,'блок','блока','блоков');
-    return '<button class="at-row" type="button" data-i="'+i+'"><span class="nm">'+SQ_ESC(it.name)+'<span class="sb">'+(it.submittedAt ? 'Сдал '+AT_DM(it.submittedAt)+' · ' : '')+sum+'</span></span>'+label(it.status)+'</button>';
+    // «Начал и не закончил» — со временем старта и числом ответов: директору важно
+    // отличить брошенный тест от идущего прямо сейчас.
+    const started = it.status === 'inprogress' && it.startedAt
+      ? 'Начал '+AT_DM(it.startedAt)+(typeof it.answered === 'number' ? ', отвечено '+it.answered+' из '+it.total : '')+' · ' : '';
+    return '<button class="at-row" type="button" data-i="'+i+'"><span class="nm">'+SQ_ESC(it.name)+'<span class="sb">'+(it.submittedAt ? 'Сдал '+AT_DM(it.submittedAt)+' · ' : started)+sum+'</span></span>'+label(it.status)+'</button>';
   }).join('');
   box.innerHTML = CZ_HEAD('Аттестация', (w.title||'')+(w.kind==='setup' ? ' · установочная, без последствий' : ''))+(rows || '<div class="at-card"><p class="at-p">Сотрудников с поводом к сдаче нет.</p></div>');
   box.querySelectorAll('.at-row').forEach(r=> r.addEventListener('click', ()=> atOpenResult(box, Q, Q.items[+r.dataset.i])));
 }
 function atOpenResult(box, Q, it){
   const w = Q.window || {}, ready = it.status === 'submitted', has = it.blocks && it.blocks.length;
-  const body = has ? atResultChips(it.blocks)+'<div style="margin-top:18px;"><div class="cz-cap">Ошибки в ответах</div>'+atWrongHtml(it.wrong)+'</div>' : '<p class="at-p">Результатов пока нет: тест не сдан.</p>';
+  const body = has ? atResultChips(it.blocks)+'<div style="margin-top:18px;"><div class="cz-cap">Ошибки в ответах</div>'+atWrongHtml(it.wrong, it.blocks)+'</div>' : '<p class="at-p">Результатов пока нет: тест не сдан.</p>';
   document.getElementById('docModalInner').innerHTML = `
     <div class="dm-top"><button class="dm-back" id="docBack" aria-label="Назад">${ic('<polyline points="15 18 9 12 15 6"/>',20)}</button><div class="dm-cap">Результат</div><span style="width:44px;flex:0 0 auto;"></span></div>
     <div class="dm-hero"><div class="dm-ic">${ic('<polyline points="4 12 10 18 20 6"/>',32)}</div><div class="dm-title">${SQ_ESC(it.name)}</div><div class="dm-sub">${SQ_ESC(w.title||'Аттестация')}${w.kind==='setup'?' · установочная':''}</div></div>
@@ -3500,6 +3741,21 @@ function atOpenResult(box, Q, it){
     closeDoc();
     try{ const Q2 = await appApi('GET','/attestation/results'); atRenderQueue(box, Q2); }catch(e){}
   });
+}
+
+// Зачёт блоков аттестации игрой (решение директора 30.09: игра зачитывает блоки, деньги
+// не трогает). Считается по доле верных с ПЕРВОГО ответа на вопрос, иначе зачёт накручивается
+// повторением до угадывания. Порог директором не назван — пока не назван, зачёта нет,
+// и мы так и пишем: обещать зачёт по планке, которой не существует, нельзя.
+function gmCreditHtml(c){
+  if(!c) return '';
+  const done = (c.blocks || []).filter(b=>b.credited);
+  const pct = x => Math.round(x * 100) + '%';
+  if(c.share === null) return '<div class="at-note">Зачёт блоков аттестации через игру готов, но порог ещё не назначен директором. Пока он не назначен, игра на аттестацию не влияет — ответы всё равно записываются и зачтутся, когда порог появится.</div>';
+  if(c.appliesTo === null) return '<div class="at-note">Ближайшая аттестация установочная: она без очков и без последствий, поэтому блоки игрой на ней не зачитываются. Зачёт начинает работать с первой реальной аттестации 02–03.11.</div>';
+  const head = '<div class="at-note">Блок аттестации считается закрытым, если вы ответили верно с первого раза на '+pct(c.share)+' его вопросов, и таких вопросов было не меньше '+c.minAsked+'. Вопросы выбираются случайно.</div>';
+  if(!done.length) return head;
+  return head+'<div class="gp-rows">'+done.map(b=>'<div class="gp-row"><span class="l">Блок «'+SQ_ESC(b.block)+'»</span><span class="m">'+b.right+' из '+b.asked+' с первого раза</span><span class="v"><span class="ov g" style="min-width:0;padding:5px 9px;font-size:10.5px;">закрыт</span></span></div>').join('')+'</div>';
 }
 
 // --- Игра «Банк» (в «Тренажёре»): очки идут только в «Рост», «Ошибки» не меняются
@@ -3525,11 +3781,14 @@ async function gmStatus(play){
   play.innerHTML = '<div class="at-card"><p class="at-p">Загрузка…</p></div>';
   let g; try{ g = await appApi('GET','/game'); }catch(e){ play.innerHTML = '<div class="at-card"><div class="at-h">Нет связи</div><p class="at-p">Не удалось получить данные игры.</p><button class="at-cta" type="button" id="gmRe">Повторить</button></div>'; document.getElementById('gmRe').addEventListener('click', ()=>gmStatus(play)); return; }
   const info = window.GROW_SCORE ? '<div class="at-score dk" style="margin-top:12px;">'+atGrowthHtml(window.GROW_SCORE).score+'</div>' : '';
-  if(g.state === 'locked') play.innerHTML = '<div class="at-card dk"><div class="cz-cap">Игра «Банк»</div><div class="at-h">Игра откроется после аттестации</div><p class="at-p">Играть могут те, кто прошёл аттестацию. Вопросы для игры берутся из ваших ошибок и правил, которые проверялись на ней.</p></div>'+info;
+  if(g.state === 'locked') play.innerHTML = '<div class="at-card dk"><div class="cz-cap">Игра «Банк»</div><div class="at-h">Игра закрыта</div><p class="at-p">Сейчас играть нельзя. Если это не ожидалось — скажите директору.</p></div>'+info;
   else if(g.state === 'weekend') play.innerHTML = '<div class="at-card dk"><div class="cz-cap">Игра «Банк»</div><div class="at-h">Сейчас выходной</div><p class="at-p">Игра открыта в рабочие дни, с понедельника по пятницу, и открывается один раз в неделю. Следующая возможность: '+AT_DM(g.nextAt)+'.</p></div>'+info;
   else if(g.state === 'cap') play.innerHTML = '<div class="at-card dk"><div class="cz-cap">Игра «Банк»</div><div class="at-h">Лимит месяца набран</div><p class="at-p">Из игры засчитано +4 в «Рост», больше в этом месяце не добавится. Новый счёт с '+AT_DM(g.nextAt)+'.</p></div>'+info;
   else if(g.state === 'done') play.innerHTML = '<div class="at-card dk"><div class="cz-cap">Игра «Банк»</div><div class="at-h">На этой неделе вы уже играли</div><p class="at-p">Следующая игра с '+AT_DM(g.nextAt)+'.</p></div>'+info;
-  else { play.innerHTML = '<div class="at-card dk"><div class="cz-cap">Игра «Банк»</div><div class="at-h">'+g.total+' '+AT_PL(g.total,'вопрос','вопроса','вопросов')+' из банка</div><p class="at-p">Каждый верный ответ даёт +1 в «Рост», но не больше +4 в месяц. Неверный ответ ничего не отнимает, но покажет правильный. Счёт «Ошибки» игра не меняет. Играть можно в любой рабочий день недели, но один раз за неделю. В банке сейчас '+g.bank+' '+AT_PL(g.bank,'вопрос','вопроса','вопросов')+'.</p><button class="at-cta" type="button" id="gmStart">Начать</button></div>'+info;
+  else { play.innerHTML = '<div class="at-card dk"><div class="cz-cap">Игра «Банк»</div><div class="at-h">'+g.total+' '+AT_PL(g.total,'вопрос','вопроса','вопросов')+' из банка</div><p class="at-p">Каждый верный ответ даёт +1 в «Рост», но не больше +4 в месяц. Неверный ответ ничего не отнимает, но покажет правильный. Счёт «Ошибки» игра не меняет. Играть можно в любой рабочий день недели, но один раз за неделю. Вопросы каждый раз выбираются случайно, в банке сейчас '+g.bank+' '+AT_PL(g.bank,'вопрос','вопроса','вопросов')+'.</p>'+
+    '<p class="at-sm">Плюсы — это права, а не деньги: меньше ручных проверок, выход на аттестацию, возврат забранных операций (решение 30.09).</p>'+
+    gmCreditHtml(g.credit)+
+    '<button class="at-cta" type="button" id="gmStart">Начать</button></div>'+info;
     document.getElementById('gmStart').addEventListener('click', async ()=>{ try{ const r = await appApi('POST','/game/start',{}); gmQuestion(play, r.question, r.n || 1, r.total, r.won || 0); }catch(e){ gmStatus(play); } }); }
 }
 function gmQuestion(play, q, n, total, won){
@@ -3647,7 +3906,7 @@ boot();
 
 // Bottom nav switching
 document.querySelectorAll('.botnav .ni').forEach(btn=>{
-  btn.addEventListener('click', ()=>{
+  const go = ()=>{
     document.querySelectorAll('.botnav .ni').forEach(x=>x.classList.remove('on'));
     document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
     btn.classList.add('on');
@@ -3655,6 +3914,12 @@ document.querySelectorAll('.botnav .ni').forEach(btn=>{
     if(btn.dataset.s === 'process'){ PR_MODE = 'now'; PR_TAB = 'docs'; renderProcess(currentUser); }
     document.getElementById('s-'+btn.dataset.s).classList.add('active');
     refreshCarousels();
+  };
+  btn.addEventListener('click', ()=>{
+    // Тест аттестации не бросают на полпути мимоходом: уход с экрана спрашивается.
+    // Закрыть приложение свайпом Telegram всё равно можно, поэтому прогресс хранится
+    // на сервере, а не в этой проверке. См. atLeaveGuard.
+    if(atLeaveGuard(go)) go();
   });
 });
 </script>
