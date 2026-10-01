@@ -1926,9 +1926,17 @@ async function ordLoad(){
   catch(e){ ORD = {unavailable:true, orders:[]}; }
   ordRender();
 }
+// Пока экран не объявлен людям, он виден только директору: кнопка в панели скрывается,
+// раздел не грузится. Снять — убрать проверку ключа, одна строка.
 function renderOrders(u){
   const el = document.getElementById('s-orders');
-  if(!u){ el.innerHTML = '<div class="empty">Раздел доступен после определения пользователя.</div>'; return; }
+  const nav = document.querySelector('.botnav .ni[data-s="orders"]');
+  if(!u || u.key !== 'director'){
+    if(nav) nav.style.display = 'none';
+    el.innerHTML = '';
+    return;
+  }
+  if(nav) nav.style.display = '';
   ORD = null; ordRender(); ordLoad();
 }
 
