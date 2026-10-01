@@ -1782,7 +1782,7 @@ function renderProfile(u){
         <div class="name">${u.name}</div>
         <div class="muted" style="margin-top:2px;">${u.role}</div>
       </div>
-      <button class="cz-fact bn-btn" id="bnResBtn" style="padding:14px 16px;margin:12px 0;background:#ffcf3f;color:#0e1400;"><div class="between"><b style="font-size:12.5px;">Узкие горлышки · ресурсы</b><span class="ord-state" style="background:#0e1400;color:#fff;">4 →</span></div><div style="margin-top:4px;font-size:12px;opacity:.78;">Директор, Михаил, Антон, инвентаризация. Только вам.</div></button>
+      <button class="cz-fact bn-btn" id="bnResBtn" style="padding:14px 16px;margin:12px 0;background:#ffcf3f!important;color:#0e1400!important;border-color:#ffcf3f!important;"><div class="between"><b style="font-size:12.5px;">Узкие горлышки · ресурсы</b><span class="ord-state" style="background:#0e1400;color:#fff;">4 →</span></div><div style="margin-top:4px;font-size:12px;opacity:.78;">Директор, Михаил, Антон, инвентаризация. Только вам.</div></button>
       ${CZ_HEAD('Все сотрудники','Роль, задачи и рост каждого в одном месте')}
       <div id="czRoster"></div>`;
     document.getElementById('bnResBtn').addEventListener('click', bnResourceSheet);
