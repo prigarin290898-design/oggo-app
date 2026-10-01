@@ -1894,9 +1894,11 @@ function ordRow(c, i){
 // На странице заказа — только метка: страница про сроки, и разворачивать на ней разбор
 // значит снова сделать её длинной. Сам разбор — отдельной страницей внутри заказа.
 function ordWarn(w){
-  return '<span class="ow"><span class="ow-h">На этом этапе есть узкое место</span>'+
+  return '<span class="ow"><span class="ow-in">'+
+    '<span class="ow-h">Узкое место</span>'+
     '<span class="ow-t">'+SQ_ESC(w.text)+'</span>'+
-    (w.fix ? '<span class="ow-f"><b>Что сделать:</b> '+SQ_ESC(w.fix)+'</span>' : '')+'</span>';
+    (w.fix ? '<span class="ow-f"><b>Что сделать:</b> '+SQ_ESC(w.fix)+'</span>' : '')+
+    '</span></span>';
 }
 function ordStage(s, warns){
   const mark = s.state === 'skipped' ? '—' : (s.state === 'done' ? '✓' : (s.late ? '!' : '·'));
@@ -1937,7 +1939,7 @@ function ordWarnPage(c){
   for(const w of (c.bottlenecks || [])) (byStage[w.stage || '—'] = byStage[w.stage || '—'] || []).push(w);
   const titleOf = k => (c.stages.find(s=>s.k === k) || {}).title || 'Без этапа';
   const body = Object.keys(byStage).map(k =>
-    '<div class="cz-cap" style="margin-top:14px;">'+SQ_ESC(titleOf(k))+'</div>'+byStage[k].map(ordWarn).join('')
+    '<div class="ow-group">'+SQ_ESC(titleOf(k))+'<span>'+byStage[k].length+'</span></div>'+byStage[k].map(ordWarn).join('')
   ).join('');
   openSheet({cap:'Заказ '+SQ_ESC(c.order.name), title:'Узкие места', icon:IC.flag,
     sub:'Что мешает сроку и что с этим сделать',
@@ -4454,14 +4456,25 @@ body.bg-start .bgfield::after{content:'';position:absolute;inset:0;background:rg
 .ord-card .os .r{color:rgba(0,0,0,.7)!important;}
 /* Предупреждение: жёлтый — тот же, что у статусов (#ffcf3f). Коричневого в фирстиле нет,
    он тянулся из старых --warn и выбивался из палитры. */
-/* Плашка — белая с жёлтым краем: на сплошной заливке длинный текст не читается,
-   а цвет нужен как сигнал, а не как фон под абзацем. */
-.ow{display:block;margin-top:10px;padding:12px 14px;border-radius:14px;
-  background:#fff!important;border:2px solid #ffcf3f!important;}
-.ow .ow-h{display:block;font-size:10.5px;font-weight:800;letter-spacing:.05em;
-  text-transform:uppercase;color:#1a1400!important;opacity:.6;}
-.ow .ow-t{display:block;margin-top:4px;font-size:12.5px;line-height:1.45;color:#211f1b!important;font-weight:700;}
+/* Карточка под карточкой: жёлтый лист снизу и слева, белый с текстом сверху.
+   Обводки нет — жёлтое работает тенью-опознавателем, а текст лежит на белом и читается.
+   Сплошная заливка под абзацем не годится: пробовали, текст тонет. */
+.ow{display:block;margin-top:12px;border-radius:16px;padding:0 0 7px 7px;
+  background:#ffcf3f!important;border:0!important;}
+.ow .ow-in{display:block;border-radius:13px;padding:12px 14px;background:#fff!important;
+  box-shadow:0 1px 0 rgba(0,0,0,.06);}
+.ow .ow-h{display:inline-block;padding:3px 9px;border-radius:99px;background:#ffcf3f!important;
+  color:#1a1400!important;font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;}
+.ow .ow-t{display:block;margin-top:8px;font-size:12.5px;line-height:1.45;color:#211f1b!important;font-weight:700;}
 .ow .ow-f{display:block;margin-top:6px;font-size:11.5px;line-height:1.45;color:rgba(0,0,0,.7)!important;font-weight:500;}
+/* Этап на странице узких мест — подложкой: когда этапов несколько, их надо разделить. */
+.ow-group{display:flex;align-items:center;gap:8px;margin:18px 0 0;padding:8px 12px;border-radius:10px;
+  background:rgba(0,0,0,.06)!important;color:rgba(0,0,0,.7)!important;
+  font-size:10.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;}
+.ow-group span{margin-left:auto;display:inline-flex;align-items:center;justify-content:center;
+  min-width:18px;height:18px;padding:0 5px;border-radius:99px;background:#ffcf3f!important;
+  color:#1a1400!important;font-size:10px;}
+.ow-group:first-child{margin-top:0;}
 /* Метка на этапе: страница заказа — про сроки, разбор живёт отдельной страницей. */
 .ow-tag{display:inline-block;margin-top:5px;padding:2px 8px;border-radius:99px;
   background:#ffcf3f!important;color:#1a1400!important;font-size:10px;font-weight:800;
