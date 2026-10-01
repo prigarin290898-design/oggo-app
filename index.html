@@ -1872,45 +1872,57 @@ function ordBar(c){
   const done = live.filter(s=>s.state === 'done').length;
   return Math.round(done / live.length * 100);
 }
+// Номера заданий — рядом с номером заказа: заказ без п/з ни о чём не говорит,
+// а именно по заданию человек ищет работу в программе.
+const ordTasks = c => (c.tasks||[]).filter(t=>!t.cancelled).map(t=>t.name);
 function ordRow(c, i){
   const cur = c.current;
   const late = cur && cur.late;
   const sub = cur
     ? cur.title+' · '+cur.days+'-й день'+(cur.plan ? ' из '+cur.plan : '')
     : 'все этапы закрыты';
+  const pz = ordTasks(c);
+  const warn = (c.bottlenecks||[]).length;
   return '<button class="ord'+(late ? ' late' : '')+'" data-i="'+i+'">'+
     '<span class="ord-top"><b>'+SQ_ESC(c.order.name)+'</b>'+
-    (c.order.state ? '<span class="tag">'+SQ_ESC(c.order.state)+'</span>' : '')+
+    (pz.length ? '<span class="ord-pz">п/з '+pz.map(SQ_ESC).join(', ')+'</span>' : '<span class="ord-pz">без п/з</span>')+
     '<span class="ord-d">'+ordDM(c.ready)+'</span></span>'+
-    '<span class="ord-st">'+SQ_ESC(sub)+'</span>'+
+    '<span class="ord-st">'+(c.order.state ? '<span class="ord-state">'+SQ_ESC(c.order.state)+'</span>' : '')+SQ_ESC(sub)+'</span>'+
+    (warn ? '<span class="ord-warn">'+warn+' '+(warn===1?'узкое место':'узких места')+'</span>' : '')+
     '<span class="ord-bar"><i style="width:'+ordBar(c)+'%"></i></span></button>';
 }
-function ordStage(s){
+// Узкое место живёт на этапе, а не отдельным списком внизу: человек смотрит свой этап,
+// и предупреждение должно быть там же. Жёлтым — чтобы его было видно раньше остального.
+function ordWarn(w){
+  return '<span class="ow"><span class="ow-h">На этом этапе есть узкое место</span>'+
+    '<span class="ow-t">'+SQ_ESC(w.text)+'</span>'+
+    (w.fix ? '<span class="ow-f"><b>Что сделать:</b> '+SQ_ESC(w.fix)+'</span>' : '')+'</span>';
+}
+function ordStage(s, warns){
   const mark = s.state === 'skipped' ? '—' : (s.state === 'done' ? '✓' : (s.late ? '!' : '·'));
   const right = s.state === 'skipped' ? 'пропущен'
     : s.state === 'done' ? ordDM(s.done)
     : (s.late ? 'просрочка '+s.late+' дн' : 'план до '+ordDM(s.deadline));
-  return '<span class="os'+(s.state === 'done' ? ' ok' : '')+(s.late ? ' bad' : '')+(s.state === 'skipped' ? ' off' : '')+'">'+
-    '<span class="m">'+mark+'</span><span class="t">'+s.title+'<span class="b">'+s.by+' · '+s.fact+'</span></span>'+
+  const my = (warns || []).filter(w => w.stage === s.k);
+  return '<span class="os'+(s.state === 'done' ? ' ok' : '')+(s.late ? ' bad' : '')+(s.state === 'skipped' ? ' off' : '')+(my.length ? ' warn' : '')+'">'+
+    '<span class="m">'+mark+'</span><span class="t">'+s.title+'<span class="b">'+s.by+' · '+s.fact+'</span>'+
+    my.map(ordWarn).join('')+'</span>'+
     '<span class="r">'+right+'</span></span>';
 }
 function ordSheet(c){
   const plan = c.purchase ? 'с закупкой, 29 дней' : 'без закупки, 22 дня';
-  const head = '<div class="cz-fact"><div class="between"><b style="font-size:12.5px;">Готовность</b><span class="tag">'+ordDM(c.ready)+'</span></div>'+
+  const head = '<div class="cz-fact"><div class="between"><b style="font-size:12.5px;">Готовность</b><span class="ord-state big">'+ordDM(c.ready)+'</span></div>'+
     '<div class="muted" style="margin-top:6px;">Старт '+ordDM(c.start)+' ('+(c.startedBy === 'статус' ? 'статус «В работе п/ф»' : c.startedBy === 'факт' ? 'по первому заданию, статус не проставлен' : 'прогноз от сегодня')+') · цикл '+plan+'.'+
     (c.setByHand ? ' В задании стоит '+ordDM(c.setByHand)+(c.diffDays ? ', расхождение '+Math.abs(c.diffDays)+' дн' : ', сходится') : '')+
     (c.shiftedBy ? ' Сдвинуто с '+ordDM(c.readyPlanned)+': '+c.shiftedBy+'.' : '')+
     (c.waiting != null ? ' Ждал очереди '+c.waiting+' дн — это норма, не просрочка.' : '')+'</div></div>';
-  const stages = '<div class="os-list">'+c.stages.map(ordStage).join('')+'</div>';
-  const bn = (c.bottlenecks||[]).length
-    ? '<div class="cz-cap" style="margin-top:18px;">Узкие места</div>'+c.bottlenecks.map(b=>czItem(SQ_ESC(b.text)+'<span class="meta">'+SQ_ESC(b.fix||'')+'</span>', 'bad')).join('')
-    : '<div class="cz-cap" style="margin-top:18px;">Узкие места</div>'+czItem('Не найдено.', 'ok');
-  const docs = '<div class="cz-cap" style="margin-top:18px;">Документы</div>'+
-    c.tasks.map(t=>czItem('П/з '+SQ_ESC(t.name)+' от '+ordDM(t.created)+(t.cancelled ? ' — отменено' : ''), t.cancelled ? 'risk' : 'ok')).join('')+
-    c.moves.map(m=>czItem('Перемещение '+SQ_ESC(m.name)+' от '+ordDM(m.moment)+(m.created && m.created !== m.moment ? ', оформлено '+ordDM(m.created) : ''), 'ok')).join('');
+  const stages = '<div class="os-list">'+c.stages.map(s=>ordStage(s, c.bottlenecks)).join('')+'</div>';
+  // Разбора ошибок по документам здесь нет намеренно: пока заказ идёт, человеку нужен срок
+  // и что сделать, а не перечень промахов. Разбор — после выполнения заказа.
+  const pz = ordTasks(c);
   openSheet({cap:'Карта пути', title:'Заказ '+SQ_ESC(c.order.name), icon:IC.chart,
-    sub:(c.order.state || '')+(c.order.sum ? ' · '+ordMoney(c.order.sum) : ''),
-    body:'<div class="at-score dk">'+head+stages+bn+docs+'</div>'});
+    sub:(pz.length ? 'п/з '+pz.map(SQ_ESC).join(', ')+' · ' : '')+(c.order.state || '')+(c.order.sum ? ' · '+ordMoney(c.order.sum) : ''),
+    body:'<div class="ord-card">'+head+stages+'</div>'});
 }
 function ordRender(){
   const el = document.getElementById('s-orders');
@@ -4380,6 +4392,47 @@ body.bg-start .bgfield::after{content:'';position:absolute;inset:0;background:rg
   backdrop-filter:blur(30px) saturate(180%)!important;-webkit-backdrop-filter:blur(30px) saturate(180%)!important;}
 .tk-sum *{color:#fff!important;}
 .tk-sum .s3{background:var(--lime)!important;color:var(--lime-ink)!important;}
+
+/* ===== Заказы: карточки белые, не стекло =====
+   Стекло красиво, но данные на нём не читаются: в карте пути цифр и подписей много,
+   и глазу нужен лист, а не подсветка. Узкое место — жёлтым, оно должно бросаться в глаза
+   раньше остального. Блок идёт после тёмного каркаса, иначе тот перекрасит обратно. */
+.ord{background:#fff!important;border:1px solid rgba(0,0,0,.08)!important;
+  box-shadow:0 12px 28px -20px rgba(0,0,0,.8)!important;backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;}
+.ord *{color:#211f1b!important;}
+.ord .ord-state,.ord-card .ord-state{display:inline-block;margin-right:8px;padding:3px 9px;border-radius:99px;
+  background:#000!important;color:#fff!important;font-size:10.5px;font-weight:800;letter-spacing:.03em;
+  vertical-align:1px;}
+.ord-card .ord-state.big{font-size:12px;padding:5px 11px;}
+.ord .ord-st{display:block;text-align:left!important;}
+.ord .ord-pz{font-size:11.5px;font-weight:700;color:rgba(0,0,0,.5)!important;white-space:nowrap;}
+.ord .ord-st{color:rgba(0,0,0,.72)!important;}
+.ord .ord-bar{background:rgba(0,0,0,.1)!important;}
+.ord .ord-warn{display:inline-block;margin-top:8px;padding:4px 10px;border-radius:99px;
+  background:var(--warn-bg)!important;color:var(--warn)!important;font-size:11px;font-weight:800;}
+.ord-card{background:#fff!important;border:1px solid rgba(0,0,0,.08)!important;
+  border-radius:22px;padding:16px;margin-bottom:12px;
+  backdrop-filter:none!important;-webkit-backdrop-filter:none!important;}
+.ord-card *{color:#211f1b!important;}
+.ord-card .cz-fact{background:#F6F5F2!important;border:1px solid rgba(0,0,0,.06)!important;
+  backdrop-filter:none!important;-webkit-backdrop-filter:none!important;}
+.ord-card .cz-fact .muted{color:rgba(0,0,0,.6)!important;}
+
+.ord-card .os{border-bottom-color:rgba(0,0,0,.08)!important;}
+.ord-card .os .m{background:rgba(0,0,0,.08)!important;}
+.ord-card .os.ok .m{background:var(--lime)!important;color:var(--lime-ink)!important;}
+.ord-card .os.bad .m{background:var(--orange)!important;color:#fff!important;}
+.ord-card .os.warn .m{background:var(--warn)!important;color:#fff!important;}
+.ord-card .os .t .b{color:rgba(0,0,0,.55)!important;}
+.ord-card .os .r{color:rgba(0,0,0,.7)!important;}
+/* Предупреждение на этапе: жёлтая подложка, заголовок, риск и что сделать. */
+.ow{display:block;margin-top:8px;padding:10px 12px;border-radius:14px;
+  background:var(--warn-bg)!important;border:1px solid rgba(168,102,15,.28)!important;}
+.ow .ow-h{display:block;font-size:10.5px;font-weight:800;letter-spacing:.05em;
+  text-transform:uppercase;color:var(--warn)!important;}
+.ow .ow-t{display:block;margin-top:4px;font-size:12px;line-height:1.45;color:#4a2f05!important;font-weight:600;}
+.ow .ow-f{display:block;margin-top:6px;font-size:11.5px;line-height:1.45;color:#4a2f05!important;font-weight:500;}
 
 /* ===== Лайм — там же, где был. Единственный акцентный свет. ===== */
 .at-tile.lime,.lime-heading,.pill.lime,.ov.g{background:var(--lime)!important;color:var(--lime-ink)!important;}
