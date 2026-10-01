@@ -1854,7 +1854,7 @@ function renderProfile(u){
 
 // ===== Заказы: карта пути =====
 // Данные считает сервер (chainview + chainload) и отдаёт готовыми: план по этапам, факт,
-// узкие места. Приложение только рисует — вторая арифметика рядом с первой означала бы,
+// узкие горлышки. Приложение только рисует — вторая арифметика рядом с первой означала бы,
 // что когда-нибудь они разойдутся.
 let ORD = null;
 const ordDM = d => d ? String(d).slice(0,10).split('-').reverse().slice(0,2).join('.') : '—';
@@ -1868,6 +1868,27 @@ function ordBar(c){
 // Номера заданий — рядом с номером заказа: заказ без п/з ни о чём не говорит,
 // а именно по заданию человек ищет работу в программе.
 const ordTasks = c => (c.tasks||[]).filter(t=>!t.cancelled).map(t=>t.name);
+// Узкие горлышки процесса (решение директора 02.10.2026): этап, ресурс или проблема, которая ограничивает
+// поток всей системы. Общие для всех заказов — поэтому лежат здесь, а не приходят с заказом.
+// На этапах — те, что привязаны к этапу; ресурсные — карточкой над списком. Источник — 🧭 Эталон.
+const BN_STAGE = {
+  accepted: 'Запуск в работу: нет владельца, правила и статуса «запускаем» — заказы стоят в очереди',
+  prep: 'Техкарты новой продукции: техкарта Михаила и согласование директора, сплошная проверка не закончена',
+  transit: 'Транзит Екатеринбург → Москва: 7 дней ТК, выходные не везёт, недовоз — второй круг в 7 дней',
+  packing: 'Фасовка на ХП: одна площадка на M и XL, около 20 тысяч флаконов в день, заказы идут по очереди',
+  release: 'Учёт позади физики: без приёмки и документов выпуск и отгрузка не проводятся'
+};
+const BN_RESOURCE = [
+  {t:'Директор как точка согласований', d:'Пять согласований на заказ без срока ответа: подтверждение, техкарты, сумма закупки, спорные случаи ветки, инвентаризация. Каждый заказ ждёт одного человека.'},
+  {t:'Михаил', d:'Шесть шагов в одних руках: цены, техкарты, заказ поставщику, приёмка у площадки, отметки, отгрузка. Дублёра нет.'},
+  {t:'Антон', d:'Все п/з, расчёт потребности, передача в работу и все выпуски — через одного человека.'},
+  {t:'Инвентаризация конца месяца', d:'Выпуски останавливаются за сутки и до «Согласована», для всех заказов разом.'}
+];
+function ordBnHtml(){
+  return '<div class="cz-fact" style="margin-bottom:12px;"><div class="between"><b style="font-size:12.5px;">Узкие горлышки процесса</b><span class="ord-state">9</span></div>'+
+    '<div class="muted" style="margin-top:6px;">Этап, ресурс или проблема, которая ограничивает поток всей системы. Общие для всех заказов: пять отмечены на этапах внутри заказа, четыре ресурсных — ниже.</div></div>'+
+    '<div class="ord-card" style="margin-bottom:12px;">'+BN_RESOURCE.map(x=>accHtml('!', x.t, 'ресурс', '<p style="margin:0;">'+SQ_ESC(x.d)+'</p>')).join('')+'</div>';
+}
 function ordRow(c, i){
   const cur = c.current;
   const late = cur && cur.late;
@@ -1878,7 +1899,6 @@ function ordRow(c, i){
       ? cur.title+' · '+cur.days+'-й день'+(cur.plan ? ' из '+cur.plan : '')
       : 'все этапы закрыты';
   const pz = ordTasks(c);
-  const warn = (c.bottlenecks||[]).length;
   // Справа — дата покупателю: пятница и выходные сдвинуты на понедельник. У незапущенного это прогноз.
   const when = c.readyCustomer || c.ready;
   return '<button class="ord'+(late ? ' late' : '')+'" data-i="'+i+'">'+
@@ -1886,27 +1906,17 @@ function ordRow(c, i){
     (pz.length ? '<span class="ord-pz">п/з '+pz.map(SQ_ESC).join(', ')+'</span>' : '<span class="ord-pz">без п/з</span>')+
     '<span class="ord-d">'+(c.started ? '' : 'прогноз ')+ordDM(when)+'</span></span>'+
     '<span class="ord-st">'+(c.order.state ? '<span class="ord-state">'+SQ_ESC(c.order.state)+'</span>' : '')+SQ_ESC(sub)+'</span>'+
-    (warn ? '<span class="ord-warn">'+warn+' '+(warn===1?'узкое место':'узких места')+'</span>' : '')+
     '<span class="ord-bar"><i style="width:'+ordBar(c)+'%"></i></span></button>';
 }
-// На странице заказа — только метка: страница про сроки, и разворачивать на ней разбор
-// значит снова сделать её длинной. Сам разбор — отдельной страницей внутри заказа.
-function ordWarn(w){
-  return '<span class="ow"><span class="ow-in">'+
-    '<span class="ow-h">'+(w.k === 'audit' ? 'Узкое место · '+SQ_ESC(w.source || 'аудит') : 'Узкое место')+'</span>'+
-    '<span class="ow-t">'+SQ_ESC(w.text)+'</span>'+
-    (w.fix ? '<span class="ow-f"><b>Что сделать:</b> '+SQ_ESC(w.fix)+'</span>' : '')+
-    '</span></span>';
-}
-function ordStage(s, warns){
+function ordStage(s){
   const mark = s.state === 'skipped' ? '—' : (s.state === 'done' ? '✓' : (s.late ? '!' : '·'));
   const right = s.state === 'skipped' ? 'пропущен'
     : s.state === 'done' ? ordDM(s.done)
     : (s.late ? 'просрочка '+s.late+' дн' : 'план до '+ordDM(s.deadline));
-  const my = (warns || []).filter(w => w.stage === s.k);
-  return '<span class="os'+(s.state === 'done' ? ' ok' : '')+(s.late ? ' bad' : '')+(s.state === 'skipped' ? ' off' : '')+(my.length ? ' warn' : '')+'">'+
+  const bn = BN_STAGE[s.k];
+  return '<span class="os'+(s.state === 'done' ? ' ok' : '')+(s.late ? ' bad' : '')+(s.state === 'skipped' ? ' off' : '')+(bn ? ' warn' : '')+'">'+
     '<span class="m">'+mark+'</span><span class="t">'+s.title+'<span class="b">'+s.by+' · '+s.fact+'</span>'+
-    (my.length ? '<span class="ow-tag">узкое место'+(my.length > 1 ? ' · '+my.length : '')+'</span>' : '')+'</span>'+
+    (bn ? '<span class="ow-tag">узкое горлышко</span><span class="b">'+SQ_ESC(bn)+'</span>' : '')+'</span>'+
     '<span class="r">'+right+'</span></span>';
 }
 function ordSheet(c){
@@ -1917,42 +1927,17 @@ function ordSheet(c){
     (c.shiftedBy ? ' Сдвинуто с '+ordDM(c.readyPlanned)+': '+c.shiftedBy+'.' : '')+
     (c.readyCustomer && c.readyCustomer !== (c.setByHand || c.ready) ? ' <b>Покупателю — '+ordDM(c.readyCustomer)+'</b>: выпуск, отгрузка и ТК в выходные не работают.' : '')+
     (c.waiting != null ? ' Ждал очереди '+c.waiting+' дн — это норма, не просрочка.' : '')+'</div></div>';
-  const stages = '<div class="os-list">'+c.stages.map(s=>ordStage(s, c.bottlenecks)).join('')+'</div>';
+  const stages = '<div class="os-list">'+c.stages.map(ordStage).join('')+'</div>';
   // Разбора ошибок по документам здесь нет намеренно: пока заказ идёт, человеку нужен срок
   // и что сделать, а не перечень промахов. Разбор — после выполнения заказа.
   const pz = ordTasks(c);
-  const n = (c.bottlenecks || []).length;
-  const go = n
-    ? '<button class="ord-go" id="ordGo">Узкие места · '+n+'<span class="chv">'+ic('<polyline points="9 6 15 12 9 18"/>',15)+'</span></button>'
-    : '<div class="at-note">Узких мест не найдено.</div>';
+  // Находок по заказу здесь нет: признаки (догруз, пятница, просрочка) — материал отчёта заказа,
+  // к нему процесс не перешёл. Горлышки процесса стоят на этапах, одинаково для всех заказов.
   openSheet({cap:'Карта пути', title:'Заказ '+SQ_ESC(c.order.name), icon:IC.chart,
     sub:(pz.length ? 'п/з '+pz.map(SQ_ESC).join(', ')+' · ' : '')+(c.order.state || '')+(c.order.sum ? ' · '+ordMoney(c.order.sum) : ''),
-    body:'<div class="ord-card">'+head+stages+go+'</div>',
-    after: ()=>{ const b = document.getElementById('ordGo'); if(b) b.addEventListener('click', ()=>ordWarnPage(c)); }});
+    body:'<div class="ord-card">'+head+stages+'</div>'});
 }
 
-// Узкие места — отдельная страница внутри заказа. «Назад» возвращает в карту, а не закрывает
-// всё: иначе человек теряет заказ, которым занимался.
-function ordWarnPage(c){
-  const byStage = {};
-  for(const w of (c.bottlenecks || [])) (byStage[w.stage || '—'] = byStage[w.stage || '—'] || []).push(w);
-  const titleOf = k => (c.stages.find(s=>s.k === k) || {}).title || 'Без этапа';
-  // Группы — в порядке этапов, не в порядке находок: человек читает путь заказа сверху вниз.
-  const order = k => { const i = c.stages.findIndex(s=>s.k === k); return i < 0 ? 99 : i; };
-  const body = Object.keys(byStage).sort((a,b)=>order(a)-order(b)).map(k =>
-    '<div class="ow-group">'+SQ_ESC(titleOf(k))+'<span>'+byStage[k].length+'</span></div>'+byStage[k].map(ordWarn).join('')
-  ).join('');
-  openSheet({cap:'Заказ '+SQ_ESC(c.order.name), title:'Узкие места', icon:IC.flag,
-    sub:'Что мешает сроку и что с этим сделать',
-    body:'<div class="ord-card">'+(body || '<div class="at-note">Узких мест не найдено.</div>')+'</div>',
-    after: ()=>{
-      const b = document.getElementById('docBack');
-      if(!b) return;
-      const n = b.cloneNode(true);
-      b.parentNode.replaceChild(n, b);
-      n.addEventListener('click', ()=>ordSheet(c));
-    }});
-}
 function ordRender(){
   const el = document.getElementById('s-orders');
   const head = CZ_HEAD('Заказы','Путь от запуска до готовности · данные из Мой Склада');
@@ -1961,7 +1946,7 @@ function ordRender(){
   if(!ORD) html = head+'<div class="empty">Загрузка…</div>'+tail;
   else if(ORD.unavailable) html = head+'<div class="attn col"><div class="eb">Мой Склад не подключён</div><p>Карта пути строится из документов учёта. Пока связи нет, показывать нечего.</p></div>'+tail;
   else if(!ORD.orders.length) html = head+'<div class="cz-fact"><b style="font-size:12.5px;">Заказов в работе нет.</b></div>'+tail;
-  else html = head+ORD.orders.map(ordRow).join('')+tail;
+  else html = head+ordBnHtml()+ORD.orders.map(ordRow).join('')+tail;
   el.innerHTML = html;
   el.querySelectorAll('.ord').forEach(b=>b.addEventListener('click', ()=>ordSheet(ORD.orders[+b.dataset.i])));
   bindAcc(el);
