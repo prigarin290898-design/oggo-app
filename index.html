@@ -668,6 +668,30 @@ window.ASSET_V = '20260923b';
   .at-two{display:flex;gap:8px;margin-top:10px;}
   .at-two button{flex:1;min-height:48px;border-radius:99px;font:800 13px var(--font-body);cursor:pointer;border:1px solid #000;background:transparent;color:#000;}
   .at-two button.pri{background:#000;color:#fff;}
+  /* Заказы: полоса на заказ. Номер, статус, дата готовности, текущий этап и шкала пройденного. */
+  .ord{display:block;width:100%;margin:0 0 10px;padding:14px 16px;border-radius:20px;cursor:pointer;
+    text-align:left;font-family:var(--font-body);background:var(--glass);border:1px solid var(--glass-border);}
+  .ord .ord-top{display:flex;align-items:center;gap:8px;}
+  .ord .ord-top b{font-family:var(--font-display);font-size:16px;font-weight:700;}
+  .ord .ord-d{margin-left:auto;font-family:var(--font-display);font-weight:700;font-size:13px;
+    font-variant-numeric:tabular-nums;}
+  .ord .ord-st{display:block;margin-top:6px;font-size:12px;line-height:1.35;}
+  .ord .ord-bar{display:block;margin-top:10px;height:5px;border-radius:99px;overflow:hidden;
+    background:rgba(255,255,255,.14);}
+  .ord .ord-bar i{display:block;height:100%;background:var(--lime);border-radius:99px;}
+  .ord.late .ord-bar i{background:var(--orange);}
+  /* Этап в карте: отметка, название с исполнителем, срок справа. */
+  .os-list{margin-top:12px;}
+  .os{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);font-size:12.5px;}
+  .os:last-child{border-bottom:0;}
+  .os .m{flex:0 0 auto;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;
+    justify-content:center;font-size:11px;font-weight:800;background:rgba(255,255,255,.12);}
+  .os.ok .m{background:var(--lime);color:var(--lime-ink);}
+  .os.bad .m{background:var(--orange);color:#000;}
+  .os.off{opacity:.5;}
+  .os .t{flex:1;min-width:0;font-weight:600;}
+  .os .t .b{display:block;margin-top:2px;font-size:11px;font-weight:500;line-height:1.3;opacity:.7;}
+  .os .r{flex:0 0 auto;font-size:11.5px;font-variant-numeric:tabular-nums;opacity:.85;text-align:right;}
   /* Ряд плашек отбивается снизу так же, как сверху: без этого он упирался в следующую
      карточку вплотную и читался как наложение. */
   .at-verd{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0;}
@@ -955,7 +979,10 @@ window.ASSET_V = '20260923b';
     <div id="banAccordion"></div>
   </div>
 
-  <!-- 4. ЗАДАЧИ -->
+  <!-- 4. ЗАКАЗЫ -->
+  <div class="section" id="s-orders"></div>
+
+  <!-- 5. ЗАДАЧИ -->
   <div class="section" id="s-tasks"></div>
 
   <!-- 5. МОЙ РОСТ -->
@@ -970,6 +997,7 @@ window.ASSET_V = '20260923b';
   <div class="ni on" data-s="profile"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.5-7 8-7s8 3 8 7"/></svg></div>
   <div class="ni" data-s="process"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3l4 4-4 4"/><path d="M3 7h18"/><path d="M7 21l-4-4 4-4"/><path d="M21 17H3"/></svg></div>
   <div class="ni" data-s="errors"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="7" x2="12" y2="13"/><line x1="12" y1="16.5" x2="12" y2="16.6"/></svg></div>
+  <div class="ni" data-s="orders"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="2"/><circle cx="19" cy="12" r="2"/><path d="M7 12h10"/><path d="M12 5v3"/><path d="M12 16v3"/></svg></div>
   <div class="ni" data-s="tasks"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><path d="M8 12l3 3 5-6"/></svg></div>
   <div class="ni" data-s="growth"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="19" x2="5" y2="13"/><line x1="12" y1="19" x2="12" y2="7"/><line x1="19" y1="19" x2="19" y2="11"/></svg></div>
   <div class="ni" data-s="game"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="14" height="14" rx="3"/><path d="M8 3h11a2 2 0 012 2v11"/></svg></div>
@@ -1829,6 +1857,79 @@ function renderProfile(u){
     th.addEventListener('click', ()=>{ window.TEAM_OPEN = !window.TEAM_OPEN; set(!!window.TEAM_OPEN); });
   }
   atHomeBanner();
+}
+
+// ===== Заказы: карта пути =====
+// Данные считает сервер (chainview + chainload) и отдаёт готовыми: план по этапам, факт,
+// узкие места. Приложение только рисует — вторая арифметика рядом с первой означала бы,
+// что когда-нибудь они разойдутся.
+let ORD = null;
+const ordDM = d => d ? String(d).slice(0,10).split('-').reverse().slice(0,2).join('.') : '—';
+const ordMoney = n => String(Math.round((n||0)/100)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ')+' ₽';
+
+function ordBar(c){
+  const live = c.stages.filter(s=>s.state !== 'skipped');
+  const done = live.filter(s=>s.state === 'done').length;
+  return Math.round(done / live.length * 100);
+}
+function ordRow(c, i){
+  const cur = c.current;
+  const late = cur && cur.late;
+  const sub = cur
+    ? cur.title+' · '+cur.days+'-й день'+(cur.plan ? ' из '+cur.plan : '')
+    : 'все этапы закрыты';
+  return '<button class="ord'+(late ? ' late' : '')+'" data-i="'+i+'">'+
+    '<span class="ord-top"><b>'+SQ_ESC(c.order.name)+'</b>'+
+    (c.order.state ? '<span class="tag">'+SQ_ESC(c.order.state)+'</span>' : '')+
+    '<span class="ord-d">'+ordDM(c.ready)+'</span></span>'+
+    '<span class="ord-st">'+SQ_ESC(sub)+'</span>'+
+    '<span class="ord-bar"><i style="width:'+ordBar(c)+'%"></i></span></button>';
+}
+function ordStage(s){
+  const mark = s.state === 'skipped' ? '—' : (s.state === 'done' ? '✓' : (s.late ? '!' : '·'));
+  const right = s.state === 'skipped' ? 'пропущен'
+    : s.state === 'done' ? ordDM(s.done)
+    : (s.late ? 'просрочка '+s.late+' дн' : 'план до '+ordDM(s.deadline));
+  return '<span class="os'+(s.state === 'done' ? ' ok' : '')+(s.late ? ' bad' : '')+(s.state === 'skipped' ? ' off' : '')+'">'+
+    '<span class="m">'+mark+'</span><span class="t">'+s.title+'<span class="b">'+s.by+' · '+s.fact+'</span></span>'+
+    '<span class="r">'+right+'</span></span>';
+}
+function ordSheet(c){
+  const plan = c.purchase ? 'с закупкой, 29 дней' : 'без закупки, 22 дня';
+  const head = '<div class="cz-fact"><div class="between"><b style="font-size:12.5px;">Готовность</b><span class="tag">'+ordDM(c.ready)+'</span></div>'+
+    '<div class="muted" style="margin-top:6px;">Старт '+ordDM(c.start)+' ('+(c.startedBy === 'статус' ? 'статус «В работе п/ф»' : c.startedBy === 'факт' ? 'по первому заданию, статус не проставлен' : 'прогноз от сегодня')+') · цикл '+plan+'.'+
+    (c.setByHand ? ' В задании стоит '+ordDM(c.setByHand)+(c.diffDays ? ', расхождение '+Math.abs(c.diffDays)+' дн' : ', сходится') : '')+
+    (c.shiftedBy ? ' Сдвинуто с '+ordDM(c.readyPlanned)+': '+c.shiftedBy+'.' : '')+
+    (c.waiting != null ? ' Ждал очереди '+c.waiting+' дн — это норма, не просрочка.' : '')+'</div></div>';
+  const stages = '<div class="os-list">'+c.stages.map(ordStage).join('')+'</div>';
+  const bn = (c.bottlenecks||[]).length
+    ? '<div class="cz-cap" style="margin-top:18px;">Узкие места</div>'+c.bottlenecks.map(b=>czItem(SQ_ESC(b.text)+'<span class="meta">'+SQ_ESC(b.fix||'')+'</span>', 'bad')).join('')
+    : '<div class="cz-cap" style="margin-top:18px;">Узкие места</div>'+czItem('Не найдено.', 'ok');
+  const docs = '<div class="cz-cap" style="margin-top:18px;">Документы</div>'+
+    c.tasks.map(t=>czItem('П/з '+SQ_ESC(t.name)+' от '+ordDM(t.created)+(t.cancelled ? ' — отменено' : ''), t.cancelled ? 'risk' : 'ok')).join('')+
+    c.moves.map(m=>czItem('Перемещение '+SQ_ESC(m.name)+' от '+ordDM(m.moment)+(m.created && m.created !== m.moment ? ', оформлено '+ordDM(m.created) : ''), 'ok')).join('');
+  openSheet({cap:'Карта пути', title:'Заказ '+SQ_ESC(c.order.name), icon:IC.chart,
+    sub:(c.order.state || '')+(c.order.sum ? ' · '+ordMoney(c.order.sum) : ''),
+    body:'<div class="at-score dk">'+head+stages+bn+docs+'</div>'});
+}
+function ordRender(){
+  const el = document.getElementById('s-orders');
+  const head = CZ_HEAD('Заказы','Путь от запуска до готовности · данные из Мой Склада');
+  if(!ORD) return void (el.innerHTML = head+'<div class="empty">Загрузка…</div>');
+  if(ORD.unavailable) return void (el.innerHTML = head+'<div class="attn col"><div class="eb">Мой Склад не подключён</div><p>Карта пути строится из документов учёта. Пока связи нет, показывать нечего — это не значит, что заказов нет.</p></div>');
+  if(!ORD.orders.length) return void (el.innerHTML = head+'<div class="cz-fact"><b style="font-size:12.5px;">Заказов в работе нет.</b></div>');
+  el.innerHTML = head+ORD.orders.map(ordRow).join('');
+  el.querySelectorAll('.ord').forEach(b=>b.addEventListener('click', ()=>ordSheet(ORD.orders[+b.dataset.i])));
+}
+async function ordLoad(){
+  try{ ORD = await appApi('GET','/chain'); }
+  catch(e){ ORD = {unavailable:true, orders:[]}; }
+  ordRender();
+}
+function renderOrders(u){
+  const el = document.getElementById('s-orders');
+  if(!u){ el.innerHTML = '<div class="empty">Раздел доступен после определения пользователя.</div>'; return; }
+  ORD = null; ordRender(); ordLoad();
 }
 
 // ===== Задачи =====
@@ -3162,6 +3263,7 @@ function renderAll(u){
   renderProfile(u);
   streakBind();
   renderTasks(u);
+  renderOrders(u);
   renderGrowth(u);
   renderErrors(u);
   renderProcess(u);
