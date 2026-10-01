@@ -1909,8 +1909,11 @@ function bnSheet(x, back){
     }});
 }
 function ordBnHtml(){
-  return '<div class="cz-fact" style="margin-bottom:12px;"><div class="between"><b style="font-size:12.5px;">Узкие горлышки процесса</b><span class="ord-state">9</span></div>'+
-    '<div class="muted" style="margin-top:6px;">Этап, ресурс или проблема, которая ограничивает поток всей системы. Общие для всех заказов: пять отмечены на этапах внутри заказа, четыре ресурсных — ниже.</div></div>'+
+  // Ресурсные горлышки (люди) — только директору (решение 02.10.2026): у сотрудников это рычаг
+  // давления на систему работы. Им остаются горлышки на этапах внутри заказа.
+  if(!currentUser || currentUser.key !== 'director') return '';
+  return '<div class="cz-fact" style="margin-bottom:12px;"><div class="between"><b style="font-size:12.5px;">Узкие горлышки процесса</b><span class="ord-state">только вам</span></div>'+
+    '<div class="muted" style="margin-top:6px;">Этап, ресурс или проблема, которая ограничивает поток всей системы. Пять отмечены на этапах внутри заказа и видны всем, четыре ресурсных — ниже, только директору.</div></div>'+
     '<div class="ord-card" style="margin-bottom:12px;">'+BN_RESOURCE.map((x,i)=>'<button class="bn-btn" data-bnr="'+i+'"><span class="ow-tag">узкое горлышко · '+x.kind+'</span><b>'+SQ_ESC(x.t)+'</b><span class="b">'+SQ_ESC(x.d)+'</span></button>').join('')+'</div>';
 }
 function ordRow(c, i){
