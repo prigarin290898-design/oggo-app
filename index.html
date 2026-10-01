@@ -3729,7 +3729,9 @@ function atWrongHtml(list, blocks, canVoid){
     (canVoid && w.id ? '<button class="at-void" type="button" data-q="'+SQ_ESC(w.id)+'" data-on="'+(w.voided ? '0' : '1')+'">'+(w.voided ? 'Вернуть вопрос в зачёт' : 'Снять вопрос — дефект формулировки')+'</button>' : '')+
     '</div>').join('');
 }
-function atResultChips(blocks){ return '<div class="at-verd">'+blocks.map(b=>'<span class="ov '+(b.pass?'g':'r')+'">'+b.id+' · '+(b.pass?'Зачтён':'Не зачтён')+' · '+b.correct+'/'+b.total+'</span>').join('')+'</div>'; }
+// В плашке: верных из живых вопросов блока. Снятые на разборе показываем отдельным хвостом —
+// иначе знаменатель молча уменьшается, и непонятно, почему «3 из 4» стало «3 из 3».
+function atResultChips(blocks){ return '<div class="at-verd">'+blocks.map(b=>'<span class="ov '+(b.pass?'g':'r')+'">'+b.id+' · '+(b.pass?'Зачтён':'Не зачтён')+' · '+b.correct+'/'+b.total+(b.voided ? ' · '+b.voided+' снят'+(b.voided > 1 ? 'о' : '') : '')+'</span>').join('')+'</div>'; }
 // Баннер на стартовой: аттестацию не должно быть нужно искать. Экран «Мой рост» длинный,
 // а сдавать надо в конкретные два дня — поэтому статус висит там, куда человек попадает первым.
 async function atHomeBanner(){
