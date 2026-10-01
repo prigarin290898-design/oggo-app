@@ -688,6 +688,10 @@ window.ASSET_V = '20260923b';
   /* Разбор ошибок читается на белом. Прежде карточка шла тёмной: оранжевая подпись на сером
      и серый текст на сером — на телефоне не читалось вовсе (замечание директора 01.10.2026).
      Оранжевый остался, но как подложка под чёрным текстом. */
+  /* Внутри аккордеона тело отбито слева на 56 пикселей под кружок с номером. Для разбора
+     это дорого: на телефоне остаётся узкая колонка, и ответ переносится по пять строк.
+     Карточки ошибок возвращаем к общему полю. */
+  .cz-step .dtl .at-wide{margin-left:-42px;}
   .at-wrong{background:#fff!important;border-radius:18px;padding:14px 16px;margin-top:12px;
     box-shadow:0 10px 26px -18px rgba(0,0,0,.75);}
   .at-wrong *{color:#211f1b!important;}
@@ -3811,7 +3815,7 @@ function atRenderEmployee(box, A){
       : '<div class="at-ban">Итог аттестации директор ещё не поставил. Зачёт по блокам ниже — машинный.</div>';
     status = '<div class="at-h">Результат объявлен</div><p class="at-p">Зачтено '+okN+' из '+allN+' '+AT_PL(allN,'блока','блоков','блоков')+'.</p>'+vd+atResultChips(r.blocks)+
       '<p class="at-sm">'+(w.kind === 'setup' ? 'Установочная аттестация: без последствий, счётчики не менялись.' : 'Счётчик повторов по зачтённым блокам обнулён, забранные операции по ним возвращаются. Незачтённые блоки: следующая попытка через месяц.')+'</p>'+
-      '<div class="at-blocks">'+accHtml('!', 'Разбор ошибок', (r.wrong||[]).length+' '+AT_PL((r.wrong||[]).length,'вопрос','вопроса','вопросов'), atWrongHtml(r.wrong, r.blocks))+'</div>';
+      '<div class="at-blocks">'+accHtml('!', 'Разбор ошибок', (r.wrong||[]).length+' '+AT_PL((r.wrong||[]).length,'вопрос','вопроса','вопросов'), '<div class="at-wide">'+atWrongHtml(r.wrong, r.blocks)+'</div>')+'</div>';
   }
   box.innerHTML = head+status+ban+action+(A.status === 'announced' ? '' : '<div class="at-blocks">'+blocks.map((b,i)=>atPrepBlock(b,i)).join('')+'</div>');
   bindAcc(box);
