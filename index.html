@@ -4454,12 +4454,14 @@ body.bg-start .bgfield::after{content:'';position:absolute;inset:0;background:rg
 .ord-card .os .r{color:rgba(0,0,0,.7)!important;}
 /* Предупреждение: жёлтый — тот же, что у статусов (#ffcf3f). Коричневого в фирстиле нет,
    он тянулся из старых --warn и выбивался из палитры. */
-.ow{display:block;margin-top:8px;padding:12px 14px;border-radius:14px;
-  background:#ffcf3f!important;border:0!important;}
+/* Плашка — белая с жёлтым краем: на сплошной заливке длинный текст не читается,
+   а цвет нужен как сигнал, а не как фон под абзацем. */
+.ow{display:block;margin-top:10px;padding:12px 14px;border-radius:14px;
+  background:#fff!important;border:2px solid #ffcf3f!important;}
 .ow .ow-h{display:block;font-size:10.5px;font-weight:800;letter-spacing:.05em;
-  text-transform:uppercase;color:#1a1400!important;opacity:.72;}
-.ow .ow-t{display:block;margin-top:4px;font-size:12.5px;line-height:1.45;color:#1a1400!important;font-weight:700;}
-.ow .ow-f{display:block;margin-top:6px;font-size:11.5px;line-height:1.45;color:#1a1400!important;font-weight:500;}
+  text-transform:uppercase;color:#1a1400!important;opacity:.6;}
+.ow .ow-t{display:block;margin-top:4px;font-size:12.5px;line-height:1.45;color:#211f1b!important;font-weight:700;}
+.ow .ow-f{display:block;margin-top:6px;font-size:11.5px;line-height:1.45;color:rgba(0,0,0,.7)!important;font-weight:500;}
 /* Метка на этапе: страница заказа — про сроки, разбор живёт отдельной страницей. */
 .ow-tag{display:inline-block;margin-top:5px;padding:2px 8px;border-radius:99px;
   background:#ffcf3f!important;color:#1a1400!important;font-size:10px;font-weight:800;
