@@ -1782,8 +1782,10 @@ function renderProfile(u){
         <div class="name">${u.name}</div>
         <div class="muted" style="margin-top:2px;">${u.role}</div>
       </div>
+      <button class="cz-fact bn-btn" id="bnResBtn" style="padding:14px 16px;margin-top:12px;"><div class="between"><b style="font-size:12.5px;">Узкие горлышки · ресурсы</b><span class="ord-state">4 →</span></div><div class="muted" style="margin-top:4px;">Директор, Михаил, Антон, инвентаризация. Только вам.</div></button>
       ${CZ_HEAD('Все сотрудники','Роль, задачи и рост каждого в одном месте')}
       <div id="czRoster"></div>`;
+    document.getElementById('bnResBtn').addEventListener('click', bnResourceSheet);
     makeCarousel(document.getElementById('czRoster'), {
       label:'Сотрудники',
       items: ROSTER.map(p=>{ const g = GROWTH[p.key]; return {title:p.name, sub:ROLES[p.key].position, iconHtml:'<b style="font-family:var(--font-display);font-size:14px;">'+p.initials+'</b>', peek:g ? 'Неделя '+g.week+' · '+zoneWord(g) : ''}; }),
@@ -1908,13 +1910,12 @@ function bnSheet(x, back){
       n.addEventListener('click', back);
     }});
 }
-function ordBnHtml(){
-  // Ресурсные горлышки (люди) — только директору (решение 02.10.2026): у сотрудников это рычаг
-  // давления на систему работы. Им остаются горлышки на этапах внутри заказа.
-  if(!currentUser || currentUser.key !== 'director') return '';
-  return '<div class="cz-fact" style="margin-bottom:12px;"><div class="between"><b style="font-size:12.5px;">Узкие горлышки процесса</b><span class="ord-state">только вам</span></div>'+
-    '<div class="muted" style="margin-top:6px;">Этап, ресурс или проблема, которая ограничивает поток всей системы. Пять отмечены на этапах внутри заказа и видны всем, четыре ресурсных — ниже, только директору.</div></div>'+
-    '<div class="ord-card" style="margin-bottom:12px;">'+BN_RESOURCE.map((x,i)=>'<button class="bn-btn" data-bnr="'+i+'"><span class="ow-tag">узкое горлышко · '+x.kind+'</span><b>'+SQ_ESC(x.t)+'</b><span class="b">'+SQ_ESC(x.d)+'</span></button>').join('')+'</div>';
+// Ресурсные горлышки живут на странице профиля директора (решение 02.10.2026), в заказах их нет.
+function bnResourceSheet(){
+  openSheet({cap:'Узкие горлышки', title:'Ресурсы', icon:IC.flag,
+    sub:'Только директору: у сотрудников это рычаг давления на систему',
+    body:'<div class="ord-card">'+BN_RESOURCE.map((x,i)=>'<button class="bn-btn" data-bnr="'+i+'"><span class="ow-tag">узкое горлышко · '+x.kind+'</span><b>'+SQ_ESC(x.t)+'</b><span class="b">'+SQ_ESC(x.d)+'</span><span class="b" style="color:var(--ink);">Предложение по оптимизации →</span></button>').join('')+'</div>',
+    after: ()=>{ document.querySelectorAll('[data-bnr]').forEach(b=>b.addEventListener('click', ()=>bnSheet(BN_RESOURCE[+b.dataset.bnr], bnResourceSheet))); }});
 }
 function ordRow(c, i){
   const cur = c.current;
@@ -1974,10 +1975,9 @@ function ordRender(){
   if(!ORD) html = head+'<div class="empty">Загрузка…</div>'+tail;
   else if(ORD.unavailable) html = head+'<div class="attn col"><div class="eb">Мой Склад не подключён</div><p>Карта пути строится из документов учёта. Пока связи нет, показывать нечего.</p></div>'+tail;
   else if(!ORD.orders.length) html = head+'<div class="cz-fact"><b style="font-size:12.5px;">Заказов в работе нет.</b></div>'+tail;
-  else html = head+ordBnHtml()+ORD.orders.map(ordRow).join('')+tail;
+  else html = head+ORD.orders.map(ordRow).join('')+tail;
   el.innerHTML = html;
   el.querySelectorAll('.ord').forEach(b=>b.addEventListener('click', ()=>ordSheet(ORD.orders[+b.dataset.i])));
-  el.querySelectorAll('[data-bnr]').forEach(b=>b.addEventListener('click', ()=>bnSheet(BN_RESOURCE[+b.dataset.bnr], null)));
 }
 async function ordLoad(){
   try{ ORD = await appApi('GET','/chain'); }
