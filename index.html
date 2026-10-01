@@ -1910,6 +1910,7 @@ function ordSheet(c){
     '<div class="muted" style="margin-top:6px;">Старт '+ordDM(c.start)+' ('+(c.startedBy === 'статус' ? 'статус «В работе п/ф»' : c.startedBy === 'факт' ? 'по первому заданию, статус не проставлен' : 'прогноз от сегодня')+') · цикл '+plan+'.'+
     (c.setByHand ? ' В задании стоит '+ordDM(c.setByHand)+(c.diffDays ? ', расхождение '+Math.abs(c.diffDays)+' дн' : ', сходится') : '')+
     (c.shiftedBy ? ' Сдвинуто с '+ordDM(c.readyPlanned)+': '+c.shiftedBy+'.' : '')+
+    (c.readyCustomer && c.readyCustomer !== (c.setByHand || c.ready) ? ' <b>Покупателю — '+ordDM(c.readyCustomer)+'</b>: выпуск, отгрузка и ТК в выходные не работают.' : '')+
     (c.waiting != null ? ' Ждал очереди '+c.waiting+' дн — это норма, не просрочка.' : '')+'</div></div>';
   const stages = '<div class="os-list">'+c.stages.map(s=>ordStage(s, c.bottlenecks)).join('')+'</div>';
   // Разбора ошибок по документам здесь нет намеренно: пока заказ идёт, человеку нужен срок
