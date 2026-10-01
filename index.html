@@ -4436,7 +4436,7 @@ body.bg-start .bgfield::after{content:'';position:absolute;inset:0;background:rg
 .ord .ord-st{color:rgba(0,0,0,.72)!important;}
 .ord .ord-bar{background:rgba(0,0,0,.1)!important;}
 .ord .ord-warn{display:inline-block;margin-top:8px;padding:4px 10px;border-radius:99px;
-  background:var(--warn-bg)!important;color:var(--warn)!important;font-size:11px;font-weight:800;}
+  background:#ffcf3f!important;color:#1a1400!important;font-size:11px;font-weight:800;}
 .ord-card{background:#fff!important;border:1px solid rgba(0,0,0,.08)!important;
   border-radius:22px;padding:16px;margin-bottom:12px;
   backdrop-filter:none!important;-webkit-backdrop-filter:none!important;}
@@ -4449,26 +4449,27 @@ body.bg-start .bgfield::after{content:'';position:absolute;inset:0;background:rg
 .ord-card .os .m{background:rgba(0,0,0,.08)!important;}
 .ord-card .os.ok .m{background:var(--lime)!important;color:var(--lime-ink)!important;}
 .ord-card .os.bad .m{background:var(--orange)!important;color:#fff!important;}
-.ord-card .os.warn .m{background:var(--warn)!important;color:#fff!important;}
+.ord-card .os.warn .m{background:#ffcf3f!important;color:#1a1400!important;}
 .ord-card .os .t .b{color:rgba(0,0,0,.55)!important;}
 .ord-card .os .r{color:rgba(0,0,0,.7)!important;}
-/* Предупреждение на этапе: жёлтая подложка, заголовок, риск и что сделать. */
-.ow{display:block;margin-top:8px;padding:10px 12px;border-radius:14px;
-  background:var(--warn-bg)!important;border:1px solid rgba(168,102,15,.28)!important;}
+/* Предупреждение: жёлтый — тот же, что у статусов (#ffcf3f). Коричневого в фирстиле нет,
+   он тянулся из старых --warn и выбивался из палитры. */
+.ow{display:block;margin-top:8px;padding:12px 14px;border-radius:14px;
+  background:#ffcf3f!important;border:0!important;}
 .ow .ow-h{display:block;font-size:10.5px;font-weight:800;letter-spacing:.05em;
-  text-transform:uppercase;color:var(--warn)!important;}
-.ow .ow-t{display:block;margin-top:4px;font-size:12px;line-height:1.45;color:#4a2f05!important;font-weight:600;}
-.ow .ow-f{display:block;margin-top:6px;font-size:11.5px;line-height:1.45;color:#4a2f05!important;font-weight:500;}
+  text-transform:uppercase;color:#1a1400!important;opacity:.72;}
+.ow .ow-t{display:block;margin-top:4px;font-size:12.5px;line-height:1.45;color:#1a1400!important;font-weight:700;}
+.ow .ow-f{display:block;margin-top:6px;font-size:11.5px;line-height:1.45;color:#1a1400!important;font-weight:500;}
 /* Метка на этапе: страница заказа — про сроки, разбор живёт отдельной страницей. */
 .ow-tag{display:inline-block;margin-top:5px;padding:2px 8px;border-radius:99px;
-  background:var(--warn-bg)!important;color:var(--warn)!important;font-size:10px;font-weight:800;
+  background:#ffcf3f!important;color:#1a1400!important;font-size:10px;font-weight:800;
   letter-spacing:.04em;text-transform:uppercase;}
-.ord-go{display:flex;align-items:center;gap:8px;width:100%;margin-top:14px;padding:12px 14px;
-  border:1px solid rgba(168,102,15,.3)!important;border-radius:16px;cursor:pointer;
-  background:var(--warn-bg)!important;color:var(--warn)!important;
+.ord-go{display:flex;align-items:center;gap:8px;width:100%;margin-top:14px;padding:13px 15px;
+  border:0!important;border-radius:16px;cursor:pointer;
+  background:#ffcf3f!important;color:#1a1400!important;
   font:800 12.5px var(--font-body);text-align:left;}
 .ord-go .chv{display:flex;margin-left:auto;opacity:.6;}
-.ord-card .cz-cap{color:var(--warn)!important;}
+.ord-card .cz-cap{color:rgba(0,0,0,.55)!important;}
 
 /* ===== Лайм — там же, где был. Единственный акцентный свет. ===== */
 .at-tile.lime,.lime-heading,.pill.lime,.ov.g{background:var(--lime)!important;color:var(--lime-ink)!important;}
