@@ -1871,23 +1871,47 @@ const ordTasks = c => (c.tasks||[]).filter(t=>!t.cancelled).map(t=>t.name);
 // Узкие горлышки процесса (решение директора 02.10.2026): этап, ресурс или проблема, которая ограничивает
 // поток всей системы. Общие для всех заказов — поэтому лежат здесь, а не приходят с заказом.
 // На этапах — те, что привязаны к этапу; ресурсные — карточкой над списком. Источник — 🧭 Эталон.
-const BN_STAGE = {
-  accepted: 'Запуск в работу: нет владельца, правила и статуса «запускаем» — заказы стоят в очереди',
-  prep: 'Техкарты новой продукции: техкарта Михаила и согласование директора, сплошная проверка не закончена',
-  transit: 'Транзит Екатеринбург → Москва: 7 дней ТК, выходные не везёт, недовоз — второй круг в 7 дней',
-  packing: 'Фасовка на ХП: одна площадка на M и XL, около 20 тысяч флаконов в день, заказы идут по очереди',
-  release: 'Учёт позади физики: без приёмки и документов выпуск и отгрузка не проводятся'
+const BN = {
+  accepted: {t:'Запуск заказа в работу', kind:'этап', d:'Нет владельца, правила и статуса «запускаем». Подтверждённый заказ стоит в очереди, пока решения нет: 00010 ждал 15 дней, 00011 ждёт 24.',
+    fix:'Назначить владельца запуска. Статус «В работе п/ф» ставится в день подтверждения или с названной датой запуска; срок покупателю считается от неё. Очередь дольше трёх дней — напоминание директору.'},
+  prep: {t:'Техкарты новой продукции', kind:'проблема', d:'Новая позиция требует техкарту Михаила и согласование директора, сплошная проверка не закончена. Заказ с новинкой стоит на шаге 2.',
+    fix:'Техкарта и карточка новинки создаются до подтверждения заказа, на шаге 1, а не после. Закончить сплошную проверку по парам и закрыть отработанные карты от правок — тогда шаг 2 проверяет только новое.'},
+  transit: {t:'Транзит Екатеринбург → Москва', kind:'этап', d:'7 дней ТК, выходные не везёт. Любой недовоз даёт второй круг в 7 дней. Самый длинный несжимаемый этап после фасовки.',
+    fix:'Отдавать груз ТК не позже четверга. Машину вызывать только на полный комплект (решение №26), догруз исключить. Держать на ХП буфер тары и крышек, чтобы недовоз не останавливал фасовку.'},
+  packing: {t:'Фасовка на ХП', kind:'ресурс', d:'Одна площадка на M и XL, около 20 тысяч флаконов в день. Два больших заказа не фасуются параллельно — второй ждёт.',
+    fix:'Вести календарь загрузки площадки: заказ встаёт в очередь ХП при подтверждении, а не при отправке груза. Мерить мощность по отчётам производства. При постоянной очереди — вторая смена или вторая площадка на M и XL.'},
+  release: {t:'Учёт позади физики', kind:'проблема', d:'Документы создаются после движения, приёмки нет к выпуску. Выпуск и отгрузка не проводятся, пока учёт не догонит.',
+    fix:'Документ в день движения (решение №29), приёмка по закупке до старта фасовки. Утренняя проверка уже поднимает закупку без приёмки — реагировать на неё в тот же день, не в день выпуска.'}
 };
 const BN_RESOURCE = [
-  {t:'Директор как точка согласований', d:'Пять согласований на заказ без срока ответа: подтверждение, техкарты, сумма закупки, спорные случаи ветки, инвентаризация. Каждый заказ ждёт одного человека.'},
-  {t:'Михаил', d:'Шесть шагов в одних руках: цены, техкарты, заказ поставщику, приёмка у площадки, отметки, отгрузка. Дублёра нет.'},
-  {t:'Антон', d:'Все п/з, расчёт потребности, передача в работу и все выпуски — через одного человека.'},
-  {t:'Инвентаризация конца месяца', d:'Выпуски останавливаются за сутки и до «Согласована», для всех заказов разом.'}
+  {t:'Директор как точка согласований', kind:'ресурс', d:'Пять согласований на заказ без срока ответа: подтверждение, техкарты, сумма закупки, спорные случаи ветки, инвентаризация. Каждый заказ ждёт одного человека.',
+    fix:'Срок ответа: до 12:00 следующего рабочего дня. Согласования собирать пакетом на утренний созвон, а не по одному в течение дня.'},
+  {t:'Михаил', kind:'ресурс', d:'Шесть шагов в одних руках: цены, техкарты, заказ поставщику, приёмка у площадки, отметки, отгрузка. Дублёра нет.',
+    fix:'Дублёр на приёмку и отметки — Арсений, на отгрузку — Антон. Заказ поставщику создавать «на основании» п/з, чтобы связь не терялась и расчёт не переписывался руками.'},
+  {t:'Антон', kind:'ресурс', d:'Все п/з, расчёт потребности, передача в работу и все выпуски — через одного человека.',
+    fix:'Перемещения создаёт Арсений по готовому расчёту «Снабжения», Антон только сверяет. Выпуск п/ф — Старший смены, когда назначен.'},
+  {t:'Инвентаризация конца месяца', kind:'этап', d:'Выпуски останавливаются за сутки и до «Согласована», для всех заказов разом.',
+    fix:'Планировать выпуски мимо окна: машина уже сдвигает готовность с дня инвентаризации. Согласовывать описи в тот же день, чтобы окно не тянулось на 1–2 число.'}
 ];
+// Лист одного горлышка: что это, чем ограничивает, предложение по оптимизации. Открывается с этапа
+// заказа и из карточки над списком. Предложения — Аудитора, не решения: решает директор.
+function bnSheet(x, back){
+  openSheet({cap:'Узкое горлышко · '+x.kind, title:x.t, icon:IC.flag,
+    sub:'Общее для всех заказов, не ошибка по заказу',
+    body:'<div class="ord-card"><div class="cz-fact"><b style="font-size:12.5px;">Чем ограничивает поток</b><div style="margin-top:6px;">'+SQ_ESC(x.d)+'</div></div>'+
+      '<div class="cz-fact" style="margin-top:12px;"><b style="font-size:12.5px;">Предложение по оптимизации</b><div style="margin-top:6px;">'+SQ_ESC(x.fix)+'</div>'+
+      '<div class="muted" style="margin-top:8px;">Предложение, не решение: решает директор.</div></div></div>',
+    after: ()=>{
+      const b = document.getElementById('docBack');
+      if(!b || !back) return;
+      const n = b.cloneNode(true); b.parentNode.replaceChild(n, b);
+      n.addEventListener('click', back);
+    }});
+}
 function ordBnHtml(){
   return '<div class="cz-fact" style="margin-bottom:12px;"><div class="between"><b style="font-size:12.5px;">Узкие горлышки процесса</b><span class="ord-state">9</span></div>'+
     '<div class="muted" style="margin-top:6px;">Этап, ресурс или проблема, которая ограничивает поток всей системы. Общие для всех заказов: пять отмечены на этапах внутри заказа, четыре ресурсных — ниже.</div></div>'+
-    '<div class="ord-card" style="margin-bottom:12px;">'+BN_RESOURCE.map(x=>accHtml('!', x.t, 'ресурс', '<p style="margin:0;">'+SQ_ESC(x.d)+'</p>')).join('')+'</div>';
+    '<div class="ord-card" style="margin-bottom:12px;">'+BN_RESOURCE.map((x,i)=>'<button class="bn-btn" data-bnr="'+i+'"><span class="ow-tag">узкое горлышко · '+x.kind+'</span><b>'+SQ_ESC(x.t)+'</b><span class="b">'+SQ_ESC(x.d)+'</span></button>').join('')+'</div>';
 }
 function ordRow(c, i){
   const cur = c.current;
@@ -1913,10 +1937,10 @@ function ordStage(s){
   const right = s.state === 'skipped' ? 'пропущен'
     : s.state === 'done' ? ordDM(s.done)
     : (s.late ? 'просрочка '+s.late+' дн' : 'план до '+ordDM(s.deadline));
-  const bn = BN_STAGE[s.k];
+  const bn = BN[s.k];
   return '<span class="os'+(s.state === 'done' ? ' ok' : '')+(s.late ? ' bad' : '')+(s.state === 'skipped' ? ' off' : '')+(bn ? ' warn' : '')+'">'+
     '<span class="m">'+mark+'</span><span class="t">'+s.title+'<span class="b">'+s.by+' · '+s.fact+'</span>'+
-    (bn ? '<span class="ow-tag">узкое горлышко</span><span class="b">'+SQ_ESC(bn)+'</span>' : '')+'</span>'+
+    (bn ? '<button class="bn-btn" data-bn="'+s.k+'"><span class="ow-tag">узкое горлышко · '+bn.kind+'</span><span class="b">'+SQ_ESC(bn.t)+' — '+SQ_ESC(bn.d)+'</span><span class="b" style="color:var(--ink);">Предложение по оптимизации →</span></button>' : '')+'</span>'+
     '<span class="r">'+right+'</span></span>';
 }
 function ordSheet(c){
@@ -1935,7 +1959,8 @@ function ordSheet(c){
   // к нему процесс не перешёл. Горлышки процесса стоят на этапах, одинаково для всех заказов.
   openSheet({cap:'Карта пути', title:'Заказ '+SQ_ESC(c.order.name), icon:IC.chart,
     sub:(pz.length ? 'п/з '+pz.map(SQ_ESC).join(', ')+' · ' : '')+(c.order.state || '')+(c.order.sum ? ' · '+ordMoney(c.order.sum) : ''),
-    body:'<div class="ord-card">'+head+stages+'</div>'});
+    body:'<div class="ord-card">'+head+stages+'</div>',
+    after: ()=>{ document.querySelectorAll('[data-bn]').forEach(b=>b.addEventListener('click', ()=>bnSheet(BN[b.dataset.bn], ()=>ordSheet(c)))); }});
 }
 
 function ordRender(){
@@ -1949,23 +1974,17 @@ function ordRender(){
   else html = head+ordBnHtml()+ORD.orders.map(ordRow).join('')+tail;
   el.innerHTML = html;
   el.querySelectorAll('.ord').forEach(b=>b.addEventListener('click', ()=>ordSheet(ORD.orders[+b.dataset.i])));
-  bindAcc(el);
+  el.querySelectorAll('[data-bnr]').forEach(b=>b.addEventListener('click', ()=>bnSheet(BN_RESOURCE[+b.dataset.bnr], null)));
 }
 async function ordLoad(){
   try{ ORD = await appApi('GET','/chain'); }
   catch(e){ ORD = {unavailable:true, orders:[]}; }
   ordRender();
 }
-// Пока экран не объявлен людям, он виден только директору: кнопка в панели скрывается,
-// раздел не грузится. Снять — убрать проверку ключа, одна строка.
+// Экран открыт всем сотрудникам (решение директора 02.10.2026): узкие горлышки каждый должен
+// видеть и брать во внимание. До этого экран был только у директора.
 function renderOrders(u){
-  const el = document.getElementById('s-orders');
   const nav = document.querySelector('.botnav .ni[data-s="orders"]');
-  if(!u || u.key !== 'director'){
-    if(nav) nav.style.display = 'none';
-    el.innerHTML = '';
-    return;
-  }
   if(nav) nav.style.display = '';
   ORD = null; ordRender(); ordLoad();
 }
@@ -4427,6 +4446,11 @@ body.bg-start .bgfield::after{content:'';position:absolute;inset:0;background:rg
 .ord .ord-pz{font-size:11.5px;font-weight:700;color:rgba(0,0,0,.5)!important;white-space:nowrap;}
 .ord .ord-st{color:rgba(0,0,0,.72)!important;}
 .ord .ord-bar{background:rgba(0,0,0,.1)!important;}
+.bn-btn{display:block;width:100%;text-align:left;background:none;border:0;padding:8px 0 0;margin:0;font:inherit;color:inherit;cursor:pointer;}
+.bn-btn b{display:block;margin-top:6px;font-size:14px;}
+.bn-btn .b{display:block;margin-top:4px;}
+.ord-card .bn-btn{padding:10px 0;border-top:1px solid var(--line);}
+.ord-card .bn-btn:first-child{border-top:0;padding-top:0;}
 .ord .ord-warn{display:inline-block;margin-top:8px;padding:4px 10px;border-radius:99px;
   background:#ffcf3f!important;color:#1a1400!important;font-size:11px;font-weight:800;}
 .ord-card{background:#fff!important;border:1px solid rgba(0,0,0,.08)!important;
