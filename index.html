@@ -1891,8 +1891,8 @@ function ordRow(c, i){
     (warn ? '<span class="ord-warn">'+warn+' '+(warn===1?'узкое место':'узких места')+'</span>' : '')+
     '<span class="ord-bar"><i style="width:'+ordBar(c)+'%"></i></span></button>';
 }
-// Узкое место живёт на этапе, а не отдельным списком внизу: человек смотрит свой этап,
-// и предупреждение должно быть там же. Жёлтым — чтобы его было видно раньше остального.
+// На странице заказа — только метка: страница про сроки, и разворачивать на ней разбор
+// значит снова сделать её длинной. Сам разбор — отдельной страницей внутри заказа.
 function ordWarn(w){
   return '<span class="ow"><span class="ow-h">На этом этапе есть узкое место</span>'+
     '<span class="ow-t">'+SQ_ESC(w.text)+'</span>'+
@@ -1906,7 +1906,7 @@ function ordStage(s, warns){
   const my = (warns || []).filter(w => w.stage === s.k);
   return '<span class="os'+(s.state === 'done' ? ' ok' : '')+(s.late ? ' bad' : '')+(s.state === 'skipped' ? ' off' : '')+(my.length ? ' warn' : '')+'">'+
     '<span class="m">'+mark+'</span><span class="t">'+s.title+'<span class="b">'+s.by+' · '+s.fact+'</span>'+
-    my.map(ordWarn).join('')+'</span>'+
+    (my.length ? '<span class="ow-tag">узкое место'+(my.length > 1 ? ' · '+my.length : '')+'</span>' : '')+'</span>'+
     '<span class="r">'+right+'</span></span>';
 }
 function ordSheet(c){
@@ -1920,9 +1920,35 @@ function ordSheet(c){
   // Разбора ошибок по документам здесь нет намеренно: пока заказ идёт, человеку нужен срок
   // и что сделать, а не перечень промахов. Разбор — после выполнения заказа.
   const pz = ordTasks(c);
+  const n = (c.bottlenecks || []).length;
+  const go = n
+    ? '<button class="ord-go" id="ordGo">Узкие места · '+n+'<span class="chv">'+ic('<polyline points="9 6 15 12 9 18"/>',15)+'</span></button>'
+    : '<div class="at-note">Узких мест не найдено.</div>';
   openSheet({cap:'Карта пути', title:'Заказ '+SQ_ESC(c.order.name), icon:IC.chart,
     sub:(pz.length ? 'п/з '+pz.map(SQ_ESC).join(', ')+' · ' : '')+(c.order.state || '')+(c.order.sum ? ' · '+ordMoney(c.order.sum) : ''),
-    body:'<div class="ord-card">'+head+stages+'</div>'});
+    body:'<div class="ord-card">'+head+stages+go+'</div>',
+    after: ()=>{ const b = document.getElementById('ordGo'); if(b) b.addEventListener('click', ()=>ordWarnPage(c)); }});
+}
+
+// Узкие места — отдельная страница внутри заказа. «Назад» возвращает в карту, а не закрывает
+// всё: иначе человек теряет заказ, которым занимался.
+function ordWarnPage(c){
+  const byStage = {};
+  for(const w of (c.bottlenecks || [])) (byStage[w.stage || '—'] = byStage[w.stage || '—'] || []).push(w);
+  const titleOf = k => (c.stages.find(s=>s.k === k) || {}).title || 'Без этапа';
+  const body = Object.keys(byStage).map(k =>
+    '<div class="cz-cap" style="margin-top:14px;">'+SQ_ESC(titleOf(k))+'</div>'+byStage[k].map(ordWarn).join('')
+  ).join('');
+  openSheet({cap:'Заказ '+SQ_ESC(c.order.name), title:'Узкие места', icon:IC.flag,
+    sub:'Что мешает сроку и что с этим сделать',
+    body:'<div class="ord-card">'+(body || '<div class="at-note">Узких мест не найдено.</div>')+'</div>',
+    after: ()=>{
+      const b = document.getElementById('docBack');
+      if(!b) return;
+      const n = b.cloneNode(true);
+      b.parentNode.replaceChild(n, b);
+      n.addEventListener('click', ()=>ordSheet(c));
+    }});
 }
 function ordRender(){
   const el = document.getElementById('s-orders');
@@ -4433,6 +4459,16 @@ body.bg-start .bgfield::after{content:'';position:absolute;inset:0;background:rg
   text-transform:uppercase;color:var(--warn)!important;}
 .ow .ow-t{display:block;margin-top:4px;font-size:12px;line-height:1.45;color:#4a2f05!important;font-weight:600;}
 .ow .ow-f{display:block;margin-top:6px;font-size:11.5px;line-height:1.45;color:#4a2f05!important;font-weight:500;}
+/* Метка на этапе: страница заказа — про сроки, разбор живёт отдельной страницей. */
+.ow-tag{display:inline-block;margin-top:5px;padding:2px 8px;border-radius:99px;
+  background:var(--warn-bg)!important;color:var(--warn)!important;font-size:10px;font-weight:800;
+  letter-spacing:.04em;text-transform:uppercase;}
+.ord-go{display:flex;align-items:center;gap:8px;width:100%;margin-top:14px;padding:12px 14px;
+  border:1px solid rgba(168,102,15,.3)!important;border-radius:16px;cursor:pointer;
+  background:var(--warn-bg)!important;color:var(--warn)!important;
+  font:800 12.5px var(--font-body);text-align:left;}
+.ord-go .chv{display:flex;margin-left:auto;opacity:.6;}
+.ord-card .cz-cap{color:var(--warn)!important;}
 
 /* ===== Лайм — там же, где был. Единственный акцентный свет. ===== */
 .at-tile.lime,.lime-heading,.pill.lime,.ov.g{background:var(--lime)!important;color:var(--lime-ink)!important;}
