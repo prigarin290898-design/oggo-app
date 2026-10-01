@@ -1871,15 +1871,20 @@ const ordTasks = c => (c.tasks||[]).filter(t=>!t.cancelled).map(t=>t.name);
 function ordRow(c, i){
   const cur = c.current;
   const late = cur && cur.late;
-  const sub = cur
-    ? cur.title+' · '+cur.days+'-й день'+(cur.plan ? ' из '+cur.plan : '')
-    : 'все этапы закрыты';
+  // Незапущенный заказ не идёт по этапам: у него очередь, а не «минус первый день».
+  const sub = !c.started
+    ? 'не запущен'+(c.waiting != null ? ' · в очереди '+c.waiting+' дн' : '')
+    : cur
+      ? cur.title+' · '+cur.days+'-й день'+(cur.plan ? ' из '+cur.plan : '')
+      : 'все этапы закрыты';
   const pz = ordTasks(c);
   const warn = (c.bottlenecks||[]).length;
+  // Справа — дата покупателю: пятница и выходные сдвинуты на понедельник. У незапущенного это прогноз.
+  const when = c.readyCustomer || c.ready;
   return '<button class="ord'+(late ? ' late' : '')+'" data-i="'+i+'">'+
     '<span class="ord-top"><b>'+SQ_ESC(c.order.name)+'</b>'+
     (pz.length ? '<span class="ord-pz">п/з '+pz.map(SQ_ESC).join(', ')+'</span>' : '<span class="ord-pz">без п/з</span>')+
-    '<span class="ord-d">'+ordDM(c.ready)+'</span></span>'+
+    '<span class="ord-d">'+(c.started ? '' : 'прогноз ')+ordDM(when)+'</span></span>'+
     '<span class="ord-st">'+(c.order.state ? '<span class="ord-state">'+SQ_ESC(c.order.state)+'</span>' : '')+SQ_ESC(sub)+'</span>'+
     (warn ? '<span class="ord-warn">'+warn+' '+(warn===1?'узкое место':'узких места')+'</span>' : '')+
     '<span class="ord-bar"><i style="width:'+ordBar(c)+'%"></i></span></button>';
