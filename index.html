@@ -668,7 +668,9 @@ window.ASSET_V = '20260923b';
   .at-two{display:flex;gap:8px;margin-top:10px;}
   .at-two button{flex:1;min-height:48px;border-radius:99px;font:800 13px var(--font-body);cursor:pointer;border:1px solid #000;background:transparent;color:#000;}
   .at-two button.pri{background:#000;color:#fff;}
-  .at-verd{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;}
+  /* Ряд плашек отбивается снизу так же, как сверху: без этого он упирался в следующую
+     карточку вплотную и читался как наложение. */
+  .at-verd{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0;}
   /* «Команда отдела» сворачивается: дерево занимало первый экран целиком. */
   .tm-hd{display:flex;align-items:center;gap:10px;width:100%;padding:0;border:0;background:none;
     cursor:pointer;color:inherit;font-family:var(--font-body);text-align:left;}
@@ -3917,7 +3919,7 @@ function atVerdictHtml(it){
   return '<div class="cz-fact"><div class="between"><b style="font-size:12.5px;">Итог аттестации</b><span class="tag">'+st+'</span></div>'+
     '<div class="at-vd"><button class="at-cta" type="button" data-v="passed">Сдал</button><button class="at-cta" type="button" data-v="failed">Не сдал</button>'+
     (v && !f ? '<button class="at-cta" type="button" data-v="final">Утвердить после разбора</button>' : '')+'</div>'+
-    '<div class="muted" style="margin-top:8px;">Предварительный итог сотрудник видит сразу, с пометкой «после разбора». Утверждённый — окончательный. Снятый вопрос выпадает из знаменателя блока и зачёт пересчитывается сам.</div></div>';
+    '<div class="muted" style="margin-top:8px;">Итог и есть объявление: как только вы его поставите, сотрудник увидит результат — с пометкой «подтверждается после разбора». «Утвердить» делает итог окончательным. Снятый вопрос выпадает из знаменателя блока, зачёт пересчитывается сам.</div></div>';
 }
 function atOpenResult(box, Q, it){
   const w = Q.window || {}, ready = it.status === 'submitted', has = it.blocks && it.blocks.length;
@@ -3928,7 +3930,7 @@ function atOpenResult(box, Q, it){
     <div class="dm-top"><button class="dm-back" id="docBack" aria-label="Назад">${ic('<polyline points="15 18 9 12 15 6"/>',20)}</button><div class="dm-cap">Результат</div><span style="width:44px;flex:0 0 auto;"></span></div>
     <div class="dm-hero"><div class="dm-ic">${ic('<polyline points="4 12 10 18 20 6"/>',32)}</div><div class="dm-title">${SQ_ESC(it.name)}</div><div class="dm-sub">${SQ_ESC(w.title||'Аттестация')}${w.kind==='setup'?' · установочная':''}</div></div>
     <div class="dm-sheet"><div class="cz-stack">${body}
-      ${ready ? '<p class="at-sm" id="atErr" style="color:var(--danger);"></p><button class="at-cta" type="button" id="atAnn">Объявить результат</button><p class="at-sm">Пока вы не объявите, сотрудник видит только «Тест сдан».</p>' : (it.status === 'announced' ? '<p class="at-sm">Результат объявлен сотруднику.</p>' : '')}
+      ${ready ? '<p class="at-sm" id="atErr" style="color:var(--danger);"></p><p class="at-sm">Пока итог не поставлен, сотрудник видит только «Тест сдан».</p>' : (it.status === 'announced' ? '<p class="at-sm">Результат у сотрудника виден.</p>' : '')}
     </div></div>`;
   document.getElementById('docBack').addEventListener('click', closeDoc);
   const modal = document.getElementById('docModal'); modal.classList.add('open'); modal.scrollTop = 0;
@@ -3949,18 +3951,13 @@ function atOpenResult(box, Q, it){
   document.querySelectorAll('#docModalInner .at-vd .at-cta').forEach(b=> b.addEventListener('click', async ()=>{
     const v = b.dataset.v;
     const payload = v === 'final' ? {key:it.key, verdict:it.verdict, final:true} : {key:it.key, verdict:v, final:false};
+    const err = document.getElementById('atErr');
     b.disabled = true;
+    if(err) err.textContent = '';
     try{ await appApi('POST','/attestation/verdict', payload); }
-    catch(e){ b.disabled = false; return; }
+    catch(e){ b.disabled = false; if(err) err.textContent = 'Не получилось поставить итог. Проверьте связь и повторите.'; return; }
     await reload();
   }));
-  const btn = document.getElementById('atAnn'); if(!btn) return;
-  btn.addEventListener('click', async ()=>{
-    try{ await appApi('POST','/attestation/announce',{key:it.key}); }
-    catch(e){ document.getElementById('atErr').textContent = 'Не получилось. Проверьте связь и повторите.'; return; }
-    closeDoc();
-    try{ const Q2 = await appApi('GET','/attestation/results'); atRenderQueue(box, Q2); }catch(e){}
-  });
 }
 
 // Зачёт блоков аттестации игрой (решение директора 30.09: игра зачитывает блоки, деньги
