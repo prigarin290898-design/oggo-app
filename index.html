@@ -1843,6 +1843,49 @@ function tkSheet(){
     body: discBlock(TKS && TKS.score)+TASK_STATUSES});
 }
 
+// ===== План месяца =====
+// Деньги месяца должны быть под рукой там, где человек бывает каждый день, а бывает он на «Задачах»
+// (требование директора 01.10: «в блок задачи убрать, там и задачи и план на месяц»).
+// Второй копии правды при этом не появляется: строки и подробности рисует та же atOctHtml
+// из тех же данных сервера (window.BONUS.oct), что и карточка премии на «Росте». Один владелец,
+// два входа. Блок показывается только при включённой октябрьской конструкции (KPI_OCT):
+// сентябрьскую лестницу, которая отменена, на второй экран не тащим.
+const mpFmt = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ')+' \u20bd';
+function mpHtml(){
+  const b = window.BONUS;
+  if(!b || !b.oct) return '';
+  const o = b.oct;
+  // План месяца — это цифры плана, а не премии (решение директора 01.10). Деньги остаются
+  // в подробностях и на «Росте»: на «Задачах» работник должен видеть, куда целиться.
+  const inv = {n:o.gate+'%', l:'план инвентаризации', s:'считается по описи ' + (o.range ? o.range.to : 'в конце месяца')};
+  const docs = o.docsLimit === null || o.docsLimit === undefined
+    ? {n:'—', l:'максимум ошибок в документах', s:'порог ставит директор'}
+    // В плане стоит число баллов, а не штук документов: порог считается баллами, и подпись
+    // не должна учить обратному. Формулировка плана — директорская, уточнение — под ней.
+    : {n:String(o.docsLimit), l:'максимум ошибок в документах', s:'сейчас '+(b.points||0)+' '+AT_PL(b.points||0,'штрафной балл','штрафных балла','штрафных баллов')};
+  const key = k => '<span class="mp-k"><span class="n">'+k.n+'</span><span class="l">'+k.l+'</span><span class="s">'+k.s+'</span></span>';
+  const period = o.range ? o.range.from+' \u2013 '+o.range.to : b.month;
+  return '<button class="mp" id="mpPlan">'+
+    '<span class="mp-top"><span class="cz-cap" style="margin:0;">План месяца</span>'+
+    '<span class="mp-per">'+period+'</span>'+
+    '<span class="chv">'+ic('<polyline points="9 6 15 12 9 18"/>',14)+'</span></span>'+
+    '<span class="mp-grid">'+key(inv)+key(docs)+'</span>'+
+    '<span class="mp-note">Выполнены оба числа \u2014 премия '+mpFmt(o.total)+'. Нажмите: из чего она складывается и что её обнуляет.</span>'+
+    '</button>';
+}
+function mpSheet(){
+  const b = window.BONUS;
+  if(!b || !b.oct) return;
+  openSheet({cap:'План месяца', title:'Премия · '+b.month, icon:IC.chart, sub:'Две части, считаются отдельно',
+    // Внутри шторки бумага белая, поэтому карточка идёт в тёмном варианте (.dk) — так же,
+    // как «Ошибки» и «Рост». Без .dk белый текст ложится на белое и исчезает.
+    body:'<div class="at-score dk">'+atOctHtml(b)+'</div>'});
+}
+function mpBind(){
+  const p = document.getElementById('mpPlan');
+  if(p) p.addEventListener('click', mpSheet);
+}
+
 function tkCard(t, canAct){
   return '<div class="tk-sw'+(canAct ? '' : ' flat')+'" data-key="'+tkEsc(t.key)+'">'+
     (canAct ? '<div class="tk-bg"><span class="l">Выполнено</span><span class="r">Нужна информация</span></div>' : '')+
@@ -1880,9 +1923,10 @@ function renderTasksBody(){
 
 function renderTasksScreen(){
   const el = document.getElementById('s-tasks');
-  el.innerHTML = CZ_HEAD('Задачи','Трекер PR-VO · статус «В работе»')+discLine(TKS.score)+
+  el.innerHTML = CZ_HEAD('Задачи','Трекер PR-VO · статус «В работе»')+mpHtml()+discLine(TKS.score)+
     '<div id="tkBody">'+renderTasksBody()+'</div>'+
     '<div class="pill lime" id="openTracker" style="justify-content:center;width:100%;text-align:center;margin:12px 0 10px;cursor:pointer;">Открыть в Трекере</div>';
+  mpBind();
   bindTasks();
 }
 
@@ -1974,9 +2018,11 @@ async function loadTasks(silent){
   if(!data){
     if(silent) return;
     const el = document.getElementById('s-tasks');
-    el.innerHTML = CZ_HEAD('Задачи','Трекер PR-VO')+
+    // План месяца не из Трекера: он остаётся на экране и когда задачи не пришли.
+    el.innerHTML = CZ_HEAD('Задачи','Трекер PR-VO')+mpHtml()+
       '<div class="attn col"><div class="eb">Задачи не загружены</div><p>Трекер сейчас недоступен. Это не значит «задач нет» — откройте очередь PR-VO в Трекере.</p></div>'+
       TASK_STATUSES+'<div class="pill lime" id="openTracker" style="justify-content:center;width:100%;text-align:center;margin:12px 0 10px;cursor:pointer;">Открыть в Трекере</div>';
+    mpBind();
     document.getElementById('openTracker').addEventListener('click', ()=>tkOpen(TRACKER_URL));
     return;
   }
@@ -3323,8 +3369,12 @@ function atOctHtml(b){
     '<div class="ge-top"><div class="ge-n">до '+fmt(o.total)+'</div></div>'+
     '<div class="ge-sub">Две части, считаются отдельно. До подписи Положения суммы справочные: пороги и суммы пересматриваются по итогам октября.</div>'+
     '<div class="gp-rows">'+parts+'</div>'+
-    czItem('Ворота по инвентаризации на этот месяц — <b>'+o.gate+'%</b> стоимости склада, уложившейся в норму 5% по позиции.', 'ok')+
-    czItem('Недостача сверх ворот обнуляет премию целиком — обе части.', 'bad')+
+    czItem('Ворота по инвентаризации на этот месяц — <b>'+o.gate+'%</b> стоимости склада, уложившейся в норму 5% по позиции. Ступень командная на трёх.', 'ok')+
+    // Обнуляющие условия приходят с сервера таблицей: тот же текст показывает блок «План месяца»
+    // на «Задачах». Старый сервер их не отдаёт — тогда остаётся прежняя строка, без выдумки.
+    (Array.isArray(o.zeroes) && o.zeroes.length
+      ? o.zeroes.map(z=>czItem(z.text, z.scope === 'all' ? 'bad' : 'risk')).join('')
+      : czItem('Недостача сверх ворот обнуляет премию целиком — обе части.', 'bad'))+
     czItem('Плюсы денег больше не дают. Они дают права: аттестацию, возврат забранных операций, расширение полномочий.', 'risk')+
     (o.docsLimit === null
       ? '<div class="at-note">Порог по документам директором пока не назван — часть за документы считается вручную при закрытии месяца.</div>'
@@ -4042,7 +4092,7 @@ body.bg-start .bgfield::after{content:'';position:absolute;inset:0;background:rg
   background:rgba(255,255,255,.06)!important;border:1px solid var(--glass-border)!important;color:#fff!important;
   backdrop-filter:blur(26px) saturate(170%)!important;-webkit-backdrop-filter:blur(26px) saturate(170%)!important;}
 /* «Смысл, который нельзя пролистать» — плотнее стекла и с яркой кромкой сверху. */
-.cz-note,.glass.tblack,.at-score.dk,.at-card.dk,.at-tile.dk{
+.cz-note,.glass.tblack,.at-score.dk,.at-card.dk,.at-tile.dk,.mp{
   background:rgba(0,0,0,.5)!important;border:1px solid rgba(255,255,255,.14)!important;
   border-top-color:rgba(255,255,255,.3)!important;color:#fff!important;
   backdrop-filter:blur(30px) saturate(180%)!important;-webkit-backdrop-filter:blur(30px) saturate(180%)!important;}
@@ -4089,6 +4139,27 @@ body.bg-start .bgfield::after{content:'';position:absolute;inset:0;background:rg
 /* Заголовок просроченной секции на тёмном поле тонул: --danger рассчитан на бумагу. */
 .tk-lab{color:rgba(255,255,255,.7)!important;}
 .tk-lab.bad{color:#ff7a5e!important;}
+/* «План месяца» на «Задачах»: внешность целиком взята у .cz-note (плотное стекло, яркая кромка),
+   здесь только поведение кнопки и раскладка трёх строк. Новых цветов и размеров не вводим. */
+.mp{display:block;width:100%;margin:0 0 12px;padding:14px 16px;border-radius:20px;cursor:pointer;
+  text-align:left;font-family:var(--font-body);}
+.mp .mp-top{display:flex;align-items:center;gap:10px;}
+.mp .cz-cap{flex:1;min-width:0;}
+.mp .mp-per{font-family:var(--font-display);font-weight:700;font-size:12px;white-space:nowrap;
+  font-variant-numeric:tabular-nums;color:rgba(255,255,255,.72)!important;}
+.mp .chv{display:flex;flex:0 0 auto;opacity:.5;}
+/* Два числа плана рядом. Шрифт и размер — те же, что у денег на «Росте»: план должен читаться
+   как результат, к которому идут, а не как подпись под задачами. */
+.mp .mp-grid{display:flex;gap:12px;margin-top:12px;}
+.mp .mp-k{flex:1 1 0;min-width:0;display:block;}
+.mp .mp-k .n{display:block;font-family:var(--font-display);font-weight:700;font-size:32px;
+  line-height:1.05;font-variant-numeric:tabular-nums;color:var(--lime)!important;}
+.mp .mp-k .l{display:block;margin-top:4px;font-size:11.5px;line-height:1.3;font-weight:600;
+  color:#fff!important;}
+.mp .mp-k .s{display:block;margin-top:2px;font-size:11px;line-height:1.3;
+  color:rgba(255,255,255,.62)!important;}
+.mp .mp-note{display:block;margin-top:10px;font-size:11.5px;line-height:1.45;
+  color:rgba(255,255,255,.72)!important;}
 .tk-sum{background:rgba(0,0,0,.5)!important;border:1px solid rgba(255,255,255,.16)!important;
   border-top-color:rgba(255,255,255,.3)!important;color:#fff!important;
   backdrop-filter:blur(30px) saturate(180%)!important;-webkit-backdrop-filter:blur(30px) saturate(180%)!important;}
