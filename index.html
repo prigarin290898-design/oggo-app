@@ -1937,7 +1937,9 @@ function ordWarnPage(c){
   const byStage = {};
   for(const w of (c.bottlenecks || [])) (byStage[w.stage || '—'] = byStage[w.stage || '—'] || []).push(w);
   const titleOf = k => (c.stages.find(s=>s.k === k) || {}).title || 'Без этапа';
-  const body = Object.keys(byStage).map(k =>
+  // Группы — в порядке этапов, не в порядке находок: человек читает путь заказа сверху вниз.
+  const order = k => { const i = c.stages.findIndex(s=>s.k === k); return i < 0 ? 99 : i; };
+  const body = Object.keys(byStage).sort((a,b)=>order(a)-order(b)).map(k =>
     '<div class="ow-group">'+SQ_ESC(titleOf(k))+'<span>'+byStage[k].length+'</span></div>'+byStage[k].map(ordWarn).join('')
   ).join('');
   openSheet({cap:'Заказ '+SQ_ESC(c.order.name), title:'Узкие места', icon:IC.flag,
