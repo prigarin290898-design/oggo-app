@@ -1945,7 +1945,7 @@ function ordRow(c, i){
   // Справа — дата покупателю: пятница и выходные сдвинуты на понедельник. У незапущенного это прогноз.
   const when = c.forecastCustomer || c.readyCustomer || c.ready;
   return '<button class="ord'+(late ? ' late' : '')+'" data-i="'+i+'">'+
-    '<span class="ord-top"><b>'+SQ_ESC(c.order.name)+'</b>'+
+    '<span class="ord-top"><b>'+SQ_ESC(c.order.name)+'</b>'+(c.demo ? '<span class="ord-pz">показательный</span>' : '')+
     (pz.length ? '<span class="ord-pz">п/з '+pz.map(SQ_ESC).join(', ')+'</span>' : '<span class="ord-pz">без п/з</span>')+
     '<span class="ord-d">'+(c.started ? '' : 'прогноз ')+ordDM(when)+(c.started ? ordDv(c.deviation) : '')+'</span></span>'+
     '<span class="ord-st">'+(c.order.state ? '<span class="ord-state">'+SQ_ESC(c.order.state)+'</span>' : '')+SQ_ESC(sub)+'</span>'+
@@ -1958,7 +1958,7 @@ function ordDv(n, suffix){
   const txt = n > 0 ? '+'+n+' дн' : (n < 0 ? '−'+Math.abs(n)+' дн' : (suffix || 'в срок'));
   return '<span class="dv '+cls+'">'+txt+'</span>';
 }
-function ordStage(s){
+function ordStage(s, c){
   const mark = s.state === 'skipped' ? '—' : (s.state === 'done' ? '✓' : (s.late ? '!' : '·'));
   // Справа: закрытый — дата и отклонение от нормы; открытый — прогноз и сдвиг относительно плана.
   const right = s.state === 'skipped' ? 'пропущен'
@@ -1972,13 +1972,17 @@ function ordStage(s){
   const me = currentUser ? currentUser.key : null;
   // Кнопка только на этапах, которые вообще отмечаются руками (owners с сервера: «в пути», «фасовка»);
   // директор может любой из них, но не те, что закрывает учёт.
-  const canMark = me && (s.owners || []).length > 0 && (me === 'director' || s.owners.includes(me));
+  // Показательный заказ (00010): сотрудники в нём не работают, отметок нет; директор может.
+  const demoLock = c && c.demo && me !== 'director';
+  const canMark = me && !demoLock && (s.owners || []).length > 0 && (me === 'director' || s.owners.includes(me));
   const canUnmark = me && s.markedBy && (me === 'director' || me === s.markedByKey);
   const markLine = s.state === 'done' && s.markedBy
     ? '<span class="b">отметил '+SQ_ESC(s.markedBy)+(s.markedAt ? ' '+ordDM(s.markedAt) : '')+(canUnmark ? ' · <button class="lnk" data-unmark="'+s.k+'">снять</button>' : '')+'</span>'
     : (s.state === 'wait' && canMark ? '<button class="mk-btn" data-mark="'+s.k+'">Отметить этап</button>' : '');
+  // Срок, названный исполнителем (площадка перенесла фасовку): прогноз идёт от него, человек видит почему.
+  const expLine = s.expectedNote ? '<span class="b">'+SQ_ESC(s.expectedNote)+'</span>' : '';
   return '<span class="os'+(s.state === 'done' ? ' ok' : '')+(s.late ? ' bad' : '')+(s.state === 'skipped' ? ' off' : '')+(bn ? ' warn' : '')+'">'+
-    '<span class="m">'+mark+'</span><span class="t">'+s.title+'<span class="b">'+s.by+' · '+s.fact+'</span>'+markLine+
+    '<span class="m">'+mark+'</span><span class="t">'+s.title+'<span class="b">'+s.by+' · '+s.fact+'</span>'+expLine+markLine+
     (bn ? '<button class="bn-btn" data-bn="'+s.k+'"><span class="ow-tag">узкое горлышко · '+bn.kind+'</span><span class="b">'+SQ_ESC(bn.t)+' — '+SQ_ESC(bn.d)+'</span><span class="b" style="color:var(--ink);">Предложение по оптимизации →</span></button>' : '')+'</span>'+
     '<span class="r">'+right+'</span></span>';
 }
@@ -1992,14 +1996,14 @@ function ordSheet(c){
     (c.shiftedBy ? ' Сдвинуто с '+ordDM(c.readyPlanned)+': '+c.shiftedBy+'.' : '')+
     ((c.forecastCustomer || c.readyCustomer) && (c.forecastCustomer || c.readyCustomer) !== fc ? ' <b>Покупателю — '+ordDM(c.forecastCustomer || c.readyCustomer)+'</b>: выпуск, отгрузка и ТК в выходные не работают.' : '')+
     (c.waiting != null ? ' Ждал очереди '+c.waiting+' дн — это норма, не просрочка.' : '')+'</div></div>';
-  const stages = '<div class="os-list">'+c.stages.map(ordStage).join('')+'</div>';
+  const stages = '<div class="os-list">'+c.stages.map(s=>ordStage(s, c)).join('')+'</div>';
   // Разбора ошибок по документам здесь нет намеренно: пока заказ идёт, человеку нужен срок
   // и что сделать, а не перечень промахов. Разбор — после выполнения заказа.
   const pz = ordTasks(c);
   // Находок по заказу здесь нет: признаки (догруз, пятница, просрочка) — материал отчёта заказа,
   // к нему процесс не перешёл. Горлышки процесса стоят на этапах, одинаково для всех заказов.
   openSheet({cap:'Карта пути', title:'Заказ '+SQ_ESC(c.order.name), icon:IC.chart,
-    sub:(pz.length ? 'п/з '+pz.map(SQ_ESC).join(', ')+' · ' : '')+(c.order.state || '')+(c.order.sum ? ' · '+ordMoney(c.order.sum) : ''),
+    sub:(c.demo ? 'показательный заказ · ' : '')+(pz.length ? 'п/з '+pz.map(SQ_ESC).join(', ')+' · ' : '')+(c.order.state || '')+(c.order.sum ? ' · '+ordMoney(c.order.sum) : ''),
     body:'<div class="ord-card">'+head+stages+'</div>',
     after: ()=>{
       document.querySelectorAll('[data-bn]').forEach(b=>b.addEventListener('click', ()=>bnSheet(BN[b.dataset.bn], ()=>ordSheet(c))));
