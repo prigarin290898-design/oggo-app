@@ -309,6 +309,10 @@ window.ASSET_V = '20260923b';
   .fold>summary .arr{display:inline-flex;transition:transform .2s;}
   .fold[open]>summary .arr{transform:rotate(180deg);}
   .fold>.fold-body{margin-top:12px;}
+  /* Отклонение от нормы (директор 02.10.2026): зелёный — норма и опережение (0, −N), красный — отставание (+N). */
+  .dv{display:inline-block;margin-left:6px;padding:2px 7px;border-radius:99px;font-size:10.5px;font-weight:700;line-height:1.3;vertical-align:middle;white-space:nowrap;}
+  .dv.ok{background:var(--ok);color:#fff;}
+  .dv.bad{background:var(--danger);color:#fff;}
   .myerr-sheet .tag{background:#0e1400!important;color:#fff!important;border-color:#0e1400!important;}
   .myerr-sheet .gp-row .m{color:var(--ink-dim);}
   .qd-o{text-align:left;font-family:var(--font-body);font-size:13.5px;line-height:1.35;
@@ -1937,19 +1941,27 @@ function ordRow(c, i){
       : 'все этапы закрыты';
   const pz = ordTasks(c);
   // Справа — дата покупателю: пятница и выходные сдвинуты на понедельник. У незапущенного это прогноз.
-  const when = c.readyCustomer || c.ready;
+  const when = c.forecastCustomer || c.readyCustomer || c.ready;
   return '<button class="ord'+(late ? ' late' : '')+'" data-i="'+i+'">'+
     '<span class="ord-top"><b>'+SQ_ESC(c.order.name)+'</b>'+
     (pz.length ? '<span class="ord-pz">п/з '+pz.map(SQ_ESC).join(', ')+'</span>' : '<span class="ord-pz">без п/з</span>')+
-    '<span class="ord-d">'+(c.started ? '' : 'прогноз ')+ordDM(when)+'</span></span>'+
+    '<span class="ord-d">'+(c.started ? '' : 'прогноз ')+ordDM(when)+(c.started ? ordDv(c.deviation) : '')+'</span></span>'+
     '<span class="ord-st">'+(c.order.state ? '<span class="ord-state">'+SQ_ESC(c.order.state)+'</span>' : '')+SQ_ESC(sub)+'</span>'+
     '<span class="ord-bar"><i style="width:'+ordBar(c)+'%"></i></span></button>';
 }
+// Плашка отклонения: минус и ноль — зелёные (опережение, в срок), плюс — красная (отставание в днях).
+function ordDv(n, suffix){
+  if(n === undefined || n === null) return '';
+  const cls = n > 0 ? 'bad' : 'ok';
+  const txt = n > 0 ? '+'+n+' дн' : (n < 0 ? '−'+Math.abs(n)+' дн' : (suffix || 'в срок'));
+  return '<span class="dv '+cls+'">'+txt+'</span>';
+}
 function ordStage(s){
   const mark = s.state === 'skipped' ? '—' : (s.state === 'done' ? '✓' : (s.late ? '!' : '·'));
+  // Справа: закрытый — дата и отклонение от нормы; открытый — прогноз и сдвиг относительно плана.
   const right = s.state === 'skipped' ? 'пропущен'
-    : s.state === 'done' ? ordDM(s.done)
-    : (s.late ? 'просрочка '+s.late+' дн' : 'план до '+ordDM(s.deadline));
+    : s.state === 'done' ? ordDM(s.done)+ordDv(s.delta)
+    : (s.forecast ? 'прогноз '+ordDM(s.forecast)+ordDv(s.delta !== undefined && s.delta > 0 ? s.delta : s.drift) : 'план до '+ordDM(s.deadline));
   const bn = BN[s.k];
   return '<span class="os'+(s.state === 'done' ? ' ok' : '')+(s.late ? ' bad' : '')+(s.state === 'skipped' ? ' off' : '')+(bn ? ' warn' : '')+'">'+
     '<span class="m">'+mark+'</span><span class="t">'+s.title+'<span class="b">'+s.by+' · '+s.fact+'</span>'+
@@ -1958,11 +1970,13 @@ function ordStage(s){
 }
 function ordSheet(c){
   const plan = (c.purchase ? 'с закупкой, ' : 'без закупки, ')+(c.cycle || (c.purchase ? 35 : 28))+' дн';
-  const head = '<div class="cz-fact"><div class="between"><b style="font-size:12.5px;">Готовность</b><span class="ord-state big">'+ordDM(c.ready)+'</span></div>'+
+  const fc = c.forecastReady || c.ready;
+  const head = '<div class="cz-fact"><div class="between"><b style="font-size:12.5px;">Готовность</b><span><span class="ord-state big">'+ordDM(fc)+'</span>'+ordDv(c.deviation)+'</span></div>'+
+    (c.forecastReady && c.forecastReady !== c.ready ? '<div class="muted" style="margin-top:6px;">Прогноз по фактам. План был '+ordDM(c.ready)+'.</div>' : '')+
     '<div class="muted" style="margin-top:6px;">Старт '+ordDM(c.start)+' ('+(c.startedBy === 'статус' ? 'статус «В работе п/ф»' : c.startedBy === 'факт' ? 'по первому заданию, статус не проставлен' : 'прогноз от сегодня')+') · цикл '+plan+'.'+
     (c.setByHand ? ' В задании стоит '+ordDM(c.setByHand)+(c.diffDays ? ', расхождение '+Math.abs(c.diffDays)+' дн' : ', сходится') : '')+
     (c.shiftedBy ? ' Сдвинуто с '+ordDM(c.readyPlanned)+': '+c.shiftedBy+'.' : '')+
-    (c.readyCustomer && c.readyCustomer !== (c.setByHand || c.ready) ? ' <b>Покупателю — '+ordDM(c.readyCustomer)+'</b>: выпуск, отгрузка и ТК в выходные не работают.' : '')+
+    ((c.forecastCustomer || c.readyCustomer) && (c.forecastCustomer || c.readyCustomer) !== fc ? ' <b>Покупателю — '+ordDM(c.forecastCustomer || c.readyCustomer)+'</b>: выпуск, отгрузка и ТК в выходные не работают.' : '')+
     (c.waiting != null ? ' Ждал очереди '+c.waiting+' дн — это норма, не просрочка.' : '')+'</div></div>';
   const stages = '<div class="os-list">'+c.stages.map(ordStage).join('')+'</div>';
   // Разбора ошибок по документам здесь нет намеренно: пока заказ идёт, человеку нужен срок
