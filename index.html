@@ -1978,7 +1978,9 @@ function ordStage(s, c){
   const canUnmark = me && s.markedBy && (me === 'director' || me === s.markedByKey);
   const markLine = s.state === 'done' && s.markedBy
     ? '<span class="b">отметил '+SQ_ESC(s.markedBy)+(s.markedAt ? ' '+ordDM(s.markedAt) : '')+(canUnmark ? ' · <button class="lnk" data-unmark="'+s.k+'">снять</button>' : '')+'</span>'
-    : (s.state === 'wait' && canMark ? '<button class="mk-btn" data-mark="'+s.k+'">Отметить этап</button>' : '');
+    : (s.state === 'wait' && canMark ? '<button class="mk-btn" data-mark="'+s.k+'">Отметить этап</button>'+
+        // «Отложить» — только у фасовки: площадка назвала новый срок, причина обязательна (директор 02.10).
+        (s.k === 'packing' ? ' <button class="mk-btn" style="background:#ffcf3f;" data-postpone="'+s.k+'">Отложить</button>' : '') : '');
   // Срок, названный исполнителем (площадка перенесла фасовку): прогноз идёт от него, человек видит почему.
   const expLine = s.expectedNote ? '<span class="b">'+SQ_ESC(s.expectedNote)+'</span>' : '';
   return '<span class="os'+(s.state === 'done' ? ' ok' : '')+(s.late ? ' bad' : '')+(s.state === 'skipped' ? ' off' : '')+(bn ? ' warn' : '')+'">'+
@@ -2009,6 +2011,29 @@ function ordSheet(c){
       document.querySelectorAll('[data-bn]').forEach(b=>b.addEventListener('click', ()=>bnSheet(BN[b.dataset.bn], ()=>ordSheet(c))));
       document.querySelectorAll('[data-mark]').forEach(b=>b.addEventListener('click', ()=>ordMarkSheet(c, b.dataset.mark)));
       document.querySelectorAll('[data-unmark]').forEach(b=>b.addEventListener('click', ()=>ordMarkSend(c, b.dataset.unmark, null, true)));
+      document.querySelectorAll('[data-postpone]').forEach(b=>b.addEventListener('click', ()=>ordPostponeSheet(c)));
+    }});
+}
+// «Отложить» фасовку: новая дата и причина. Прогноз сдвигается, отклонение считается, причина — площадка.
+function ordPostponeSheet(c){
+  const st = c.stages.find(s=>s.k === 'packing'); if(!st) return;
+  const today = (ORD && ORD.today) || new Date().toISOString().slice(0,10);
+  openSheet({cap:'Заказ '+SQ_ESC(c.order.name), title:'Отложить фасовку', icon:IC.chart,
+    sub:'Площадка перенесла срок — прогноз сдвинется, причина останется в карте',
+    body:'<div class="ord-card"><div class="cz-fact"><label class="muted" for="ppDate" style="display:block;margin-bottom:6px;">Новый срок окончания фасовки</label>'+
+      '<input id="ppDate" type="date" value="'+today+'" min="'+today+'" style="width:100%;font:inherit;font-size:15px;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:#fff;color:#000;">'+
+      '<label class="muted" for="ppWhy" style="display:block;margin:12px 0 6px;">Причина (обязательно)</label>'+
+      '<textarea id="ppWhy" rows="3" placeholder="например: площадка перенесла, не хватило тары" style="width:100%;font:inherit;font-size:14px;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:#fff;color:#000;box-sizing:border-box;"></textarea></div>'+
+      '<button class="at-cta" type="button" id="ppGo" style="color:#fff!important;background:#0e1400!important;">Отложить</button><div id="mkErr" class="muted" style="margin-top:8px;"></div></div>',
+    after: ()=>{
+      const go = document.getElementById('ppGo');
+      if(go) go.addEventListener('click', ()=>{
+        const why = document.getElementById('ppWhy').value.trim();
+        if(!why){ document.getElementById('mkErr').textContent = 'Без причины отложить нельзя.'; return; }
+        ordMarkSend(c, 'packing_expect', document.getElementById('ppDate').value, false, why);
+      });
+      const b = document.getElementById('docBack');
+      if(b){ const n = b.cloneNode(true); b.parentNode.replaceChild(n, b); n.addEventListener('click', ()=>ordSheet(c)); }
     }});
 }
 // Лист отметки: дата — родной <input type="date">, по умолчанию сегодня по Екатеринбургу.
@@ -2028,10 +2053,10 @@ function ordMarkSheet(c, k){
       if(b){ const n = b.cloneNode(true); b.parentNode.replaceChild(n, b); n.addEventListener('click', ()=>ordSheet(c)); }
     }});
 }
-async function ordMarkSend(c, k, date, off){
+async function ordMarkSend(c, k, date, off, note){
   const err = document.getElementById('mkErr');
   try{
-    await appApi('POST','/chain/mark', off ? {order:c.order.name, stage:k, off:true} : {order:c.order.name, stage:k, date});
+    await appApi('POST','/chain/mark', off ? {order:c.order.name, stage:k, off:true} : {order:c.order.name, stage:k, date, note: note || undefined});
     ORD = await appApi('GET','/chain?fresh=1');
     ordRender();
     const fresh = (ORD.orders || []).find(o=>o.order.name === c.order.name);
