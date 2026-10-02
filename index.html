@@ -697,16 +697,33 @@ window.ASSET_V = '20260923b';
   .ord.late .ord-bar i{background:var(--orange);}
   /* Этап в карте: отметка, название с исполнителем, срок справа. */
   .os-list{margin-top:12px;}
-  .os{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);font-size:12.5px;}
+  /* Сетка, а не flex: плашка горлышка и кнопки выходят из средней колонки на всю ширину строки.
+     На телефоне 375 средняя колонка — 149 px из 309, и текст горлышка ложился в 3–4 строки,
+     пока справа под датой стояло пустое место. Колонка дат — своя, под неё текст больше не жмётся. */
+  .os{display:grid;grid-template-columns:20px minmax(0,1fr) auto;column-gap:10px;align-items:start;
+    padding:10px 0;border-bottom:1px solid var(--line);font-size:12.5px;}
   .os:last-child{border-bottom:0;}
-  .os .m{flex:0 0 auto;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;
+  .os .m{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;
     justify-content:center;font-size:11px;font-weight:800;background:rgba(255,255,255,.12);}
   .os.ok .m{background:var(--lime);color:var(--lime-ink);}
   .os.bad .m{background:var(--orange);color:#000;}
   .os.off{opacity:.5;}
-  .os .t{flex:1;min-width:0;font-weight:600;}
-  .os .t .b{display:block;margin-top:2px;font-size:11px;font-weight:500;line-height:1.3;opacity:.7;}
-  .os .r{flex:0 0 auto;font-size:11.5px;font-variant-numeric:tabular-nums;opacity:.85;text-align:right;}
+  .os .t{min-width:0;font-weight:600;}
+  .os .b{display:block;margin-top:2px;font-size:11px;font-weight:500;line-height:1.3;opacity:.7;}
+  .os .r{font-size:11.5px;font-variant-numeric:tabular-nums;opacity:.85;text-align:right;white-space:nowrap;}
+  /* Подпись этапа идёт под названием и тянется до правого края: в колонке названия ей оставалось
+     119 px против 279, и «Старший смены · „Выполнение этапа“…» ложилось в пять строк. */
+  .os .sb{grid-column:2/-1;min-width:0;}
+  /* Второй ряд во всю ширину: кнопки этапа и плашка горлышка.
+     Внутри этапа у плашки разделителя нет: она принадлежит этому этапу, а линия резала бы его
+     пополам. В списке ресурсных горлышек разделитель нужен и остаётся. */
+  .os .mk-row,.os .bn-btn{grid-column:1/-1;}
+  .os .bn-btn{border-top:0!important;padding-top:4px;}
+  /* Кнопки этапа — одним рядом, делят ширину пополам вместо двух пилюль в столбик.
+     Одна кнопка по ширине не растягивается: во всю строку она весит больше названия этапа. */
+  .mk-row{display:flex;gap:8px;margin-top:8px;}
+  .mk-row .mk-btn{flex:1;margin-top:0;padding-left:10px;padding-right:10px;text-align:center;}
+  .mk-row .mk-btn:only-child{flex:0 1 auto;}
   /* Ряд плашек отбивается снизу так же, как сверху: без этого он упирался в следующую
      карточку вплотную и читался как наложение. */
   .at-verd{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0;}
@@ -1910,6 +1927,16 @@ const BN_RESOURCE = [
   {t:'Инвентаризация конца месяца', kind:'этап', d:'Выпуски останавливаются за сутки и до «Согласована», для всех заказов разом.',
     fix:'Планировать выпуски мимо окна: машина уже сдвигает готовность с дня инвентаризации. Согласовывать описи в тот же день, чтобы окно не тянулось на 1–2 число.'}
 ];
+// Плашка горлышка — одна разметка на оба места: этап заказа и список ресурсных горлышек.
+// Метка и переход стоят одним рядом: по отдельности они занимали два ряда из трёх, а текст
+// при этом переносился. Ряд переносится сам, если метка и переход не укладываются в ширину.
+function bnPlate(attrs, kind, text, title){
+  return '<button class="bn-btn" '+attrs+'>'+
+    '<span class="bn-head"><span class="ow-tag">узкое горлышко · '+kind+'</span>'+
+    '<span class="bn-go">Предложение →</span></span>'+
+    (title ? '<b>'+title+'</b>' : '')+
+    '<span class="b">'+text+'</span></button>';
+}
 // Лист одного горлышка: что это, чем ограничивает, предложение по оптимизации. Открывается с этапа
 // заказа и из карточки над списком. Предложения — Аудитора, не решения: решает директор.
 function bnSheet(x, back){
@@ -1929,7 +1956,7 @@ function bnSheet(x, back){
 function bnResourceSheet(){
   openSheet({cap:'Узкие горлышки', title:'Ресурсы', icon:IC.flag,
     sub:'Только директору: у сотрудников это рычаг давления на систему',
-    body:'<div class="ord-card">'+BN_RESOURCE.map((x,i)=>'<button class="bn-btn" data-bnr="'+i+'"><span class="ow-tag">узкое горлышко · '+x.kind+'</span><b>'+SQ_ESC(x.t)+'</b><span class="b">'+SQ_ESC(x.d)+'</span><span class="b" style="color:var(--ink);">Предложение по оптимизации →</span></button>').join('')+'</div>',
+    body:'<div class="ord-card">'+BN_RESOURCE.map((x,i)=>bnPlate('data-bnr="'+i+'"', x.kind, SQ_ESC(x.d), SQ_ESC(x.t))).join('')+'</div>',
     after: ()=>{ document.querySelectorAll('[data-bnr]').forEach(b=>b.addEventListener('click', ()=>bnSheet(BN_RESOURCE[+b.dataset.bnr], bnResourceSheet))); }});
 }
 function ordRow(c, i){
@@ -1976,17 +2003,26 @@ function ordStage(s, c){
   const demoLock = c && c.demo && me !== 'director';
   const canMark = me && !demoLock && (s.owners || []).length > 0 && (me === 'director' || s.owners.includes(me));
   const canUnmark = me && s.markedBy && (me === 'director' || me === s.markedByKey);
+  // Отметка об уже закрытом этапе — пояснение к названию, остаётся в колонке текста.
   const markLine = s.state === 'done' && s.markedBy
     ? '<span class="b">отметил '+SQ_ESC(s.markedBy)+(s.markedAt ? ' '+ordDM(s.markedAt) : '')+(canUnmark ? ' · <button class="lnk" data-unmark="'+s.k+'">снять</button>' : '')+'</span>'
-    : (s.state === 'wait' && canMark ? '<button class="mk-btn" data-mark="'+s.k+'">Отметить этап</button>'+
+    : '';
+  // Кнопки — отдельным рядом во всю ширину строки, иначе две пилюли встают в столбик в колонке 149 px.
+  const markBtns = s.state === 'wait' && canMark
+    ? '<span class="mk-row"><button class="mk-btn" data-mark="'+s.k+'">Отметить этап</button>'+
         // «Отложить» — только у фасовки: площадка назвала новый срок, причина обязательна (директор 02.10).
-        (s.k === 'packing' ? ' <button class="mk-btn" style="background:#ffcf3f;" data-postpone="'+s.k+'">Отложить</button>' : '') : '');
+        (s.k === 'packing' ? '<button class="mk-btn" style="background:#ffcf3f;" data-postpone="'+s.k+'">Отложить</button>' : '')+'</span>'
+    : '';
   // Срок, названный исполнителем (площадка перенесла фасовку): прогноз идёт от него, человек видит почему.
   const expLine = s.expectedNote ? '<span class="b">'+SQ_ESC(s.expectedNote)+'</span>' : '';
   return '<span class="os'+(s.state === 'done' ? ' ok' : '')+(s.late ? ' bad' : '')+(s.state === 'skipped' ? ' off' : '')+(bn ? ' warn' : '')+'">'+
-    '<span class="m">'+mark+'</span><span class="t">'+s.title+'<span class="b">'+s.by+' · '+s.fact+'</span>'+expLine+markLine+
-    (bn ? '<button class="bn-btn" data-bn="'+s.k+'"><span class="ow-tag">узкое горлышко · '+bn.kind+'</span><span class="b">'+SQ_ESC(bn.t)+' — '+SQ_ESC(bn.d)+'</span><span class="b" style="color:var(--ink);">Предложение по оптимизации →</span></button>' : '')+'</span>'+
-    '<span class="r">'+right+'</span></span>';
+    '<span class="m">'+mark+'</span>'+
+    '<span class="t">'+s.title+'</span>'+
+    '<span class="r">'+right+'</span>'+
+    '<span class="sb"><span class="b">'+s.by+' · '+s.fact+'</span>'+expLine+markLine+'</span>'+
+    markBtns+
+    (bn ? bnPlate('data-bn="'+s.k+'"', bn.kind, SQ_ESC(bn.t)+' — '+SQ_ESC(bn.d)) : '')+
+    '</span>';
 }
 function ordSheet(c){
   const plan = (c.purchase ? 'с закупкой, ' : 'без закупки, ')+(c.cycle || (c.purchase ? 35 : 28))+' дн';
@@ -4568,7 +4604,16 @@ body.bg-start .bgfield::after{content:'';position:absolute;inset:0;background:rg
 .bn-btn{display:block;width:100%;text-align:left;background:none;border:0;padding:8px 0 0;margin:0;font:inherit;color:inherit;cursor:pointer;}
 .bn-btn b{display:block;margin-top:6px;font-size:14px;}
 .bn-btn .b{display:block;margin-top:4px;}
-.ord-card .bn-btn{padding:10px 0;border-top:1px solid var(--line);}
+/* Метка слева, переход справа — один ряд вместо двух.
+   Замер на 375: метка 166–202 px, переход 103, зазор 8. «этап» и «ресурс» укладываются в 309,
+   «проблема» длиннее на 4 px и переносится. Гнаться за этими пикселями нельзя: на 360 поедет
+   и остальное. Перенесённый переход прижимается вправо, а не липнет под метку. */
+.bn-head{display:flex;align-items:center;justify-content:space-between;gap:6px 8px;flex-wrap:wrap;}
+.bn-head .ow-tag{margin-top:0!important;}
+.bn-go{margin-left:auto;font-size:11.5px;font-weight:700;white-space:nowrap;}
+/* Разделитель перекрашивается под белую карточку, как и у строк этапов выше: токен --line
+   в тёмной теме белый, и на белом листе плашки сливались в одну простыню. */
+.ord-card .bn-btn{padding:10px 0;border-top:1px solid rgba(0,0,0,.08)!important;}
 .ord-card .bn-btn:first-child{border-top:0;padding-top:0;}
 .ord .ord-warn{display:inline-block;margin-top:8px;padding:4px 10px;border-radius:99px;
   background:#ffcf3f!important;color:#1a1400!important;font-size:11px;font-weight:800;}
@@ -4585,7 +4630,7 @@ body.bg-start .bgfield::after{content:'';position:absolute;inset:0;background:rg
 .ord-card .os.ok .m{background:var(--lime)!important;color:var(--lime-ink)!important;}
 .ord-card .os.bad .m{background:var(--orange)!important;color:#fff!important;}
 .ord-card .os.warn .m{background:#ffcf3f!important;color:#1a1400!important;}
-.ord-card .os .t .b{color:rgba(0,0,0,.55)!important;}
+.ord-card .os .b{color:rgba(0,0,0,.55)!important;}
 .ord-card .os .r{color:rgba(0,0,0,.7)!important;}
 /* Предупреждение: жёлтый — тот же, что у статусов (#ffcf3f). Коричневого в фирстиле нет,
    он тянулся из старых --warn и выбивался из палитры. */
