@@ -1970,7 +1970,9 @@ function ordStage(s){
   // Отметка руками (директор 02.10.2026): этап без документа в учёте закрывает его исполнитель.
   // Кнопку видит исполнитель этапа и директор; снять может автор отметки и директор.
   const me = currentUser ? currentUser.key : null;
-  const canMark = me && (me === 'director' || (s.owners || []).includes(me));
+  // Кнопка только на этапах, которые вообще отмечаются руками (owners с сервера: «в пути», «фасовка»);
+  // директор может любой из них, но не те, что закрывает учёт.
+  const canMark = me && (s.owners || []).length > 0 && (me === 'director' || s.owners.includes(me));
   const canUnmark = me && s.markedBy && (me === 'director' || me === s.markedByKey);
   const markLine = s.state === 'done' && s.markedBy
     ? '<span class="b">отметил '+SQ_ESC(s.markedBy)+(s.markedAt ? ' '+ordDM(s.markedAt) : '')+(canUnmark ? ' · <button class="lnk" data-unmark="'+s.k+'">снять</button>' : '')+'</span>'
