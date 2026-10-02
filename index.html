@@ -3780,11 +3780,11 @@ function myErrorsHtml(h){
       // Балл 0 — это история до старта счёта 21.09, а не «начислили ноль». Пишем словами.
       const pts = Number(it.points) > 0 ? AT_NEG(it.points) : 'без начисления';
       return '<div class="gp-row"><span class="l">'+head+'</span><span class="m">'+when+'</span>'+
-        '<span class="v"><span class="tag">'+pts+'</span></span></div>';
+        '<span class="v"><span class="tag" style="background:#0e1400!important;color:#fff!important;border-color:#0e1400!important;">'+pts+'</span></span></div>';
     }).join('');
     return '<div class="cz-fact">'+
       '<div class="between"><b style="font-size:12.5px;">'+SQ_ESC(g.what)+'</b>'+
-        '<span class="tag" style="flex:0 0 auto;">'+n+' '+AT_PL(n,'раз','раза','раз')+'</span></div>'+
+        '<span class="tag" style="flex:0 0 auto;background:#0e1400!important;color:#fff!important;border-color:#0e1400!important;">'+n+' '+AT_PL(n,'раз','раза','раз')+'</span></div>'+
       '<div class="gp-rows" style="margin-top:8px;">'+rows+'</div></div>';
   }).join('');
   // Формат «окно» (директор 02.10.2026): на экране — карточка со счётом и кнопка, список — в листе.
