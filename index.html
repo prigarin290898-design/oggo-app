@@ -309,6 +309,8 @@ window.ASSET_V = '20260923b';
   .fold>summary .arr{display:inline-flex;transition:transform .2s;}
   .fold[open]>summary .arr{transform:rotate(180deg);}
   .fold>.fold-body{margin-top:12px;}
+  .myerr-sheet .tag{background:#0e1400!important;color:#fff!important;border-color:#0e1400!important;}
+  .myerr-sheet .gp-row .m{color:var(--ink-dim);}
   .qd-o{text-align:left;font-family:var(--font-body);font-size:13.5px;line-height:1.35;
     border-radius:16px;padding:11px 13px;border:1px solid rgba(0,0,0,.08);background:#F9F9F9;color:#211f1b;cursor:pointer;}
   .qd-o.ok{background:var(--lime);color:var(--lime-ink);border-color:transparent;}
@@ -3786,7 +3788,8 @@ function myErrorsHtml(h){
       '<div class="gp-rows" style="margin-top:8px;">'+rows+'</div></div>';
   }).join('');
   // Формат «окно» (директор 02.10.2026): на экране — карточка со счётом и кнопка, список — в листе.
-  window.MY_ERR_SHEET = '<div class="ord-card">'+cards+'</div>';
+  // В светлом листе плашки счёта и баллов — чёрные: белая плашка на белом не читается (правило журнала вкуса).
+  window.MY_ERR_SHEET = '<div class="ord-card myerr-sheet">'+cards+'</div>';
   return CZ_HEAD('Мои ошибки', 'Эти ошибки у вас уже были')+
     '<div class="cz-note"><div class="cz-cap">'+groups.length+' '+AT_PL(groups.length,'вид нарушения','вида нарушений','видов нарушений')+
       (repeated ? ' · повторялось: '+repeated : '')+'</div>'+
