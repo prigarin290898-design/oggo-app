@@ -302,6 +302,13 @@ window.ASSET_V = '20260923b';
   .qd-fire.off{background:rgba(255,255,255,.16);color:#fff;}
   .qd-q{font-family:var(--font-body);font-size:14.5px;line-height:1.45;margin:0 0 12px;}
   .qd-opts{display:grid;gap:8px;}
+  /* Свёрнутые блоки — родной <details>: разминка под «Пройти», требования премии под «Требования».
+     Директор 02.10.2026: длинные блоки удлиняют страницу, нужен формат «окно». */
+  .fold>summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
+  .fold>summary::-webkit-details-marker{display:none;}
+  .fold>summary .arr{display:inline-flex;transition:transform .2s;}
+  .fold[open]>summary .arr{transform:rotate(180deg);}
+  .fold>.fold-body{margin-top:12px;}
   .qd-o{text-align:left;font-family:var(--font-body);font-size:13.5px;line-height:1.35;
     border-radius:16px;padding:11px 13px;border:1px solid rgba(0,0,0,.08);background:#F9F9F9;color:#211f1b;cursor:pointer;}
   .qd-o.ok{background:var(--lime);color:var(--lime-ink);border-color:transparent;}
@@ -965,7 +972,7 @@ window.ASSET_V = '20260923b';
     <div id="myErrCatalog"></div>
     <div class="lime-heading">Ошибки</div>
     <div class="honest" id="errHonest" style="margin:-4px 0 12px 4px;"></div>
-    <div class="glass">
+    <div class="glass" id="errDept" hidden>
       <h2>Часто повторяется по отделу</h2>
       <div id="errChips"></div>
     </div>
@@ -2759,6 +2766,8 @@ function renderErrors(u){
   const isDir = !!u && u.key === 'director';
   const chip = ([k,n]) => `<div class="errchip"><span>${k}</span><span class="cnt">${n}</span></div>`;
   document.getElementById('errChips').innerHTML = st.byCategory.map(chip).join('');
+  // Сводка по отделу — только директору (02.10.2026): у сотрудника на экране ошибок только своё.
+  document.getElementById('errDept').hidden = !isDir;
   const be = document.getElementById('errByEmp');
   be.hidden = !(isDir && st.byEmployee);
   if(!be.hidden) document.getElementById('errEmpChips').innerHTML = st.byEmployee.map(chip).join('');
@@ -3215,15 +3224,21 @@ function renderGame(u){
        счётчик стоял на месте, человек не понимал, что это тот же вопрос. */
     var всего = вопросы.length, сПервого = 0;
     var очередь = вопросы.slice(), ошибки = [], фаза = 'первый';
+    // Вопросы свёрнуты под «Пройти» (директор 02.10.2026): разминка удлиняла экран. Раскрытие
+    // держится между вопросами — человек нажал один раз и идёт до конца набора.
+    var раскрыто = false;
 
     function карточкаВопроса(q, шапка){
       return qdHead(st, шапка) +
-        '<p class="qd-q">' + q.q + '</p>' +
-        '<div class="qd-opts">' + q.options.map(function(o,i){ return '<button class="qd-o" type="button" data-i="' + i + '">' + o + '</button>'; }).join('') + '</div>';
+        '<details class="fold qd-fold"' + (раскрыто ? ' open' : '') + '><summary class="at-cta" style="margin-top:12px;">' + (раскрыто ? 'Свернуть' : 'Пройти') + '<span class="arr">' + ic('<polyline points="6 9 12 15 18 9"/>',16) + '</span></summary>' +
+        '<div class="fold-body"><p class="qd-q">' + q.q + '</p>' +
+        '<div class="qd-opts">' + q.options.map(function(o,i){ return '<button class="qd-o" type="button" data-i="' + i + '">' + o + '</button>'; }).join('') + '</div></div></details>';
     }
 
     function спросить(q, шапка, дальше){
       host.innerHTML = карточкаВопроса(q, шапка);
+      var fold = host.querySelector('.qd-fold');
+      if (fold) fold.addEventListener('toggle', function(){ раскрыто = fold.open; fold.querySelector('summary').firstChild.textContent = раскрыто ? 'Свернуть' : 'Пройти'; });
       host.querySelectorAll('.qd-o').forEach(function(b){
         b.addEventListener('click', function(){
           var верно = Number(b.dataset.i) === Number(q.right);
@@ -3233,7 +3248,7 @@ function renderGame(u){
             else if (x === b) x.classList.add('no');
           });
           if (tg && tg.HapticFeedback) { try { tg.HapticFeedback.notificationOccurred(верно ? 'success' : 'warning'); } catch(e) {} }
-          host.insertAdjacentHTML('beforeend', '<p class="qd-r">' + (q.explain || (верно ? 'Верно.' : 'Не то.')) + '</p>');
+          (host.querySelector('.fold-body') || host).insertAdjacentHTML('beforeend', '<p class="qd-r">' + (q.explain || (верно ? 'Верно.' : 'Не то.')) + '</p>');
           setTimeout(function(){ дальше(верно); }, верно ? 1400 : 2400);
         });
       });
@@ -3578,10 +3593,12 @@ async function atGameCta(box){
 function atOctHtml(b){
   const o = b.oct, fmt = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' ₽';
   const parts = o.parts.map(x=>'<div class="gp-row"><span class="l">'+x.title+'<span class="muted" style="display:block;font-weight:500;font-size:11px;margin-top:2px;">'+x.how+'</span></span><span class="v" style="min-width:90px;">'+fmt(x.amount)+'</span></div>').join('');
-  return '<div class="gp-head"><div class="cz-cap" style="margin:0;">Премия · '+b.month+'</div><span class="gp-draft">Справочно</span></div>'+
+  // Положение о премировании утверждено 01.10.2026 — метка «Согласовано», не «Справочно» (директор 02.10).
+  return '<div class="gp-head"><div class="cz-cap" style="margin:0;">Премия · '+b.month+'</div><span class="gp-draft" style="border-style:solid;color:var(--ok);border-color:var(--ok);">Согласовано</span></div>'+
     '<div class="ge-top"><div class="ge-n">до '+fmt(o.total)+'</div></div>'+
-    '<div class="ge-sub">Две части, считаются отдельно. До подписи Положения суммы справочные: пороги и суммы пересматриваются по итогам октября.</div>'+
+    '<div class="ge-sub">Две части, считаются отдельно. Положение утверждено 01.10.2026; пороги и суммы пересматриваются по итогам октября.</div>'+
     '<div class="gp-rows">'+parts+'</div>'+
+    '<details class="fold"><summary class="at-cta">Требования<span class="arr">'+ic('<polyline points="6 9 12 15 18 9"/>',16)+'</span></summary><div class="fold-body">'+
     czItem('Ворота по инвентаризации на этот месяц — <b>'+o.gate+'%</b> стоимости склада, уложившейся в норму 5% по позиции. Ступень командная на трёх.', 'ok')+
     // Обнуляющие условия приходят с сервера таблицей: тот же текст показывает блок «План месяца»
     // на «Задачах». Старый сервер их не отдаёт — тогда остаётся прежняя строка, без выдумки.
@@ -3592,6 +3609,7 @@ function atOctHtml(b){
     (o.docsLimit === null
       ? '<div class="at-note">Порог по документам директором пока не назван — часть за документы считается вручную при закрытии месяца.</div>'
       : czItem('Порог по документам: не больше <b>'+o.docsLimit+'</b> штрафных баллов за месяц.', 'ok'))+
+    '</div></details>'+
     '<div class="at-note">Ваши баллы за месяц: '+AT_NEG(b.points)+(b.preliminary ? ' (предварительно, месяц закрывается 2–4 числа)' : '')+'.</div>';
 }
 function atBonusHtml(b){
@@ -3767,11 +3785,13 @@ function myErrorsHtml(h){
         '<span class="tag" style="flex:0 0 auto;">'+n+' '+AT_PL(n,'раз','раза','раз')+'</span></div>'+
       '<div class="gp-rows" style="margin-top:8px;">'+rows+'</div></div>';
   }).join('');
+  // Формат «окно» (директор 02.10.2026): на экране — карточка со счётом и кнопка, список — в листе.
+  window.MY_ERR_SHEET = '<div class="ord-card">'+cards+'</div>';
   return CZ_HEAD('Мои ошибки', 'Эти ошибки у вас уже были')+
     '<div class="cz-note"><div class="cz-cap">'+groups.length+' '+AT_PL(groups.length,'вид нарушения','вида нарушений','видов нарушений')+
       (repeated ? ' · повторялось: '+repeated : '')+'</div>'+
-      '<div class="cz-txt">Список за три месяца, по видам. Записи до 21.09.2026 показаны историей: счёт стартовал 21.09 в 9:15, и балла по ним нет. Не согласны с начислением — напишите боту «оспорить N» с номером из утреннего письма.</div></div>'+
-    cards;
+      '<div class="cz-txt">Список за три месяца, по видам. Записи до 21.09.2026 показаны историей: счёт стартовал 21.09 в 9:15, и балла по ним нет. Не согласны с начислением — напишите боту «оспорить N» с номером из утреннего письма.</div>'+
+      '<button class="at-cta" type="button" id="myErrOpen">Открыть список<span class="arr" style="display:inline-flex;margin-left:8px;">'+ic('<polyline points="9 6 15 12 9 18"/>',16)+'</span></button></div>';
 }
 // --- «Что считается ошибкой?» — свой перечень по роли (требование директора 30.09)
 // «Делаем список — "Что считается ошибкой?" в него все ошибки сотрудников по каждому свои.»
@@ -3863,6 +3883,9 @@ async function myErrorsMount(){
   try{ h = await myScore(); }
   catch(e){ host.innerHTML = '<div class="cz-note"><div class="cz-txt">Свои ошибки не загрузились. Откройте экран ещё раз, а если не появятся — скажите директору.</div></div>'; return; }
   host.innerHTML = myErrorsHtml(h);
+  const ob = document.getElementById('myErrOpen');
+  if(ob) ob.addEventListener('click', ()=>openSheet({cap:'Мои ошибки', title:'Эти ошибки у вас уже были', icon:IC.flag,
+    sub:'За три месяца, по видам · не согласны — «оспорить N» боту', body: window.MY_ERR_SHEET || ''}));
 }
 // Директору — счета всех, он единственный, кто видит чужие.
 async function atMountScores(host){
