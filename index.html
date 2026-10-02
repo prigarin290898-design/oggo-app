@@ -1961,7 +1961,9 @@ function ordStage(s){
   // Справа: закрытый — дата и отклонение от нормы; открытый — прогноз и сдвиг относительно плана.
   const right = s.state === 'skipped' ? 'пропущен'
     : s.state === 'done' ? ordDM(s.done)+ordDv(s.delta)
-    : (s.forecast ? 'прогноз '+ordDM(s.forecast)+ordDv(s.delta !== undefined && s.delta > 0 ? s.delta : s.drift) : 'план до '+ordDM(s.deadline));
+    // Будущий этап — только прогноз даты, без плашки: накопленный сдвиг на нём читался как задание
+    // «закончить быстрее» (директор 02.10). Отклонение есть у закрытых и у текущего, итог — в шапке.
+    : (s.forecast ? 'прогноз '+ordDM(s.forecast)+(s.delta !== undefined ? ordDv(s.delta, 'идёт в срок') : '') : 'план до '+ordDM(s.deadline));
   const bn = BN[s.k];
   return '<span class="os'+(s.state === 'done' ? ' ok' : '')+(s.late ? ' bad' : '')+(s.state === 'skipped' ? ' off' : '')+(bn ? ' warn' : '')+'">'+
     '<span class="m">'+mark+'</span><span class="t">'+s.title+'<span class="b">'+s.by+' · '+s.fact+'</span>'+
