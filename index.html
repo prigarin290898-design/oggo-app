@@ -1990,7 +1990,8 @@ function ordSheet(c){
   const plan = (c.purchase ? 'с закупкой, ' : 'без закупки, ')+(c.cycle || (c.purchase ? 35 : 28))+' дн';
   const fc = c.forecastReady || c.ready;
   const head = '<div class="cz-fact"><div class="between"><b style="font-size:12.5px;">Готовность</b><span><span class="ord-state big">'+ordDM(fc)+'</span>'+ordDv(c.deviation)+'</span></div>'+
-    (c.forecastReady && c.forecastReady !== c.ready ? '<div class="muted" style="margin-top:6px;">Прогноз по фактам. План был '+ordDM(c.ready)+'.</div>' : '')+
+    // План — первый прогноз при запуске (замороженный); отклонение в плашке считается от него.
+    (c.baseline ? '<div class="muted" style="margin-top:6px;">План при запуске — '+ordDM(c.baseline)+(c.forecastReady && c.forecastReady !== c.baseline ? ', прогноз по фактам — '+ordDM(c.forecastReady) : ', прогноз совпадает')+'.</div>' : '')+
     '<div class="muted" style="margin-top:6px;">Старт '+ordDM(c.start)+' ('+(c.startedBy === 'статус' ? 'статус «В работе п/ф»' : c.startedBy === 'факт' ? 'по первому заданию, статус не проставлен' : 'прогноз от сегодня')+') · цикл '+plan+'.'+
     (c.setByHand ? ' В задании стоит '+ordDM(c.setByHand)+(c.diffDays ? ', расхождение '+Math.abs(c.diffDays)+' дн' : ', сходится') : '')+
     (c.shiftedBy ? ' Сдвинуто с '+ordDM(c.readyPlanned)+': '+c.shiftedBy+'.' : '')+
