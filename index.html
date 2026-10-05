@@ -141,6 +141,10 @@ window.ASSET_V = '20260923b';
   .cz-proj .pc{display:block;font-size:10.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;margin-bottom:5px;}
   h2{font-family:var(--font-display);font-size:15px;margin:0 0 10px;}
   .empty{padding:30px 16px;text-align:center;color:var(--ink-dim);font-size:13px;}
+  .eyes{width:1.6em;height:.73em;margin-right:5px;flex:none;}
+  .empty.load{display:flex;flex-direction:column;align-items:center;gap:10px;padding:26px 16px;}
+  .empty.load .eyes{width:56px;height:26px;margin:0;}
+  .tag.mach,.bn-go{display:inline-flex;align-items:center;}
   .honest{font-size:11.5px;color:var(--ink-soft);line-height:1.4;margin-top:2px;}
 
   /* Моя роль subtabs */
@@ -1206,6 +1210,11 @@ function withRev(s){
 function ic(paths, size){
   return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${paths}</svg>`;
 }
+// Знак «глаза ассистента» — подпись автора, не украшение (решение директора 05.10.2026).
+// Ставится ТОЛЬКО там, где текст написала машина: «нашла машина», «Предложение →», загрузка.
+// Геометрия зафиксирована: клетка 72, зазор 14, внутренний радиус 0,46 от внешнего. Цвет — как у текста.
+const EYES = '<svg class="eyes" viewBox="0 0 158 72" aria-hidden="true"><path fill="currentColor" d="M33.12,72L72,72A72,72 0 0 0 0,0L0,38.88A33.12,33.12 0 0 1 33.12,72Z"/><path fill="currentColor" d="M119.12,72L158,72A72,72 0 0 0 86,0L86,38.88A33.12,33.12 0 0 1 119.12,72Z"/></svg>';
+const LOADING = '<div class="empty load">'+EYES+'<span>Загрузка…</span></div>';
 
 let DOCS = {
   techcard: {
@@ -1933,7 +1942,7 @@ const BN_RESOURCE = [
 function bnPlate(attrs, kind, text, title){
   return '<button class="bn-btn" '+attrs+'>'+
     '<span class="bn-head"><span class="ow-tag">узкое горлышко · '+kind+'</span>'+
-    '<span class="bn-go">Предложение →</span></span>'+
+    '<span class="bn-go">'+EYES+'Предложение →</span></span>'+
     (title ? '<b>'+title+'</b>' : '')+
     '<span class="b">'+text+'</span></button>';
 }
@@ -2108,7 +2117,7 @@ function ordRender(){
   const head = CZ_HEAD('Заказы','Путь от запуска до готовности · данные из Мой Склада');
   const tail = '';
   let html;
-  if(!ORD) html = head+'<div class="empty">Загрузка…</div>'+tail;
+  if(!ORD) html = head+LOADING+tail;
   else if(ORD.unavailable) html = head+'<div class="attn col"><div class="eb">Мой Склад не подключён</div><p>Карта пути строится из документов учёта. Пока связи нет, показывать нечего.</p></div>'+tail;
   else if(!ORD.orders.length) html = head+'<div class="cz-fact"><b style="font-size:12.5px;">Заказов в работе нет.</b></div>'+tail;
   else html = head+ORD.orders.map(ordRow).join('')+tail;
@@ -2405,7 +2414,7 @@ function renderTasksDirector(){
 function renderTasks(u){
   const el = document.getElementById('s-tasks');
   if(!u){ el.innerHTML = '<div class="empty">Задачи появятся после определения пользователя.</div>'; return; }
-  el.innerHTML = CZ_HEAD('Задачи','Трекер PR-VO · статус «В работе»')+'<div class="empty">Загрузка…</div>';
+  el.innerHTML = CZ_HEAD('Задачи','Трекер PR-VO · статус «В работе»')+LOADING;
   loadTasks(false);
 }
 
@@ -2604,13 +2613,13 @@ function pkDeepLink(){
   const m = /(?:\?|&)pick=([\w-]+)/.exec(location.search);
   if(!m) return false;
   setTimeout(()=>openSheet({cap:'Перемещение', title:'Собрать', sub:'Документ из сообщения бота', icon:IC.list,
-    body:'<div class="empty">Загрузка…</div>', after: box=>pkOpen(box, m[1])}), 500);
+    body:LOADING, after: box=>pkOpen(box, m[1])}), 500);
   return true;
 }
 
 function pkSheet(){
   openSheet({cap:'Перемещение', title:'Собрать', sub:'Перемещения, созданные сегодня', icon:IC.list,
-    body:'<div class="empty">Загрузка…</div>', after: box=>pkList(box)});
+    body:LOADING, after: box=>pkList(box)});
 }
 
 async function pkList(box){
@@ -2628,7 +2637,7 @@ async function pkList(box){
 }
 
 async function pkOpen(box, docId){
-  box.innerHTML = '<div class="empty">Загрузка…</div>';
+  box.innerHTML = LOADING;
   let r;
   try{ r = await pkApi('/start', {docId}); }
   catch(e){ box.innerHTML = '<div class="cz-note"><div class="cz-cap">Не получилось</div><div class="cz-txt">Сборку начать не удалось. Попробуйте ещё раз.</div></div>'; return; }
@@ -2678,7 +2687,7 @@ function pkRender(box, s){
     try{ const out = await pkApi('/entered', {docId:s.docId}); pkRender(box, out.session); }
     catch(e){ ent.textContent = 'Не сохранилось'; }
   });
-  box.querySelector('.pk-back').addEventListener('click', ()=>{ box.innerHTML = '<div class="empty">Загрузка…</div>'; pkList(box); });
+  box.querySelector('.pk-back').addEventListener('click', ()=>{ box.innerHTML = LOADING; pkList(box); });
 }
 
 // ===== «Сейчас»: операции сотрудника =====
@@ -3799,7 +3808,7 @@ function errItemRow(it){
   const chips = (it.status === 'accepted' ? '<span class="ov g" style="min-width:0;padding:5px 9px;font-size:10.5px;">утверждено</span>'
                                           : '<span class="ov y" style="min-width:0;padding:5px 9px;font-size:10.5px;">предварительно</span>')+
     '<span class="tag">уровень '+it.level+'</span>'+
-    '<span class="tag">'+(it.machine ? 'нашла машина' : 'фиксация директора')+'</span>'+
+    (it.machine ? '<span class="tag mach">'+EYES+'нашла машина</span>' : '<span class="tag">фиксация директора</span>')+
     (it.clause ? '<span class="tag">'+SQ_ESC(it.clause)+'</span>' : '');
   return '<div class="cz-fact"><div class="between"><b style="font-size:12.5px;">'+head+'</b><span class="tag" style="flex:0 0 auto;">'+AT_NEG(it.points)+'</span></div>'+
     '<div class="muted" style="margin-top:4px;">'+SQ_ESC(it.what || '')+'</div>'+
@@ -4317,7 +4326,7 @@ function gmMount(u){
 }
 async function gmStatus(play){
   if(!window.GROW_SCORE){ play.innerHTML = '<div class="at-card dk"><div class="cz-cap">Тренажёр</div><div class="at-h">Тренажёр откроется позже</div><p class="at-p">Когда он будет готов, мы скажем.</p></div>'; return; }
-  play.innerHTML = '<div class="at-card"><p class="at-p">Загрузка…</p></div>';
+  play.innerHTML = LOADING;
   let g; try{ g = await appApi('GET','/game'); }catch(e){ play.innerHTML = '<div class="at-card"><div class="at-h">Нет связи</div><p class="at-p">Не удалось получить данные тренажёра.</p><button class="at-cta" type="button" id="gmRe">Повторить</button></div>'; document.getElementById('gmRe').addEventListener('click', ()=>gmStatus(play)); return; }
   const info = window.GROW_SCORE ? '<div class="at-score dk" style="margin-top:12px;">'+atGrowthHtml(window.GROW_SCORE).score+'</div>' : '';
   if(g.state === 'locked') play.innerHTML = '<div class="at-card dk"><div class="cz-cap">Тренажёр</div><div class="at-h">Откроется после первой аттестации</div><p class="at-p">Сначала аттестация, потом тренажёр: к первой сдаче готовятся по карточкам в соседней вкладке «Изучать». Как только директор объявит ваш результат, тренажёр откроется и будет закрывать блоки следующей аттестации.</p></div>'+info;
@@ -4607,7 +4616,9 @@ body.bg-start .bgfield::after{content:'';position:absolute;inset:0;background:rg
 /* Метка слева, переход справа — один ряд вместо двух.
    Замер на 375: метка 166–202 px, переход 103, зазор 8. «этап» и «ресурс» укладываются в 309,
    «проблема» длиннее на 4 px и переносится. Гнаться за этими пикселями нельзя: на 360 поедет
-   и остальное. Перенесённый переход прижимается вправо, а не липнет под метку. */
+   и остальное. Перенесённый переход прижимается вправо, а не липнет под метку.
+   05.10: глаза ассистента перед «Предложение →» прибавили 24 px (переход 103 → 127).
+   Одним рядом теперь только «этап» (166+8+127=301); «ресурс» (180) тоже переносится. */
 .bn-head{display:flex;align-items:center;justify-content:space-between;gap:6px 8px;flex-wrap:wrap;}
 .bn-head .ow-tag{margin-top:0!important;}
 .bn-go{margin-left:auto;font-size:11.5px;font-weight:700;white-space:nowrap;}
@@ -4747,6 +4758,9 @@ body.bg-start .bgfield::after{content:'';position:absolute;inset:0;background:rg
    давал контраст ровно 1,00. Возвращаем тёмный `--ink` внутри листа, а не правим каждый
    заголовок по отдельности — иначе следующий такой же появится незамеченным. */
 .dm-sheet{--ink:#211f1b;color:#211f1b;}
+/* Загрузка в шторке была белой с тёмной тенью на белом — не видна (найдено 05.10).
+   Возвращаем бумажный --ink-dim; глаза берут цвет текста и темнеют вместе с ним. */
+.dm-sheet .empty{color:#54514a!important;text-shadow:none!important;}
 .cz-lab.err{color:#211f1b!important;}
 
 /* ===== Длинное правило важнее картинки =====
