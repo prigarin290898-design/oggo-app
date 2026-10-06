@@ -3632,6 +3632,8 @@ function renderGame(u){
 }
 
 function renderAll(u){
+  // Финансовая роль (Лера, Марина) рисуется отдельно, в блоке «Сегодня» (finBoot): производственных экранов у неё нет.
+  if(u && u.role === 'finance') return;
   SQ_IDX = sqBuild(u);
   renderProfile(u);
   streakBind();
@@ -4631,7 +4633,8 @@ async function boot(){
   applyRemote(d); currentUser = d.me;
   hideState(); renderAll(currentUser);
   // Ссылка на сборку из сообщения важнее тура: человек пришёл собирать, а не смотреть новости.
-  if(!pkDeepLink()) maybeWhatsNew();
+  // Тур «Что нового» — про производственные экраны; у финансов их нет.
+  if(currentUser.role !== 'finance' && !pkDeepLink()) maybeWhatsNew();
 }
 boot();
 
@@ -5215,6 +5218,60 @@ body:not(.is-director) .dept-only{display:none!important;}
 .td-gr .td-gate{background:rgba(255,255,255,.2);}.td-gr .td-gate i{background:#dbff3d;}
 .td-ln .td-gate{background:rgba(0,0,0,.18);}.td-ln .td-gate i{background:#000;}
 .td-gate i{display:block;height:100%;border-radius:99px;}
+/* ===== Деньги на «Сегодня» (07.10): блок A, окно C3, форма F2. Цвет по состоянию, оранжевого нет. ===== */
+body.is-finance .botnav,body.is-finance #mSearch{display:none!important;}
+.fin-bk{display:block;width:100%;border:0;text-align:left;font:inherit;cursor:pointer;}
+.fin-cap{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.72);margin:2px 2px 4px;}
+.fin-big{font:700 30px/1.05 var(--font-display);letter-spacing:-.01em;margin:0 2px;color:#fff;}
+.fin-big small{font-size:18px;margin-left:4px;}
+.td-src.fin-src{margin:8px 2px 6px;}
+.td-rw.fin-open{padding:0;}
+.td-rw.fin-open .td-k span.fin-big{display:block;margin:0;font-size:30px;color:#fff;}
+.fin-pl{display:inline-flex;align-items:center;min-height:24px;padding:0 9px;border-radius:99px;font-size:11px;font-weight:700;white-space:nowrap;flex:0 0 auto;}
+.td-sh .fin-pl{margin-left:4px;}
+.fin-pl.r{background:#c8331f;color:#fff;}
+.fin-pl.y{background:#ffcf3f;color:#0e1400;}
+.fin-pl.g{background:#dbff3d;color:#0e1400;}
+.fin-pl.o{background:#fff;color:#000;border:1px solid rgba(0,0,0,.14);}
+.fin-list{background:#fff;color:#000;border-radius:18px;padding:2px 12px;margin:10px 0;}
+.fin-list .td-rw{cursor:default;}
+.fin-list .td-rw + .td-rw{border-top-color:rgba(0,0,0,.08)!important;}
+.fin-list .td-k span{color:#646464!important;}
+.fin-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:52px;border-radius:99px;border:0;background:#dbff3d;color:#0e1400;font:800 13px var(--font-body);cursor:pointer;margin:2px 0 8px;}
+.fin-btn:disabled{opacity:.5;}
+.td-bk.wb .fin-btn,.dm-sheet .fin-btn{margin-top:4px;}
+.dm-sheet .td-bk{margin:0;}
+.fin-row{display:flex;align-items:center;gap:10px;min-height:60px;padding:8px 0;}
+.fin-row + .fin-row{border-top:1px solid rgba(0,0,0,.08);}
+.td-bk.dk .fin-row + .fin-row{border-top-color:rgba(255,255,255,.14);}
+.td-v.fin-v{font-size:14px;}
+.fin-since{color:#c8331f;font-weight:700;}
+.td-bk.dk .fin-since{color:#ff9d8f;}
+.fin-gh{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#646464;margin:6px 2px 0;}
+.fin-lst{border:1px solid rgba(0,0,0,.14);border-radius:20px;padding:2px 12px;}
+.fin-warn{background:#ffcf3f;color:#0e1400;border-radius:18px;padding:10px 12px;font-size:12px;font-weight:600;line-height:1.4;}
+.fin-note{background:#000;color:#fff;border-radius:20px;padding:12px 14px;font-size:12.5px;line-height:1.45;}
+.fin-st{display:block;margin-top:6px;}
+.td-k .fin-st .fin-pl{display:inline-flex;margin-top:0;}
+.fin-edit{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;border-radius:99px;border:1.5px solid #000;background:#fff;color:#000;font:800 12px var(--font-body);cursor:pointer;margin-left:auto;}
+.fin-fd{border:2px solid #000;box-shadow:0 0 0 3px #dbff3d;border-radius:20px;padding:12px 14px;}
+.fin-lb{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:800;}
+.fin-lb .fin-pl{margin-left:auto;}
+.fin-in{display:block;margin-top:8px;}
+.fin-in span,.fin-sub span{display:block;font-size:11.5px;font-weight:700;color:#646464;}
+.fin-fd input{display:block;width:100%;border:0;outline:0;background:none;padding:4px 0 2px;font:700 22px var(--font-display);color:#000;border-bottom:1px solid rgba(0,0,0,.14);border-radius:0;}
+.fin-fd input:focus{border-bottom-color:#000;}
+.fin-fd input::placeholder{color:#A7A7A7;}
+.fin-y{font-size:11px;color:#646464;line-height:1.35;margin-top:4px;}
+.fin-y b{color:#000;font-weight:700;}
+.fin-sub{display:block;margin-top:10px;padding-top:8px;border-top:1px solid rgba(0,0,0,.08);}
+.fin-sub input{font-size:16px;}
+.fin-err{color:#c8331f;font-size:12px;font-weight:700;margin-top:8px;}
+.fin-fd .fin-btn{margin:12px 0 0;min-height:48px;}
+.fin-hint{font-size:11px;color:#646464;text-align:center;margin-top:8px;}
+.fin-toast{position:sticky;bottom:16px;background:#000;color:#fff;border-radius:18px;padding:12px 14px;display:flex;align-items:center;gap:10px;font-size:12.5px;font-weight:700;}
+.fin-toast[hidden]{display:none;}
+.fin-toast button{margin-left:auto;border:0;background:#dbff3d;color:#0e1400;border-radius:99px;min-height:36px;padding:0 14px;font:800 12px var(--font-body);cursor:pointer;}
 .fd-kv{padding:10px 0;border-top:1px solid rgba(0,0,0,.08);}
 .fd-kv:first-child{border-top:0;}
 .fd-kv .k{font-size:14px;font-weight:800;margin-bottom:2px;color:#000;}
@@ -5352,9 +5409,182 @@ body:not(.is-director) .dept-only{display:none!important;}
         '</div>',
       after: body => body.querySelectorAll('.kbl').forEach(b => b.onclick = () => openRule(x.clause || x.what || ''))});
   }
+  // ===== Деньги на «Сегодня» (решения директора 07.10.2026: блок A, окно C3, форма F2) =====
+  // Всё считает сервер (/api/app/finance): кто что видит и вносит, сверка с Мой Складом на 00:00, история
+  // «не закрыто с». Здесь только показ и форма. Цвет — по состоянию: лайм сходится, красный расходится,
+  // жёлтый не внесено. Оранжевый в деньгах не используется.
+  let FIN = null, FIN_ERR = false;
+  const BANK_IC = svg('<path d="M3 10l9-6 9 6"/><path d="M5 10v8"/><path d="M10 10v8"/><path d="M14 10v8"/><path d="M19 10v8"/><path d="M3 20h18"/>', 28);
+  const EDIT_IC = svg('<path d="M4 20h4L19 9l-4-4L4 16z"/>', 16);
+  const isFinRole = () => !!(currentUser && currentUser.role === 'finance');
+  const finFor = () => !!(currentUser && (currentUser.role === 'finance' || currentUser.key === 'director'));
+  // Рубли из копеек: «5 626 950», с копейками — только в форме.
+  const rub = k => k === null || k === undefined ? '—' : (k < 0 ? '−' : '') + String(Math.round(Math.abs(k) / 100)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  const rubK = k => k === null || k === undefined ? '' : String(Math.floor(Math.abs(k) / 100)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ',' + String(Math.abs(k) % 100).padStart(2, '0');
+  const sgn = k => (k > 0 ? '+' : '') + rub(k);
+  // Тот же разбор, что на сервере: сервер всё равно проверит, здесь — чтобы не отправлять мусор.
+  const parseRub = v => { const s = String(v == null ? '' : v).replace(/[\s  ]/g, '').replace(',', '.'); if(!/^\d{1,12}(\.\d{1,2})?$/.test(s)) return null; const [i, f = ''] = s.split('.'); return Number(i) * 100 + Number((f + '00').slice(0, 2)); };
+  const ekbHm = () => new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(11, 16);
+  const finAuth = () => ({Authorization: 'tma ' + ((tg && tg.initData) || '')});
+  async function finLoad(){
+    if(!finFor()) return;
+    try{
+      const r = await fetch(apiBase() + '/finance', {headers: finAuth()});
+      if(!r.ok) throw new Error('http ' + r.status);
+      FIN = await r.json(); FIN_ERR = false;
+    }catch(e){ FIN_ERR = true; }
+    renderToday();
+  }
+  const pill = (cls, t) => '<span class="fin-pl ' + cls + '">' + t + '</span>';
+  function linePill(l, f){
+    if(l.state === 'mismatch') return pill('r', sgn(l.diff) + ' ₽');
+    if(l.state === 'match') return pill('g', 'сходится');
+    if(l.state === 'late') return pill('r', 'не внесено');
+    if(l.state === 'missing') return pill('y', 'не внесено');
+    if(l.state === 'waiting') return pill('o', 'ждёт бухгалтера');
+    if(l.state === 'nodata') return pill('o', 'нет Мой Склада');
+    return '';
+  }
+  const tails = l => l.banks.length > 1 ? ' · ' + l.banks.map(b => '…' + b.label.slice(-4)).join(' + ') : '';
+  function lineSub(l, f){
+    if(l.state === 'mismatch' || l.state === 'match') return 'МС ' + rub(l.ms) + ' · банк ' + rub(l.bank) + '<br>' + esc(l.who || '') + (l.since ? ' · <b class="fin-since">не закрыто с ' + l.since + '</b>' : '');
+    if(l.state === 'waiting') return 'ждёт подключения бухгалтера · пока по Мой Складу' + (l.since ? ' · не закрыто с ' + l.since : '');
+    if(l.state === 'missing' || l.state === 'late') return 'вносит ' + esc(l.byName || '—') + (l.of > 1 ? ' · внесено ' + l.entered + ' из ' + l.of : '') + (l.state === 'late' ? ' · срок ' + f.deadline + ' прошёл' : f.workday ? ' · до ' + f.deadline : '') + (l.since ? ' · не закрыто с ' + l.since : '');
+    return '';
+  }
+  function finBlock(){
+    if(!finFor()) return '';
+    if(!FIN) return FIN_ERR ? '<div class="td-bk dk"><div class="td-sh"><b>Деньги</b></div><div class="td-empty">Деньги не загрузились. Откройте приложение ещё раз.</div></div>' : '';
+    const f = FIN, m = f.main;
+    const src = m.source === 'bank' ? 'по внесённым остаткам · ' + esc(m.who || '') : (f.msOk ? 'по данным Мой Склада' : 'Мой Склад не ответил') + (isFinRole() ? ' · банк внесён ' + m.entered + ' из ' + m.of : f.workday && !f.late ? ' · остатки банка вносятся до ' + f.deadline : '');
+    const big = '<div class="fin-cap">Свободные</div><div class="fin-big">' + rub(m.value) + '<small>₽</small></div><div class="td-src fin-src">' + src + '</div>';
+    if(!isFinRole()){
+      // Директор: одно число, расхождения — только в окне по тапу (A1, A2).
+      return '<button type="button" class="td-bk dk fin-bk" id="finOpen" aria-label="Деньги: по счетам"><div class="td-sh"><b>Деньги</b>' +
+        (m.source === 'ms' ? pill('y', 'банк внесён ' + m.entered + ' из ' + m.of) : '') + '<span class="lk">' + CHEV + '</span></div>' + big + '</button>';
+    }
+    // Лера и Марина: расхождения сразу и кнопка формы (A3).
+    const bad = f.lines.filter(l => l.state === 'mismatch');
+    const todo = f.lines.filter(l => (l.state === 'missing' || l.state === 'late'));
+    const rows = bad.concat(todo).map(l => '<div class="td-rw"><span class="td-k"><b>' + esc(l.label) + tails(l) + '</b><span>' + (l.state === 'mismatch' ? (l.diff < 0 ? 'банк меньше учёта' : 'банк больше учёта') + (l.since ? ' · не закрыто с ' + l.since : '') : lineSub(l, f)) + '</span></span>' + linePill(l, f) + '</div>').join('');
+    return '<div class="td-bk dk"><div class="td-sh"><b>Деньги</b>' + (bad.length ? pill('r', bad.length + ' ' + plural(bad.length, 'расхождение', 'расхождения', 'расхождений')) : '') + '</div>' +
+      '<button type="button" class="td-rw fin-open" id="finOpen" aria-label="Деньги: по счетам"><span class="td-k">' + big + '</span>' + CHEV + '</button>' +
+      (rows ? '<div class="fin-list">' + rows + '</div>' : '<div class="td-empty">Внесённые счета сходятся с Мой Складом.</div>') +
+      (f.canEnter ? '<button type="button" class="fin-btn" id="finEnter">Внести остатки' + (f.workday && !f.late ? ' · до ' + f.deadline : '') + '</button>' : '') + '</div>';
+  }
+  function finBind(el){
+    const o = el.querySelector('#finOpen'); if(o) o.onclick = finSheet;
+    const e = el.querySelector('#finEnter'); if(e) e.onclick = finForm;
+  }
+  // Окно C3: счета по состоянию «Расходится / Не внесено / Сходится».
+  function finSheet(){
+    const f = FIN; if(!f) return;
+    const g = s => f.lines.filter(l => s.indexOf(l.state) > -1);
+    const bad = g(['mismatch']), todo = g(['missing', 'late', 'waiting', 'nodata']), ok = g(['match']);
+    const row = (l, right) => '<div class="fin-row"><span class="td-k"><b>' + esc(l.label) + tails(l) + '</b><span>' + lineSub(l, f) + '</span></span>' + right + '</div>';
+    const grp = (cls, head, list, right) => list.length ? '<div class="td-bk ' + cls + '"><div class="td-sh"><b' + (/ok/.test(cls) ? ' class="acc"' : '') + '>' + head + '</b><span class="ct">' + list.length + '</span></div>' + list.map(l => row(l, right(l))).join('') + '</div>' : '';
+    const ni = f.lines.filter(l => l.notIndependent).map(l => l.label);
+    const p = f.personal;
+    const body =
+      (f.msOk ? '' : '<div class="fin-warn">Мой Склад сейчас не ответил — сверки нет, показаны только внесённые остатки.</div>') +
+      grp('dk', 'Расходится', bad, l => linePill(l, f)) +
+      grp('wb', 'Не внесено', todo, l => (l.state === 'late' ? linePill(l, f) : '') + '<span class="td-v fin-v">' + rub(l.msNow) + '</span>') +
+      grp('wb ok', 'Сходится', ok, l => '<span class="td-v fin-v">' + rub(l.bank) + '</span>') +
+      '<div class="fin-gh">Вне свободных</div><div class="fin-lst">' +
+        (p ? '<div class="fin-row"><span class="td-k"><b>Счета физ. лица</b><span>' + esc(p.labels.join(' + ')) + ' · ' + (p.source === 'bank' ? 'по внесённым остаткам' : 'по Мой Складу') + '</span></span><span class="td-v fin-v">' + rub(p.value) + '</span></div>' : '') +
+        (f.cash ? '<div class="fin-row"><span class="td-k"><b>Наличные ИП</b><span>только Мой Склад, банка нет</span></span><span class="td-v fin-v">' + rub(f.cash.value) + '</span></div>' : '') +
+      '</div>' +
+      (ni.length ? '<div class="fin-warn">' + esc(ni.join(', ')) + ' — сверка не независимая: остаток вносит тот же человек, что разносит платежи.</div>' : '') +
+      '<div class="fin-note">Разница = банк на начало дня − Мой Склад по документам до 00:00 сегодня. Пересчитывается при каждом открытии: разнесли платёж — расхождение уходит.</div>' +
+      (f.canEnter ? '<button type="button" class="fin-btn" id="finEnter2">Внести остатки</button>' : '');
+    openSheet({cap: 'Деньги', icon: BANK_IC,
+      title: bad.length ? bad.length + ' ' + plural(bad.length, 'расходится', 'расходятся', 'расходятся') : (f.main.source === 'ms' ? 'Банк ещё не внесён' : 'Всё сходится'),
+      sub: 'Свободные ' + rub(f.main.value) + ' ₽' + (f.msFreeAtCutoff !== null ? ' · Мой Склад на 00:00 — ' + rub(f.msFreeAtCutoff) + ' ₽' : ''),
+      body, after: b => { const x = b.querySelector('#finEnter2'); if(x) x.onclick = finForm; }});
+  }
+  // Форма F2: каждый счёт своей кнопкой. «Отменить» — 5 секунд до отправки, дальше «Исправить» в любое время.
+  let FIN_OPEN = null, FIN_PENDING = null;
+  function finForm(){
+    const f = FIN; if(!f) return;
+    const mine = [];
+    f.lines.forEach(l => l.banks.forEach(b => { if(b.canEdit) mine.push({l, b}); }));
+    const done = mine.filter(x => x.b.entry).length;
+    if(FIN_OPEN === null){ const first = mine.find(x => !x.b.entry); FIN_OPEN = first ? first.b.id : ''; }
+    const card = ({l, b}) => {
+      const e = b.entry, pv = b.prev;
+      if(FIN_OPEN !== b.id){
+        const st = e ? (l.of > 1 && l.entered < l.of ? pill('y', 'внесён ' + l.entered + ' из ' + l.of) : linePill(l, f)) : pill(f.late ? 'r' : 'y', 'не внесено');
+        return '<div class="fin-row fin-acc"><span class="td-k"><b>' + esc(b.label) + '</b><span>' + (e ? 'внесено ' + esc(e.who.split(' ').pop()) + ' · ' + rubK(e.fact) + (e.edits ? ' · исправлено ' + e.edits + ' раз' : '') : (pv ? 'вчера ' + rubK(pv.fact) : 'ещё не вносился')) + '</span><span class="fin-st">' + st + '</span></span>' +
+          '<button type="button" class="fin-edit" data-open="' + esc(b.id) + '">' + (e ? EDIT_IC + 'Исправить' : 'Внести') + '</button></div>';
+      }
+      const dep = e ? rubK(e.deposit) : '', rest = e ? rubK(e.rest) : '0';
+      return '<div class="fin-fd" data-acc="' + esc(b.id) + '"><label class="fin-lb">' + esc(b.label) + (e ? (l.of > 1 && l.entered < l.of ? pill('y', 'внесён ' + l.entered + ' из ' + l.of) : linePill(l, f)) : pill(f.late ? 'r' : 'y', 'не внесено')) + '</label>' +
+        '<label class="fin-in"><span>' + (b.two ? 'Депозит' : 'Остаток') + '</span><input inputmode="decimal" autocomplete="off" name="deposit" value="' + dep + '" placeholder="0,00"></label>' +
+        '<div class="fin-y">' + (pv ? 'вчера <b>' + rubK(pv.fact) + '</b>' : 'вчера не вносился') + '<span class="fin-delta"></span></div>' +
+        (b.two ? '<label class="fin-sub"><span>Остаток на счёте</span><input inputmode="decimal" autocomplete="off" name="rest" value="' + rest + '" placeholder="0,00"></label>' : '') +
+        '<div class="fin-err" role="alert" hidden></div>' +
+        '<button type="button" class="fin-btn fin-save">' + (e ? 'Сохранить исправление' : 'Внести этот счёт') + '</button>' +
+        (e ? '<div class="fin-hint">Старое значение останется в истории.</div>' : '') + '</div>';
+    };
+    const ni = f.lines.filter(l => l.notIndependent && l.banks.some(b => b.canEdit)).map(l => l.label);
+    const left = f.workday && !f.late ? (() => { const [h, m] = f.now.split(':').map(Number); const mins = 600 - (h * 60 + m); return mins > 0 && mins <= 120 ? ', осталось ' + mins + ' мин' : ''; })() : '';
+    openSheet({cap: 'Остатки банка', icon: BANK_IC, title: 'На начало дня, ' + AT_DM(f.today),
+      sub: 'После возврата овернайта · по каждому счёту отдельно' + (f.workday ? ' · до ' + f.deadline + left : ''),
+      body: mine.map(card).join('') +
+        (ni.length ? '<div class="fin-warn">Сверка не независимая по счетам ' + esc(ni.join(', ')) + ': остаток вносит тот же человек, что разносит платежи. Директор видит эту пометку.</div>' : '') +
+        '<div class="fin-note"><b>Внесено ' + done + ' из ' + mine.length + '.</b> Не внесено — можно внести позже. Статус ставится по каждому счёту: внесли один — директор видит его сразу.</div>' +
+        '<div class="fin-toast" id="finToast" role="status" hidden></div>',
+      after: finFormBind});
+  }
+  function finFormBind(body){
+    body.querySelectorAll('[data-open]').forEach(x => x.onclick = () => { FIN_OPEN = x.dataset.open; finForm(); });
+    body.querySelectorAll('.fin-fd').forEach(card => {
+      const acc = card.dataset.acc;
+      const dep = card.querySelector('[name="deposit"]'), rest = card.querySelector('[name="rest"]');
+      const delta = card.querySelector('.fin-delta'), err = card.querySelector('.fin-err');
+      const b = FIN.lines.flatMap(l => l.banks).find(x => x.id === acc);
+      const upd = () => { const d = parseRub(dep.value), r = rest ? parseRub(rest.value || '0') : 0;
+        delta.textContent = d !== null && r !== null && b.prev ? ' · ' + sgn(d + r - b.prev.fact) : ''; };
+      dep.addEventListener('input', upd); if(rest) rest.addEventListener('input', upd); upd();
+      if(!b.entry) setTimeout(() => dep.focus(), 80);
+      card.querySelector('.fin-save').onclick = () => {
+        const d = parseRub(dep.value), r = rest ? parseRub(rest.value || '0') : 0;
+        if(d === null || r === null){ err.hidden = false; err.textContent = 'Введите сумму цифрами, например 2 106 900,00'; return; }
+        err.hidden = true;
+        finSave(acc, b.label, dep.value, rest ? (rest.value || '0') : undefined);
+      };
+    });
+  }
+  // Как свайп задачи: пять секунд «Отменить», потом запрос. Отменять уже записанное не приходится.
+  function finSave(acc, label, deposit, rest){
+    const t = document.getElementById('finToast');
+    clearTimeout(FIN_PENDING && FIN_PENDING.timer);
+    const at = ekbHm();
+    t.innerHTML = '<span>' + esc(label) + ' · внесено ' + at + '</span><button type="button">Отменить</button>';
+    t.hidden = false;
+    document.querySelectorAll('#dmBody .fin-save').forEach(x => x.disabled = true);
+    const pend = FIN_PENDING = {timer: setTimeout(async () => {
+      try{
+        const r = await fetch(apiBase() + '/finance/balance', {method: 'POST', headers: Object.assign({'Content-Type': 'application/json'}, finAuth()), body: JSON.stringify({acc, deposit, rest})});
+        if(!r.ok) throw new Error('http ' + r.status);
+        FIN = await r.json(); FIN_OPEN = null; FIN_PENDING = null;
+        renderToday();
+        // Окно перерисовываем, только если человек всё ещё в форме: закрыл — не открываем заново.
+        if(document.getElementById('finToast') && document.getElementById('docModal').classList.contains('open')) finForm();
+      }catch(e){
+        FIN_PENDING = null;
+        t.innerHTML = '<span>Не сохранено — сервер не ответил. Цифры в поле остались.</span>';
+        document.querySelectorAll('#dmBody .fin-save').forEach(x => x.disabled = false);
+      }
+    }, 5000)};
+    t.querySelector('button').onclick = () => { clearTimeout(pend.timer); FIN_PENDING = null; t.hidden = true; document.querySelectorAll('#dmBody .fin-save').forEach(x => x.disabled = false); };
+  }
   function tasksAll(){
     if(typeof TKS === 'undefined' || !TKS || !TKS.tasks || TKS.byEmployee) return null;
     const t = TKS.tasks, today = TKS.today;
+    // У Леры и Марины экрана «Задачи» нет: на «Сегодня» — все их задачи «В работе», включая будущие и без срока.
+    if(isFinRole()){ const all = (t.overdue || []).concat(t.today || [], t.soon || [], t.noDue || []);
+      return {today, overdue: t.overdue || [], todayList: all.filter(x => x.due === today), all}; }
     const all = (typeof tkAll === 'function' ? tkAll(t) : []);
     return {today, overdue: t.overdue || [], todayList: all.filter(x => x.due === today), all: (t.overdue || []).concat(all.filter(x => x.due === today))};
   }
@@ -5375,7 +5605,21 @@ body:not(.is-director) .dept-only{display:none!important;}
         (f.length > 3 ? '<button type="button" class="td-rw" id="tdAllF"><span class="td-k"><b>Ещё '+(f.length-3)+'</b><span>все начисления — на «Росте»</span></span>'+CHEV+'</button>' : '')+
         '</div>');
     }
-    if(tk){
+    const fb = finBlock();
+    if(fb) parts.push(fb);
+    if(tk && isFinRole()){
+      // Строка задачи открывает её в Трекере: закрывают кнопками в боте, как в письме 8:30.
+      const row = x => {
+        const late = x.due && x.due < tk.today;
+        const days = late ? Math.round((new Date(tk.today) - new Date(x.due)) / 864e5) : 0;
+        return '<button type="button" class="td-rw" data-url="'+esc(x.url)+'"><span class="td-ic">'+TASK_IC+'</span><span class="td-k"><b>'+esc(x.title)+'</b><span>'+esc(x.key)+(x.due ? ' · срок '+AT_DM(x.due) : ' · без срока')+'</span></span>'+
+          (late ? '<span class="td-late">'+days+' '+plural(days,'день','дня','дней')+'</span>' : x.due === tk.today ? '<span class="td-t">сегодня</span>' : x.due ? '<span class="td-t">'+AT_DM(x.due)+'</span>' : '')+'</button>';
+      };
+      parts.push('<div class="td-bk wb"><div class="td-sh"><b>Задачи</b><span class="ct">'+tk.all.length+'</span></div>'+
+        '<div class="td-src">Трекер PR-VO · статус «В работе» · тап — открыть в Трекере</div>'+
+        (tk.all.length ? tk.all.map(row).join('') : '<div class="td-empty">'+(TKS && TKS.noTracker ? 'Задачи появятся здесь, когда директор заведёт вас исполнителем в Трекере.' : 'Задач в работе нет.')+'</div>')+'</div>');
+    }
+    else if(tk){
       const lists = {all: tk.all, late: tk.overdue, today: tk.todayList};
       const list = lists[TD_FILTER] || tk.all;
       const row = x => {
@@ -5397,6 +5641,14 @@ body:not(.is-director) .dept-only{display:none!important;}
       parts.push('<div class="td-bk wb"><div class="td-sh"><b>Оплачено, не принято</b><span class="ct">'+PAID_PENDING.length+'</span></div>'+
         PAID_PENDING.slice(0, 3).map(x => '<div class="td-rw"><span class="td-ic">'+svg('<circle cx="5" cy="12" r="2"/><circle cx="19" cy="12" r="2"/><path d="M7 12h10"/>')+'</span><span class="td-k"><b>'+esc(x.title)+'</b><span>'+esc(x.sub||'')+'</span></span>'+(x.late ? '<span class="td-late">+'+x.late+' дн.</span>' : '')+'</div>').join('')+'</div>');
     }
+    // У финансов «Роста» и «Обучения» нет: только деньги и задачи (решение 07.10).
+    if(isFinRole()){
+      el.innerHTML = parts.join('');
+      finBind(el);
+      el.querySelectorAll('[data-url]').forEach(x => x.addEventListener('click', () => tkOpen(x.dataset.url)));
+      heroToday();
+      return;
+    }
     // «Рост» и «Обучение» одной линией: чёрный «Рост» заходит на оранжевую плитку.
     const e = window.ERR_SCORE, g = window.GROW_SCORE, d = window.DISCIPLINE, b = window.BONUS, st = window.STREAK;
     const growTotal = g ? (g.cleanWeeks*3 + g.greenMonths*5 + g.sectionAttest*10 + g.zoneAttest*25 + (g.game||0) + ((d && d.plus)||0)) : 0;
@@ -5412,6 +5664,7 @@ body:not(.is-director) .dept-only{display:none!important;}
         '<span class="td-gate"><i style="width:'+(done ? 100 : 0)+'%"></i></span></button></div>');
     el.innerHTML = parts.join('');
     gdBind(el);
+    finBind(el);
     el.querySelectorAll('[data-f]').forEach(x => x.addEventListener('click', () => findingSheet(f[+x.dataset.f])));
     el.querySelectorAll('[data-go="tasks"]').forEach(x => x.addEventListener('click', () => document.querySelector('.nav-work .ni[data-s="tasks"]').click()));
     el.querySelectorAll('[data-fl]').forEach(x => x.addEventListener('click', () => { TD_FILTER = x.dataset.fl; renderToday(); }));
@@ -5424,6 +5677,12 @@ body:not(.is-director) .dept-only{display:none!important;}
   window.TD_RENDER = renderToday; // гид перерисовывает плашку после «Ознакомлен»
   function heroToday(){
     const f = findings(), tk = tasksAll();
+    if(isFinRole()){
+      if(!FIN) return setHero('Сегодня', FIN_ERR ? 'Деньги не загрузились' : '');
+      const n = FIN.counts.mismatch, w = FIN.counts.missing;
+      const more = w ? (n ? 'И ' : '') + w + ' ' + plural(w, 'счёт', 'счёта', 'счетов') + ' ещё не ' + plural(w, 'внесён', 'внесены', 'внесены') + (FIN.workday && !FIN.late ? ' · срок ' + FIN.deadline : '') : '';
+      return n ? setHero(n + ' ' + plural(n, 'расхождение', 'расхождения', 'расхождений'), more) : setHero(w ? 'Внести остатки' : 'Всё сходится', w ? more : 'Внесённые счета сходятся с Мой Складом');
+    }
     if(f.length) setHero(f.length+' '+plural(f.length,'находка','находки','находок'), 'Уровень 1–2 — без балла, если исправить в утреннее окно');
     else if(tk && tk.overdue.length) setHero(tk.overdue.length+' '+plural(tk.overdue.length,'задача просрочена','задачи просрочены','задач просрочено'), tk.todayList.length ? 'И ещё '+tk.todayList.length+' на сегодня' : '');
     else if(tk) setHero(tk.todayList.length ? tk.todayList.length+' '+plural(tk.todayList.length,'задача','задачи','задач')+' на сегодня' : 'Чистый день', 'Находок нет');
@@ -5631,9 +5890,21 @@ body:not(.is-director) .dept-only{display:none!important;}
   }).observe(dm, {childList:true, subtree:true});
   const _renderAll = renderAll;
   renderAll = function(u){
+    if(u && u.role === 'finance'){ finBoot(u); return; }
     _renderAll(u);
     afterData(u);
   };
+  // Лера и Марина: только «Сегодня» — без меню режимов, поиска, находок, баллов и производства.
+  // Что им можно, решает сервер; здесь только не рисуем того, чего у них нет.
+  function finBoot(u){
+    document.body.classList.add('is-finance');
+    document.body.classList.remove('is-director');
+    const w = document.getElementById('whoami');
+    if(w) w.innerHTML = '<div class="av">'+esc(u.initials || '')+'</div><div class="nm">'+esc(String(u.name || '').split(' ')[0])+'</div>';
+    renderToday();
+    loadTasks(true);
+    finLoad();
+  }
   const _loadTasks = loadTasks;
   loadTasks = async function(silent){ await _loadTasks(silent); renderToday(); };
   // Загрузка могла закончиться раньше, чем выполнился этот блок, — тогда собираем сразу.
@@ -5642,8 +5913,9 @@ body:not(.is-director) .dept-only{display:none!important;}
     if(typeof sqMount === 'function') sqMount('s-search', u, {});
     renderToday();
     if(typeof myScore === 'function') myScore().then(h => { TD_FIND = h; renderToday(); knLast(); }).catch(() => {});
+    if(u && u.key === 'director') finLoad();
   }
-  if(typeof currentUser !== 'undefined' && currentUser) afterData(currentUser);
+  if(typeof currentUser !== 'undefined' && currentUser) (currentUser.role === 'finance' ? finBoot : afterData)(currentUser);
 })();
 </script>
 <div class="bgfield" aria-hidden="true"></div>
