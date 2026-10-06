@@ -5094,12 +5094,30 @@ body:not(.mode-learn) .botnav .nav-learn,body.mode-learn .botnav .nav-work{displ
     if(b.hidden) setTimeout(() => { b.classList.remove('on'); document.querySelector('.nav-work .ni[data-s="today"]').classList.add('on'); }, 0);
   }));
   // Поиск — отдельный экран поверх текущего режима; меню не меняется.
-  document.getElementById('mSearch').addEventListener('click', () => {
+  // На экране поиска кнопка становится крестиком и возвращает туда, откуда пришли.
+  const sBtn = document.getElementById('mSearch');
+  const ICON_SEARCH = sBtn.innerHTML;
+  const ICON_X = svg('<path d="M18 6L6 18"/><path d="M6 6l12 12"/>', 20);
+  let searchFrom = null;
+  function searchOff(){
+    sBtn.innerHTML = ICON_SEARCH; sBtn.setAttribute('aria-label', 'Поиск по правилам и документам'); searchFrom = null;
+  }
+  sBtn.addEventListener('click', () => {
+    if(searchFrom){
+      const back = searchFrom; searchOff();
+      document.getElementById('s-search').classList.remove('active');
+      back.sec.classList.add('active'); setTitle(back.title); heroFor(back.sec.id.slice(2)); window.scrollTo(0, 0);
+      return;
+    }
+    const cur = document.querySelector('.section.active');
+    searchFrom = {sec: cur, title: title.textContent};
     document.querySelectorAll('.section').forEach(x => x.classList.remove('active'));
     document.getElementById('s-search').classList.add('active');
     setTitle('Поиск'); setHero('', ''); hero.back.hidden = true; window.scrollTo(0, 0);
+    sBtn.innerHTML = ICON_X; sBtn.setAttribute('aria-label', 'Закрыть поиск');
     setTimeout(() => { const i = document.querySelector('#s-search input'); if(i) i.focus(); }, 60);
   });
+  document.querySelectorAll('.botnav .ni, .eyebtn').forEach(b => b.addEventListener('click', searchOff));
   // Данные приходят в разное время: пересобираем «Сегодня» после каждого источника.
   const _renderAll = renderAll;
   renderAll = function(u){
