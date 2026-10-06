@@ -3539,7 +3539,9 @@ function sqSearch(q, skip){
 function sqHl(text, toks){
   let h = SQ_ESC(text);
   toks.forEach(t=>{
-    const re = new RegExp('('+t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/е/g,'[её]')+')','gi');
+    // Ищем по основе слова, а подсвечиваем слово целиком: иначе «перемещен|ие» читалось
+    // как два слова — у подсветки отступ по бокам, и окончание отрывалось (найдено 06.10).
+    const re = new RegExp('('+t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/е/g,'[её]')+'[а-яёa-z0-9]*)','gi');
     h = h.replace(re,'<mark>$1</mark>');
   });
   return h;
