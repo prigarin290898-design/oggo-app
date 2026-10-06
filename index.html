@@ -144,7 +144,7 @@ window.ASSET_V = '20260923b';
   .eyes{width:1.6em;height:.73em;margin-right:5px;flex:none;}
   .empty.load{display:flex;flex-direction:column;align-items:center;gap:10px;padding:26px 16px;}
   .empty.load .eyes{width:56px;height:26px;margin:0;}
-  .tag.mach,.bn-go{display:inline-flex;align-items:center;}
+  .tag.mach{display:inline-flex;align-items:center;}
   .honest{font-size:11.5px;color:var(--ink-soft);line-height:1.4;margin-top:2px;}
 
   /* Моя роль subtabs */
@@ -1212,7 +1212,8 @@ function ic(paths, size){
   return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${paths}</svg>`;
 }
 // Знак «глаза ассистента» — подпись автора, не украшение (решение директора 05.10.2026).
-// Ставится ТОЛЬКО там, где текст написала машина: «нашла машина», «Предложение →», загрузка.
+// Ставится ТОЛЬКО там, где текст написала машина: «нашла машина», загрузка.
+// У «Предложение →» снят 06.10: предложение — совет, не находка, знак размывался.
 // Геометрия зафиксирована: клетка 72, зазор 14, внутренний радиус 0,46 от внешнего. Цвет — как у текста.
 const EYES = '<svg class="eyes" viewBox="0 0 158 72" aria-hidden="true"><path fill="currentColor" d="M33.12,72L72,72A72,72 0 0 0 0,0L0,38.88A33.12,33.12 0 0 1 33.12,72Z"/><path fill="currentColor" d="M119.12,72L158,72A72,72 0 0 0 86,0L86,38.88A33.12,33.12 0 0 1 119.12,72Z"/></svg>';
 const LOADING = '<div class="empty load">'+EYES+'<span>Загрузка…</span></div>';
@@ -1958,7 +1959,7 @@ const BN_RESOURCE = [
 function bnPlate(attrs, kind, text, title){
   return '<button class="bn-btn" '+attrs+'>'+
     '<span class="bn-head"><span class="ow-tag">узкое горлышко · '+kind+'</span>'+
-    '<span class="bn-go">'+EYES+'Предложение →</span></span>'+
+    '<span class="bn-go">Предложение →</span></span>'+
     (title ? '<b>'+title+'</b>' : '')+
     '<span class="b">'+text+'</span></button>';
 }
@@ -4655,8 +4656,7 @@ body.bg-start .bgfield::after{content:'';position:absolute;inset:0;background:rg
    Замер на 375: метка 166–202 px, переход 103, зазор 8. «этап» и «ресурс» укладываются в 309,
    «проблема» длиннее на 4 px и переносится. Гнаться за этими пикселями нельзя: на 360 поедет
    и остальное. Перенесённый переход прижимается вправо, а не липнет под метку.
-   05.10: глаза ассистента перед «Предложение →» прибавили 24 px (переход 103 → 127).
-   Одним рядом теперь только «этап» (166+8+127=301); «ресурс» (180) тоже переносится. */
+   05.10 глаза перед «Предложение →» прибавляли 24 px; 06.10 сняты, переход снова 103. */
 .bn-head{display:flex;align-items:center;justify-content:space-between;gap:6px 8px;flex-wrap:wrap;}
 .bn-head .ow-tag{margin-top:0!important;}
 .bn-go{margin-left:auto;font-size:11.5px;font-weight:700;white-space:nowrap;}
