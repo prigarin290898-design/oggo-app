@@ -4937,7 +4937,13 @@ body:not(.mode-learn) .botnav .nav-learn,body.mode-learn .botnav .nav-work{displ
 /* «Рост» в «Работе» — без аттестации: она в «Обучении» (решение 06.10). В «Обучении» пункт
    «Аттестация» показывает этот же экран, но только карточку аттестации. */
 body:not(.mode-learn) #atBox{display:none!important;}
-body.mode-learn #s-growth > :not(#atCards),body.mode-learn #atCards > :not(#atBox){display:none!important;}
+body.mode-learn #s-growth > :not(#atCards),body.mode-learn #atCards > :not(#atBox):not(#atTrainer){display:none!important;}
+/* Тренажёр — на «Аттестации» под карточкой аттестации (дизайн 06.10); на «Карточках» только «Изучать».
+   Блок «Рост» из тренажёра в «Обучении» не показываем: баллов и премии здесь нет. */
+body:not(.mode-learn) #atTrainer{display:none!important;}
+#atTrainer{margin-top:12px;}
+#atTrainer > .at-score{display:none!important;}
+#s-game .gm-sw,#s-game .gm-play{display:none!important;}
 /* заголовок «Аттестация» внутри карточки повторяет пилюлю в шапке */
 body.mode-learn #atBox > .lime-heading:first-child{display:none!important;}
 /* «Как считаются баллы» — под кнопкой, как «Требования» у премии. */
@@ -5212,6 +5218,26 @@ details.rl-gl summary::-webkit-details-marker{display:none;}
   const grBox = document.getElementById('s-growth');
   if(grBox) new MutationObserver(() => growthTidy()).observe(grBox, {childList: true, subtree: true});
   growthTidy();
+  // Тренажёр живёт на «Аттестации»: контейнер под карточкой аттестации, рисует его тот же gmStatus.
+  function trainerMount(){
+    const cards = document.getElementById('atCards');
+    if(!cards || typeof gmStatus !== 'function') return null;
+    let h = document.getElementById('atTrainer');
+    if(!h){ h = document.createElement('div'); h.id = 'atTrainer'; cards.appendChild(h); }
+    gmStatus(h);
+    return h;
+  }
+  const learnAtt = document.querySelector('.nav-learn .ni[data-s="growth"]');
+  if(learnAtt) learnAtt.addEventListener('click', () => setTimeout(trainerMount, 0));
+  // Все входы «в тренажёр» (кнопка на «Росте» и прочие) ведут на «Аттестацию».
+  if(typeof gmSet === 'function'){
+    const _gmSet = gmSet;
+    gmSet = function(mode){
+      if(mode !== 'play') return _gmSet(mode);
+      learnAtt.click();
+      setTimeout(() => { const t = document.getElementById('atTrainer'); if(t) t.scrollIntoView({behavior:'smooth', block:'start'}); }, 300);
+    };
+  }
   const _renderAll = renderAll;
   renderAll = function(u){
     _renderAll(u);
