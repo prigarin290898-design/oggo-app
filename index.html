@@ -4919,6 +4919,9 @@ body:not(.mode-learn) .botnav .nav-learn,body.mode-learn .botnav .nav-work{displ
 .mswitch.to-learn{color:#E85002;}
 .mswitch.go{animation:mswIn 700ms cubic-bezier(.2,.72,.18,1) both;pointer-events:auto;}
 .mswitch.go svg{animation:mswFlip 340ms cubic-bezier(.2,.72,.18,1) 220ms both;}
+/* В работу глазки разворачиваются в обратную сторону: стартуют зеркальными (как в меню обучения) и смотрят направо. */
+.mswitch.go.to-work svg{animation-name:mswFlipBack;}
+@keyframes mswFlipBack{from{transform:rotateY(180deg)}to{transform:rotateY(0)}}
 @keyframes mswIn{0%{opacity:0}16%,80%{opacity:1}100%{opacity:0}}
 @keyframes mswFlip{from{transform:rotateY(0)}to{transform:rotateY(180deg)}}
 @media (prefers-reduced-motion:reduce){.mswitch.go,.mswitch.go svg{animation:none;}}
@@ -4968,6 +4971,36 @@ details.rl-gl summary::-webkit-details-marker{display:none;}
 .rl-gi b{display:block;font-weight:800;}
 .rl-gi span{display:block;}
 .rl-gi small{display:block;color:#646464;font-size:11px;margin-top:2px;}
+/* ===== Читаемость (аудит 06.10, замер контраста по всем экранам) ===== */
+/* Подписи-заголовки на чёрных карточках были серыми (#646464 на чёрном, 3,5 : 1) — делаем светлыми. */
+.cz-note .cz-cap,.glass.tblack .cz-cap,.at-card.dk .cz-cap,.at-score.dk .cz-cap,.mp .cz-cap,.attn .eb,.glass.tblack .eb,.tm-hd .cz-cap,
+.at-card.dk .muted,.attn .muted{color:rgba(255,255,255,.78)!important;}
+/* Активная карточка карусели — чёрная, текст светлый (была белой с белым текстом, 1 : 1). */
+.cz-card.on{background:#000!important;border-color:#000!important;color:#fff!important;}
+.cz-card.on .cz-s,.cz-card.on .cz-p{color:rgba(255,255,255,.78)!important;}
+/* Счётчик «Партия … · осталось …» на чёрной полосе — белым по прозрачному. */
+.g-pill.g-left{background:rgba(255,255,255,.16)!important;color:#fff!important;}
+/* Огонь серии в профиле — на чёрном, подпись светлее. */
+.fireb{background:#000!important;}.fireb-c{color:rgba(255,255,255,.78)!important;}
+.ord .ord-pz{color:rgba(0,0,0,.64)!important;}
+.gp-draft{color:#b33c00!important;border-color:#b33c00!important;}
+
+/* ===== Разминка — чёрный блок, оранжевая кнопка, вопрос жирным (директор 06.10) ===== */
+#qDay.qd{background:#000!important;color:#fff!important;border:0!important;box-shadow:none!important;
+  backdrop-filter:none!important;-webkit-backdrop-filter:none!important;}
+#qDay .strk-top,#qDay .strk-top *{color:#fff!important;}
+#qDay .strk-sub,#qDay .qd-cap{color:rgba(255,255,255,.78)!important;}
+#qDay .at-cta,#qDay .qd-go{background:#E85002!important;color:#000!important;border:0!important;}
+#qDay .at-cta *{color:#000!important;stroke:#000!important;}
+#qDay .qd-q{color:#fff!important;font-weight:800!important;font-size:15.5px!important;}
+#qDay .qd-o{background:#fff!important;color:#000!important;font-weight:600!important;border:0!important;}
+#qDay .qd-o.ok{background:#E85002!important;color:#000!important;}
+#qDay .qd-o.no{background:#3a1208!important;color:#ffb39e!important;}
+#qDay .qd-r{color:#fff!important;}
+
+/* ===== «Ошибки»: кнопка «Что считается ошибкой» наезжала на заголовок «Ошибки» ===== */
+#myErrCatalog{margin:0 0 20px;}
+#myErrCatalog .at-cta{width:100%;min-height:48px;}
 /* «Сегодня»: блоки — карточки с заголовком-пилюлей; срочное — чёрная, остальное — белые. */
 .td-bk{border-radius:24px;padding:6px 14px 8px;margin:0 0 12px;}
 .td-bk.wb{background:#fff;border:1px solid rgba(0,0,0,.14);}
