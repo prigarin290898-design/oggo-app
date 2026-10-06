@@ -3806,17 +3806,35 @@ const ERR_TYPES = {productiontask:'П/з', move:'Перемещение', supply
   inventory:'Инвентаризация', invoiceout:'Счёт покупателю', product:'Карточка номенклатуры',
   productionstagecompletion:'Выполнение этапа'};
 const errType = t => ERR_TYPES[t] || (t ? SQ_ESC(t) : 'Документ');
+// Начисление — одной строкой, как находка на «Сегодня»: документ, что нарушено, балл.
+// Метки (статус, уровень, кто нашёл, пункт перечня) — в шторке по тапу (решение 06.10:
+// карточки по 150 px растягивали «Рост» за полтора экрана).
+const ER_ITEMS = {};
+const ER_EYES = '<svg width="24" height="12" viewBox="-82 -40 164 80" aria-hidden="true"><g fill="currentColor"><path d="M-45.88,36L-7,36A72,72 0 0 0 -79,-36L-79,-2.88A33.12,33.12 0 0 1 -45.88,36Z"/><path d="M40.12,36L79,36A72,72 0 0 0 7,-36L7,-2.88A33.12,33.12 0 0 1 40.12,36Z"/></g></svg>';
+function errItemHead(it){ return errType(it.docType)+(it.doc ? ' '+SQ_ESC(it.doc) : '')+(it.docDate ? ' от '+AT_DM(it.docDate) : ''); }
 function errItemRow(it){
-  const head = errType(it.docType)+(it.doc ? ' '+SQ_ESC(it.doc) : '')+(it.docDate ? ' от '+AT_DM(it.docDate) : '');
-  const chips = (it.status === 'accepted' ? '<span class="ov g" style="min-width:0;padding:5px 9px;font-size:10.5px;">утверждено</span>'
-                                          : '<span class="ov y" style="min-width:0;padding:5px 9px;font-size:10.5px;">предварительно</span>')+
-    '<span class="tag">уровень '+it.level+'</span>'+
-    (it.machine ? '<span class="tag mach">'+EYES+'нашла машина</span>' : '<span class="tag">фиксация директора</span>')+
-    (it.clause ? '<span class="tag">'+SQ_ESC(it.clause)+'</span>' : '');
-  return '<div class="cz-fact"><div class="between"><b style="font-size:12.5px;">'+head+'</b><span class="tag" style="flex:0 0 auto;">'+AT_NEG(it.points)+'</span></div>'+
-    '<div class="muted" style="margin-top:4px;">'+SQ_ESC(it.what || '')+'</div>'+
-    '<div class="row" style="gap:6px;margin-top:6px;flex-wrap:wrap;">'+chips+'</div></div>';
+  const k = 'e'+(it.id != null ? it.id : Object.keys(ER_ITEMS).length);
+  ER_ITEMS[k] = it;
+  return '<button type="button" class="td-rw er-row" data-er="'+k+'">'+
+    '<span class="td-ic'+(it.machine ? ' mc' : '')+'">'+(it.machine ? ER_EYES : ic('<path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/>',18))+'</span>'+
+    '<span class="td-k"><b>'+errItemHead(it)+'</b><span>'+SQ_ESC(it.what || '')+'</span></span>'+
+    '<span class="td-v">'+AT_NEG(it.points)+'</span>'+ic('<polyline points="9 6 15 12 9 18"/>',16)+'</button>';
 }
+document.addEventListener('click', function(e){
+  const r = e.target.closest && e.target.closest('.er-row');
+  if(!r) return;
+  const it = ER_ITEMS[r.dataset.er];
+  if(!it) return;
+  const kv = (k, t) => '<div class="fd-kv"><div class="k">'+k+'</div><div class="t">'+t+'</div></div>';
+  openSheet({cap:'Начисление', title: errItemHead(it), icon: IC.flag, sub: SQ_ESC(it.what || ''),
+    body: '<div class="cz-fact">'+
+      kv('Балл', '<b>'+AT_NEG(it.points)+'</b> · уровень '+(it.level || '—'))+
+      kv('Статус', it.status === 'accepted' ? 'утверждено директором' : 'предварительно — месяц закрывается разбором 2–4 числа')+
+      kv(it.machine ? 'Нашла машина' : 'Зафиксировал директор', it.detectedOn ? 'обнаружено '+AT_DM(it.detectedOn) : '')+
+      (it.clause ? kv('Пункт перечня', SQ_ESC(it.clause)) : '')+
+      kv('Не согласны', 'Напишите боту «оспорить '+(it.id != null ? it.id : 'N')+'» с пояснением — 3 рабочих дня с уведомления.')+
+      '</div>'});
+});
 // Баллы по месяцам: сверху переключатель, ниже — начисления ТОЛЬКО выбранного месяца
 // (требование директора 01.10: «пусть будет сверху переключение в виде календаря»).
 // Сплошной лист за три месяца делал экран длинным, и динамика — то, ради чего экран и открывают, —
@@ -4907,12 +4925,15 @@ body.mode-learn #s-growth > :not(#atCards),body.mode-learn #atCards > :not(#atBo
 body.mode-learn #atBox > .lime-heading:first-child{display:none!important;}
 /* «Как считаются баллы» — под кнопкой, как «Требования» у премии. */
 details.gr-fold{margin:0 0 12px;}
-details.gr-fold > summary{list-style:none;display:flex;align-items:center;justify-content:center;gap:6px;min-height:48px;border-radius:99px;
-  border:1.5px solid #000;font:800 13px var(--font-body);cursor:pointer;}
+details.gr-fold > summary{list-style:none;display:flex;align-items:center;justify-content:center;gap:6px;min-height:52px;border-radius:99px;
+  background:#000;color:#fff;font:800 13px var(--font-body);cursor:pointer;}
 details.gr-fold > summary::-webkit-details-marker{display:none;}
 details.gr-fold > summary svg{transition:transform 200ms;}
 details.gr-fold[open] > summary svg{transform:rotate(180deg);}
 details.gr-fold > #czScale,details.gr-fold > .attn,details.gr-fold > #czMachine{margin-top:12px;}
+.er-row.td-rw + .er-row.td-rw{border-top:1px solid rgba(0,0,0,.08);}
+.at-score .td-ic.mc{background:transparent!important;color:#000!important;}
+.at-score .td-ic.mc *,.dm-sheet .td-ic.mc *{fill:#000!important;}
 .gr-more{display:flex;align-items:center;justify-content:center;width:100%;min-height:44px;margin:8px 0 0;border:1.5px solid #000;
   border-radius:99px;background:#fff;color:#000;font:800 12.5px var(--font-body);cursor:pointer;}
 /* «Сегодня»: блоки — карточки с заголовком-пилюлей; срочное — чёрная, остальное — белые. */
@@ -5151,13 +5172,13 @@ details.gr-fold > #czScale,details.gr-fold > .attn,details.gr-fold > #czMachine{
     }
     const list = document.getElementById('atErrList');
     if(list && !list.dataset.all){
-      const items = list.querySelectorAll('.cz-fact');
+      const items = list.querySelectorAll('.er-row');
       const more = list.querySelector('.gr-more');
       if(items.length > 2 && !more){
         items.forEach((x, i) => { if(i > 1) x.hidden = true; });
         const b = document.createElement('button'); b.type = 'button'; b.className = 'gr-more';
         b.textContent = 'Показать все · '+items.length;
-        b.onclick = () => { list.dataset.all = '1'; list.querySelectorAll('.cz-fact').forEach(x => x.hidden = false); b.remove(); };
+        b.onclick = () => { list.dataset.all = '1'; list.querySelectorAll('.er-row').forEach(x => x.hidden = false); b.remove(); };
         items[items.length - 1].after(b);
       }
     }
