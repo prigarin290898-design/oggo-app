@@ -1004,8 +1004,8 @@ window.ASSET_V = '20260923b';
   <div class="section" id="s-errors">
     <div id="myErrors"></div>
     <div id="myErrCatalog"></div>
-    <div class="lime-heading">Ошибки</div>
-    <div class="honest" id="errHonest" style="margin:-4px 0 12px 4px;"></div>
+    <div class="lime-heading dept-only">Ошибки по отделу</div>
+    <div class="honest dept-only" id="errHonest" style="margin:-4px 0 12px 4px;"></div>
     <div class="glass" id="errDept" hidden>
       <h2>Часто повторяется по отделу</h2>
       <div id="errChips"></div>
@@ -1014,8 +1014,8 @@ window.ASSET_V = '20260923b';
       <h2>По сотрудникам</h2>
       <div id="errEmpChips"></div>
     </div>
-    <div class="attn col" id="errTopAttn"></div>
-    <div class="lime-heading">Запреты</div>
+    <div class="attn col dept-only" id="errTopAttn"></div>
+    <div class="lime-heading ban-h">Запреты</div>
     <div class="honest" id="banCap" style="margin:-4px 0 12px 4px;"></div>
     <div id="banAccordion"></div>
   </div>
@@ -1036,7 +1036,7 @@ window.ASSET_V = '20260923b';
 
 <nav class="botnav" id="botnav" aria-label="Меню">
   <div class="nav-work"><button type="button" class="ni on" data-s="today"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/></svg><span>Сегодня</span></button><button type="button" class="ni" data-s="tasks"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><path d="M8 12l3 3 5-6"/></svg><span>Задачи</span></button><button type="button" class="eyebtn" data-to="learn" aria-label="В обучение"><svg width="34" height="17" viewBox="-82 -40 164 80" aria-hidden="true"><g fill="currentColor"><path d="M-45.88,36L-7,36A72,72 0 0 0 -79,-36L-79,-2.88A33.12,33.12 0 0 1 -45.88,36Z"/><path d="M40.12,36L79,36A72,72 0 0 0 7,-36L7,-2.88A33.12,33.12 0 0 1 40.12,36Z"/></g></svg></button><button type="button" class="ni" data-s="orders"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="19" cy="12" r="2"/><path d="M7 12h10"/><path d="M12 5v3"/><path d="M12 16v3"/></svg><span>Заказы</span></button><button type="button" class="ni" data-s="profile"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.5-7 8-7s8 3 8 7"/></svg><span>Профиль</span></button><button type="button" class="ni" data-s="growth" hidden><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/></svg><span>Рост</span></button></div>
-  <div class="nav-learn"><button type="button" class="ni" data-s="game"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="14" height="14" rx="3"/><path d="M8 3h11a2 2 0 012 2v11"/></svg><span>Карточки</span></button><button type="button" class="ni" data-s="process"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg><span>Знания</span></button><button type="button" class="eyebtn" data-to="work" aria-label="В работу"><svg width="34" height="17" viewBox="-82 -40 164 80" aria-hidden="true"><g fill="currentColor" transform="scale(-1,1)"><path d="M-45.88,36L-7,36A72,72 0 0 0 -79,-36L-79,-2.88A33.12,33.12 0 0 1 -45.88,36Z"/><path d="M40.12,36L79,36A72,72 0 0 0 7,-36L7,-2.88A33.12,33.12 0 0 1 40.12,36Z"/></g></svg></button><button type="button" class="ni" data-s="errors"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><line x1="12" y1="7" x2="12" y2="13"/><line x1="12" y1="16.5" x2="12" y2="16.6"/></svg><span>Ошибки</span></button><button type="button" class="ni" data-s="growth" data-title="Аттестация"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/></svg><span>Аттестация</span></button></div>
+  <div class="nav-learn"><button type="button" class="ni" data-s="game"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="14" height="14" rx="3"/><path d="M8 3h11a2 2 0 012 2v11"/></svg><span>Карточки</span></button><button type="button" class="ni" data-s="process"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg><span>Знания</span></button><button type="button" class="eyebtn" data-to="work" aria-label="В работу"><svg width="34" height="17" viewBox="-82 -40 164 80" aria-hidden="true"><g fill="currentColor" transform="scale(-1,1)"><path d="M-45.88,36L-7,36A72,72 0 0 0 -79,-36L-79,-2.88A33.12,33.12 0 0 1 -45.88,36Z"/><path d="M40.12,36L79,36A72,72 0 0 0 7,-36L7,-2.88A33.12,33.12 0 0 1 40.12,36Z"/></g></svg></button><button type="button" class="ni" data-s="errors"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><line x1="12" y1="7" x2="12" y2="13"/><line x1="12" y1="16.5" x2="12" y2="16.6"/></svg><span>Внимание</span></button><button type="button" class="ni" data-s="growth" data-title="Аттестация"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/></svg><span>Аттестация</span></button></div>
 </nav>
 <div class="mswitch" id="mswitch" aria-hidden="true"><svg width="132" height="66" viewBox="-82 -40 164 80" aria-hidden="true"><g fill="currentColor"><path d="M-45.88,36L-7,36A72,72 0 0 0 -79,-36L-79,-2.88A33.12,33.12 0 0 1 -45.88,36Z"/><path d="M40.12,36L79,36A72,72 0 0 0 7,-36L7,-2.88A33.12,33.12 0 0 1 40.12,36Z"/></g></svg></div>
 
@@ -3940,9 +3940,9 @@ function myErrGroups(items){
 }
 function myErrorsHtml(h){
   const groups = myErrGroups(h.items);
-  if(h.unavailable) return CZ_HEAD('Мои ошибки','')+
+  if(h.unavailable) return CZ_HEAD('Обрати внимание','')+
     '<div class="cz-note"><div class="cz-txt">Список не прочитан: ежедневная проверка учёта не отвечает. Это сбой, а не «ошибок нет» — скажите директору.</div></div>';
-  if(!groups.length) return CZ_HEAD('Мои ошибки','За три месяца записей нет')+
+  if(!groups.length) return CZ_HEAD('Обрати внимание','За три месяца записей нет')+
     '<div class="cz-note"><div class="cz-txt">Записей по вам нет. Появятся — окажутся здесь, с датой и баллом по каждой.</div></div>';
   const repeated = groups.filter(g=>g.rows.length > 1).length;
   const cards = groups.map(g=>{
@@ -3963,7 +3963,7 @@ function myErrorsHtml(h){
   // Формат «окно» (директор 02.10.2026): на экране — карточка со счётом и кнопка, список — в листе.
   // В светлом листе плашки счёта и баллов — чёрные: белая плашка на белом не читается (правило журнала вкуса).
   window.MY_ERR_SHEET = '<div class="ord-card myerr-sheet">'+cards+'</div>';
-  return CZ_HEAD('Мои ошибки', 'Эти ошибки у вас уже были')+
+  return CZ_HEAD('Обрати внимание', 'Эти ошибки у вас уже были')+
     '<div class="cz-note"><div class="cz-cap">'+groups.length+' '+AT_PL(groups.length,'вид нарушения','вида нарушений','видов нарушений')+
       (repeated ? ' · повторялось: '+repeated : '')+'</div>'+
       '<div class="cz-txt">Список за три месяца, по видам. Записи до 21.09.2026 показаны историей: счёт стартовал 21.09 в 9:15, и балла по ним нет. Не согласны с начислением — напишите боту «оспорить N» с номером из утреннего письма.</div>'+
@@ -5013,6 +5013,11 @@ details.rl-gl summary::-webkit-details-marker{display:none;}
 .kn-last .kb2{display:flex;align-items:center;justify-content:center;width:100%;min-height:48px;margin-top:12px;border:0;border-radius:99px;background:#E85002;color:#000;font:800 13px var(--font-body);cursor:pointer;}
 /* «Аттестация»: блоки к повторению — первыми */
 .at-rep-h{font:800 15px var(--font-body);display:inline-flex;align-items:center;min-height:32px;padding:0 14px;border-radius:99px;background:#E85002;color:#000;margin:4px 0 8px;}
+/* «Внимание» (бывшие «Ошибки», директор 06.10): сводка по отделу — только директору (решение 02.10);
+   «Запреты» — на оранжевой подложке, для внимания. */
+body:not(.is-director) .dept-only{display:none!important;}
+.lime-heading.ban-h{background:#E85002!important;color:#000!important;}
+.lime-heading.ban-h *{color:#000!important;}
 /* «Сегодня»: блоки — карточки с заголовком-пилюлей; срочное — чёрная, остальное — белые. */
 .td-bk{border-radius:24px;padding:6px 14px 8px;margin:0 0 12px;}
 .td-bk.wb{background:#fff;border:1px solid rgba(0,0,0,.14);}
@@ -5065,7 +5070,7 @@ details.rl-gl summary::-webkit-details-marker{display:none;}
 <script>
 (function(){
   const TITLES = {search:'Поиск', today:'Сегодня', tasks:'Задачи', orders:'Заказы', profile:'Профиль', growth:'Рост',
-                  game:'Карточки', process:'Знания', errors:'Ошибки'};
+                  game:'Карточки', process:'Знания', errors:'Внимание'};
   const title = document.getElementById('mhTitle');
   const setTitle = t => { title.innerHTML = '<span>'+t+'</span>'; };
   // Режим определяется набором, из которого пришёл пункт: так и кнопки внутри экранов,
@@ -5346,6 +5351,7 @@ details.rl-gl summary::-webkit-details-marker{display:none;}
   loadTasks = async function(silent){ await _loadTasks(silent); renderToday(); };
   // Загрузка могла закончиться раньше, чем выполнился этот блок, — тогда собираем сразу.
   function afterData(u){
+    document.body.classList.toggle('is-director', !!(u && u.key === 'director'));
     if(typeof sqMount === 'function') sqMount('s-search', u, {});
     renderToday();
     if(typeof myScore === 'function') myScore().then(h => { TD_FIND = h; renderToday(); knLast(); }).catch(() => {});
