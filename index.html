@@ -1800,6 +1800,20 @@ function streakBind(){
   });
 }
 
+
+// Роль — методичка из пяти разделов (директор, 06.10.2026): «ты делаешь / отвечаешь / сверяешь /
+// контролируешь / не делаешь». Разделы, которых у роли нет, не показываются. Внизу — словарь документов.
+const ROLE_GROUPS = r => [
+  {t:'Делаю', a:r.make||[], icon:IC.check, bad:false},
+  {t:'Отвечаю', a:r.resp||[], icon:IC.shield, bad:false},
+  {t:'Сверяю', a:r.check||[], icon:IC.scale, bad:false},
+  {t:'Контролирую', a:r.control||[], icon:IC.eye, bad:false},
+  {t:'Не делаю', a:r.dont||[], icon:IC.ban, bad:true}].filter(g=>g.a.length);
+const roleGlossary = r => (r.glossary && r.glossary.length) ?
+  '<details class="rl-gl"><summary>Словарь документов · '+r.glossary.length+'</summary>'+
+  r.glossary.map(g=>'<div class="rl-gi"><b>'+g.t+'</b><span>'+g.d+'</span><small>'+g.w+'</small></div>').join('')+'</details>' : '';
+const roleMark = r => r && r.mark ? ' <span class="rl-mark">'+r.mark+'</span>' : '';
+
 function renderProfile(u){
   const el = document.getElementById('s-profile');
   if(!u){ el.innerHTML = `<div class="empty">Не удалось определить, кто вы.<br>Откройте кнопку бота внутри Telegram.</div>`; return; }
@@ -1807,16 +1821,16 @@ function renderProfile(u){
   if(u.key === 'director'){
     const personList = p => {
       const r = ROLES[p.key], tasks = TASKS[p.key] || [], g = GROWTH[p.key];
-      const facts = '<div class="cz-fact"><div class="between"><span class="muted">Должность</span><b style="font-size:12px;text-align:right;">'+r.position+'</b></div>'+
+      const facts = '<div class="cz-fact"><div class="between"><span class="muted">Должность</span><b style="font-size:12px;text-align:right;">'+r.position+roleMark(r)+'</b></div>'+
         '<div class="between" style="margin-top:6px;"><span class="muted">Подчиняется</span><b style="font-size:12px;">'+r.reportsTo+'</b></div>'+
         '<div class="between" style="margin-top:6px;"><span class="muted">Telegram</span><b style="font-size:12px;">'+p.tg+'</b></div>'+
         '<hr class="sep"><div class="muted" style="margin-bottom:4px;">Зона ответственности</div><p style="margin:0;font-size:12.5px;line-height:1.5;">'+r.scope+'</p>'+
-        '<div class="between" style="margin-top:8px;"><span class="muted">Шаги процесса</span><span class="tag">'+r.stat+'</span></div></div>';
+        '<div class="between" style="margin-top:8px;"><span class="muted">Пунктов роли</span><span class="tag">'+r.stat+'</span></div></div>';
       const grow = g ? '<div class="cz-fact"><div class="between"><span class="muted">Мой рост</span>'+zoneTag(g)+'</div></div>' : '';
       const tk = '<div class="cz-fact"><div class="muted" style="margin-bottom:6px;">Задачи сейчас</div>'+(tasks.length ? tasks.map(t=>'<div class="between" style="padding:4px 0;font-size:12px;"><span>'+t.title+'</span><span class="tag" style="font-size:10px;">'+t.id+'</span></div>').join('') : '<span class="muted">Нет активных задач</span>')+'</div>';
       const note = r.note ? '<div class="attn"><div class="eb">Что показал чек-лист</div><p>'+r.note+'</p></div>' : '';
       const stale = r.stale ? '<div class="cz-note" style="margin:10px 0;"><div class="cz-cap">Чек-лист устарел</div><div class="cz-txt">'+r.stale+'</div></div>' : '';
-      return facts + stale + note + accHtml(r.make.length,'Делает','Что входит в роль',ulHtml(r.make)) + accHtml(r.control.length,'Контролирует','',ulHtml(r.control)) + accHtml(r.dont.length,'Не делает','',ulHtml(r.dont)) + grow + tk;
+      return facts + stale + note + ROLE_GROUPS(r).map((g,k)=>accHtml(g.a.length, ({'Делаю':'Делает','Отвечаю':'Отвечает','Сверяю':'Сверяет','Контролирую':'Контролирует','Не делаю':'Не делает'})[g.t], k===0 ? 'Что входит в роль' : '', ulHtml(g.a))).join('') + roleGlossary(r);
     };
     el.innerHTML = `
       <div class="glass" style="text-align:center;padding:22px 16px;">
@@ -1843,7 +1857,7 @@ function renderProfile(u){
       ${streakBadge()}
       <div class="avatar" style="width:60px;height:60px;font-size:21px;margin:0 auto 10px;">${u.initials}</div>
       <div class="name">${u.name}</div>
-      <div class="muted" style="margin-top:2px;">${u.role}</div>
+      <div class="muted" style="margin-top:2px;">${u.role}${roleMark(r)}</div>
       <div class="row" style="justify-content:center;gap:8px;margin-top:10px;"><span class="tag">${u.dept}</span></div>
     </div>
     <div id="homeAtt"></div>
@@ -1863,11 +1877,12 @@ function renderProfile(u){
       <div class="muted" style="margin-bottom:4px;">Зона ответственности</div>
       <div style="font-size:12.5px;line-height:1.4;">${r.scope}</div>
       <hr class="sep">
-      <div class="row" style="justify-content:space-between;"><span class="muted">Шаги процесса</span><span class="tag">${r.stat}</span></div>
+      <div class="row" style="justify-content:space-between;"><span class="muted">Пунктов роли</span><span class="tag">${r.stat}</span></div>
     </div>
-    ${CZ_HEAD('Моя роль','Что делаю, что контролирую и чего не делаю')}
+    ${CZ_HEAD('Моя роль','Что делаю, за что отвечаю, что сверяю и контролирую, чего не делаю')}
     ${r.stale ? `<div class="cz-note" style="margin-bottom:12px;"><div class="cz-cap">Чек-лист устарел</div><div class="cz-txt">${r.stale}</div></div>` : ''}
     <div id="czRole"></div>
+    ${roleGlossary(r)}
     <div class="attn col">
       <div class="eb">Правила роли</div>
       ${r.rules.map(x=>`<p style="margin:0;font-size:12px;line-height:1.5;">— ${x}</p>`).join('')}
@@ -1878,7 +1893,7 @@ function renderProfile(u){
     </div>
   `;
   if(r){
-    const groups = [{t:'Делаю', a:r.make, icon:IC.check, bad:false},{t:'Контролирую', a:r.control, icon:IC.eye, bad:false},{t:'Не делаю', a:r.dont, icon:IC.ban, bad:true}];
+    const groups = ROLE_GROUPS(r);
     makeCarousel(document.getElementById('czRole'), {
       label:'Моя роль',
       items: groups.map(g=>({title:g.t, sub:g.a.length+' '+(g.a.length===1?'пункт':g.a.length<5?'пункта':'пунктов'), icon:g.icon, peek:plain(g.a[0]||'',60)})),
@@ -2524,6 +2539,8 @@ function zoneTag(g){
 }
 function zoneWord(g){ return g.week<=10 ? 'норма' : g.week<=25 ? 'внимание' : 'последствие'; }
 const IC = {
+  shield:'<path d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6z"/>',
+  scale:'<path d="M12 3v18"/><path d="M5 21h14"/><path d="M4 8h16"/><path d="M4 8l-2 6a3 3 0 006 0z"/><path d="M20 8l-2 6a3 3 0 006 0z"/>',
   check:'<circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/>',
   eye:'<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
   ban:'<circle cx="12" cy="12" r="9"/><line x1="5.6" y1="5.6" x2="18.4" y2="18.4"/>',
@@ -4936,6 +4953,15 @@ details.gr-fold > #czScale,details.gr-fold > .attn,details.gr-fold > #czMachine{
 .at-score .td-ic.mc *,.dm-sheet .td-ic.mc *{fill:#000!important;}
 .gr-more{display:flex;align-items:center;justify-content:center;width:100%;min-height:44px;margin:8px 0 0;border:1.5px solid #000;
   border-radius:99px;background:#fff;color:#000;font:800 12.5px var(--font-body);cursor:pointer;}
+/* Роль: метка (видят директор и сам сотрудник) и словарь документов. */
+.rl-mark{display:inline-block;margin-left:6px;padding:2px 8px;border-radius:99px;background:#ffcf3f;color:#0e1400!important;font:700 10.5px var(--font-body);vertical-align:1px;}
+details.rl-gl{margin:0 0 12px;border:1px solid rgba(0,0,0,.14);border-radius:20px;padding:0 14px;background:#fff;}
+details.rl-gl summary{list-style:none;min-height:48px;display:flex;align-items:center;font:800 13px var(--font-body);cursor:pointer;}
+details.rl-gl summary::-webkit-details-marker{display:none;}
+.rl-gi{padding:10px 0;border-top:1px solid rgba(0,0,0,.08);font-size:12.5px;line-height:1.4;}
+.rl-gi b{display:block;font-weight:800;}
+.rl-gi span{display:block;}
+.rl-gi small{display:block;color:#646464;font-size:11px;margin-top:2px;}
 /* «Сегодня»: блоки — карточки с заголовком-пилюлей; срочное — чёрная, остальное — белые. */
 .td-bk{border-radius:24px;padding:6px 14px 8px;margin:0 0 12px;}
 .td-bk.wb{background:#fff;border:1px solid rgba(0,0,0,.14);}
