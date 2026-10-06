@@ -1433,13 +1433,17 @@ function stepBody(st){
       (s.proj ? projNote(s.proj) : '')+stepDocsHtml(s.n)+'</div>';}).join('')+
     (st.proj ? projNote(st.proj) : '')+stepDocsHtml(st.n);
 }
+// Плашка-схема «Матрёшка документов»: в «Эталоне п/з» — с кнопкой в окно-объяснение,
+// в гиде роли (у Антона) — без неё: окно поверх окна заменило бы гид.
+const CHAIN_NOTE = withBtn => '<div class="cz-note"><div class="cz-cap">Матрёшка документов · премикс только по согласованию</div><div class="cz-chips"><span>Заказ покупателя</span><i>→</i><span>П/з ГП</span><i>→</i><span>П/з концентрат</span><i>·</i><span>П/з основа</span></div>'+
+  (withBtn ? '<button type="button" class="mt-open">Что такое матрёшка? →</button>' : '')+'</div>';
 function renderFlow(){
   const chev = ic('<polyline points="6 9 12 15 18 9"/>',15);
   const stepsHtml = steps => steps.map(st=>
     // Класс ref — скоуп оформления. Теми же .cz-step рисуются роли, блоки аттестации и список
     // вопросов; без скоупа белый лист и 13,5px уехали бы в аттестацию 01–02.10.
     '<div class="cz-step ref"><div class="hd"><span class="num'+(st.mark?' lime':'')+'">'+st.n+'</span><div style="flex:1;min-width:0;"><div class="tt">'+st.title+'</div><div class="dd">'+st.desc+'</div>'+(st.norm?'<span class="tg" style="background:#ffcf3f;color:#0e1400;">норма · '+st.norm+'</span>':'')+(st.tag?'<span class="tg">'+st.tag+'</span>':'')+(st.proj||(st.subs||[]).some(s=>s.proj)?'<span class="tag proj" style="margin-left:6px;">проект внутри</span>':'')+'</div><span class="chv">'+chev+'</span></div><div class="dtl-w"><div><div class="dtl">'+stepBody(st)+'</div></div></div></div>').join('');
-  const chain = '<div class="cz-note"><div class="cz-cap">Матрёшка документов · премикс только по согласованию</div><div class="cz-chips"><span>Заказ покупателя</span><i>→</i><span>П/з ГП</span><i>→</i><span>П/з концентрат</span><i>·</i><span>П/з основа</span></div></div>';
+  const chain = CHAIN_NOTE(true);
   makeCarousel(document.getElementById('flowBlocks'), {
     label:'Ветки процесса',
     items: FLOW.map(b=>({title:b.title, sub:b.sub, icon:b.icon, peek:b.steps.length+' шагов'})).concat([{title:FAST.title, sub:'условие шага 7 · только закупка', icon:FAST.icon, peek:'Когда закупка пропускается'}]),
@@ -1450,7 +1454,10 @@ function renderFlow(){
       }
       return '<div class="cz-note"><div class="cz-cap">Условие шага 7 · только закупка</div><div class="cz-txt" style="font-weight:600;">'+FAST.lead+'</div></div>' + czLabel('ok','Условия, все сразу') + FAST.conds.map(t=>czItem(t,'ok')).join('') + '<div class="cz-note" style="margin-top:2px;"><div class="cz-txt">'+FAST.note+'</div></div>';
     },
-    bind: list=>list.querySelectorAll('.cz-step .hd').forEach(h=>h.addEventListener('click', ()=>h.parentElement.classList.toggle('open')))
+    bind: list=>{
+      list.querySelectorAll('.cz-step .hd').forEach(h=>h.addEventListener('click', ()=>h.parentElement.classList.toggle('open')));
+      list.querySelectorAll('.mt-open').forEach(b=>b.addEventListener('click', mtSheet));
+    }
   });
 }
 
@@ -2258,6 +2265,139 @@ function mpSheet(){
 function mpBind(){
   const p = document.getElementById('mpPlan');
   if(p) p.addEventListener('click', mpSheet);
+}
+
+// ===== Гид «Ваша роль изменена» (решения директора 06.10.2026, вариант B холста) =====
+// Тексты, срок показа и отметку держит сервер (guide.js бота): правила роли приходят только своему
+// человеку, после 11.10 сервер гид не отдаёт — плашка исчезает сама. Здесь только вид.
+// Пилюли наверху окна — якоря, не шаги: разделы идут подряд, порядок чтения за человеком.
+const GD_BANNER = 'Ваша роль изменена — что нового и что изменилось';
+const GD_IC = {
+  role:'<polyline points="17 2 21 6 17 10"/><path d="M3 12V10a4 4 0 0 1 4-4h14"/><polyline points="7 22 3 18 7 14"/><path d="M21 12v2a4 4 0 0 1-4 4H3"/>',
+  ok:'<polyline points="20 6 9 17 4 12"/>',
+  steps:'<line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><path d="M4 6h1v4"/><path d="M4 10h2"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/>',
+  modes:'<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>',
+  today:'<rect x="3" y="5" width="18" height="16" rx="3"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/>',
+  attn:'<circle cx="12" cy="12" r="9"/><line x1="12" y1="7" x2="12" y2="13"/><line x1="12" y1="16.5" x2="12" y2="16.6"/>',
+  orders:'<circle cx="5" cy="12" r="2"/><circle cx="19" cy="12" r="2"/><path d="M7 12h10"/><path d="M12 5v3"/><path d="M12 16v3"/>'
+};
+const gdEsc = t => String(t == null ? '' : t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+// Лид с точкой — отдельной строкой; лид, который продолжается фразой, — в одну строку с хвостом.
+function gdLead(x){
+  if(!x.t) return '<div class="gd-k">'+gdEsc(x.b)+'</div>';
+  if(/\.$/.test(x.b)) return '<div class="gd-k">'+gdEsc(x.b)+'</div><div class="gd-t">'+gdEsc(x.t)+'</div>';
+  return '<div class="gd-k">'+gdEsc(x.b)+(/^[,.;:]/.test(x.t) ? '' : ' ')+'<span class="gd-ti">'+gdEsc(x.t)+'</span></div>';
+}
+function gdBannerHtml(){
+  const g = window.GUIDE;
+  if(!g) return '';
+  // После «Ознакомлен» плашка не уходит до конца срока — становится белой строкой с временем отметки.
+  if(g.ack) return '<button type="button" class="gd-bnr" id="gdOpen"><span class="bi">'+ic(GD_IC.ok,18)+'</span>'+
+    '<span class="rk"><b>'+GD_BANNER+'</b><span>Ознакомлен '+gdEsc(g.ack.label)+'</span></span>'+ic('<polyline points="9 6 15 12 9 18"/>',16)+'</button>';
+  return '<div class="gd-bn"><div class="top"><span class="bi">'+ic(GD_IC.role,18)+'</span><b>'+GD_BANNER+'</b></div>'+
+    '<button type="button" class="go" id="gdOpen">Открыть '+ic('<polyline points="9 6 15 12 9 18"/>',16)+'</button></div>';
+}
+function gdBind(root){
+  const b = root && root.querySelector('#gdOpen');
+  if(b) b.addEventListener('click', gdSheet);
+}
+function gdFoot(){
+  const g = window.GUIDE;
+  if(g.ack) return '<div class="gd-done">'+ic(GD_IC.ok,18)+' Ознакомлен '+gdEsc(g.ack.label)+'</div>';
+  return '<button type="button" class="gd-ok" id="gdAck">'+ic(GD_IC.ok,18)+' Ознакомлен</button><div class="gd-hint">Время отметки увидит директор</div>';
+}
+function gdSheet(){
+  const g = window.GUIDE;
+  if(!g) return;
+  const news = '<div class="gd-hd" id="gdNew"><b>Что нового</b><span class="ct">'+g.news.length+'</span></div><div class="gd-src">приложение · общее для всех</div>'+
+    '<div class="gd-lst">'+g.news.map(x=>'<div class="gd-rr"><span class="gd-ni">'+ic(GD_IC[x.icon] || GD_IC.modes,14)+'</span><div>'+gdLead(x)+'</div></div>').join('')+'</div>';
+  // Номера у «Что изменилось» — адреса пунктов («см. пункт 5»), а не порядок выполнения.
+  const changes = g.changes.length ? '<div class="gd-hd" id="gdRole"><b class="acc">Что изменилось</b><span class="ct">'+g.changes.length+'</span></div><div class="gd-src">правила вашей роли</div>'+
+    (g.scheme ? CHAIN_NOTE() : '')+
+    '<div class="gd-lst">'+g.changes.map((x,i)=>'<div class="gd-rr"><span class="gd-n">'+(i+1)+'</span><div>'+gdLead(x)+'</div></div>').join('')+'</div>' : '';
+  const jump = g.changes.length ? '<div class="gd-jmp"><button type="button" data-to="gdNew">Что нового <i>'+g.news.length+'</i></button><button type="button" data-to="gdRole">Что изменилось <i>'+g.changes.length+'</i></button></div>' : '';
+  openSheet({cap:'Роль изменена', title:'Ваша роль изменена', icon:GD_IC.role,
+    sub: g.changes.length ? 'что нового и что изменилось' : 'что нового в приложении',
+    body: jump + news + changes + '<div class="gd-foot" id="gdFoot">'+gdFoot()+'</div>',
+    after: body => {
+      body.querySelectorAll('.gd-jmp button').forEach(b => b.addEventListener('click', () => {
+        const t = document.getElementById(b.dataset.to);
+        if(t) t.scrollIntoView({behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block:'start'});
+      }));
+      gdBindFoot();
+    }});
+}
+// «Ознакомлен» → 5 секунд «Отмечено · Отменить» → запись на сервере. Отмена до записи, откатывать нечего.
+let GD_TIMER = null;
+function gdBindFoot(){
+  const btn = document.getElementById('gdAck');
+  if(!btn) return;
+  btn.addEventListener('click', () => {
+    const foot = document.getElementById('gdFoot');
+    let left = 5;
+    foot.innerHTML = '<div class="gd-undo" role="status">'+ic(GD_IC.ok,18)+' Отмечено <span class="sec" id="gdSec">5</span><button type="button" class="u" id="gdUndo">Отменить</button></div>';
+    try{ tg && tg.HapticFeedback && tg.HapticFeedback.impactOccurred('light'); }catch(e){}
+    clearInterval(GD_TIMER);
+    document.getElementById('gdUndo').addEventListener('click', () => { clearInterval(GD_TIMER); foot.innerHTML = gdFoot(); gdBindFoot(); });
+    GD_TIMER = setInterval(async () => {
+      left--;
+      const s = document.getElementById('gdSec');
+      if(s) s.textContent = left;
+      if(left > 0) return;
+      clearInterval(GD_TIMER);
+      try{
+        const r = await fetch(apiBase()+'/guide/ack', {method:'POST', headers:{Authorization:'tma '+((tg && tg.initData) || ''), 'Content-Type':'application/json'}, body: JSON.stringify({version: window.GUIDE.version})});
+        if(!r.ok) throw new Error('http '+r.status);
+        const out = await r.json();
+        window.GUIDE.ack = out.ack;
+        const f = document.getElementById('gdFoot');
+        if(f) f.innerHTML = gdFoot();
+        if(typeof window.TD_RENDER === 'function') window.TD_RENDER();
+      }catch(e){
+        const f = document.getElementById('gdFoot');
+        if(f){ f.innerHTML = gdFoot() + '<div class="gd-hint bad">Отметка не записалась. Нажмите ещё раз.</div>'; gdBindFoot(); }
+      }
+    }, 1000);
+  });
+}
+
+// ===== Окно «Что такое матрёшка?» (решение директора 06.10.2026, вариант А «вложенные рамки») =====
+// Рисунок в нумерации 06.10: подготовка 1–7 сверху вниз, выполнение 8–13 снизу вверх, 13 — выход наружу.
+// Номера и названия шагов в подписи — из FLOW, не копией: перенумеруют шаги — подпись поедет вместе с ними.
+// Координаты рамок и кружков — ручные; шаги на рисунке переставлять только вместе с FLOW.
+// ponytail: высоты рамок подобраны под ширину 375 px; на 320 px подписи в п/з ГП могут упереться в низ рамки — тогда считать высоты по замеру текста после отрисовки.
+const MT_ICON = '<g transform="translate(6.6 2.2) scale(.108)"><path stroke-width="17" d="M50 0 C72 0 82 16 80 34 C79 44 74 50 72 54 C92 66 100 92 98 118 C96 146 80 160 50 160 C20 160 4 146 2 118 C0 92 8 66 28 54 C26 50 21 44 20 34 C18 16 28 0 50 0 Z"/></g>';
+function mtDraw(){
+  const n = (v, side, top) => '<span class="mt-n '+side+'" style="top:'+top+'px">'+v+'</span>';
+  return '<div class="mt-draw" role="img" aria-label="Матрёшка: заказ покупателя содержит п/з на ГП, в нём п/з на концентрат и п/з на основу. Подготовка — шаги 1–7 сверху вниз, выполнение — 8–13 снизу вверх.">'+
+    '<i class="mt-rail l"></i><i class="mt-rail r"></i>'+
+    '<div class="mt-f o"><div class="mt-c">Заказ покупателя</div><div class="mt-x">Заказ покупателя. На выходе — отгрузка и счёт покупателю</div></div>'+
+    '<div class="mt-f g"><div class="mt-c">П/з ГП · готовая продукция</div><div class="mt-x">Производственное задание · «Выполнение этапа» — выпуск ГП</div></div>'+
+    '<div class="mt-f p l"><div class="mt-c">П/з п/ф</div><div class="mt-nm">Концентрат</div></div>'+
+    '<div class="mt-f p r"><div class="mt-c">П/з п/ф</div><div class="mt-nm">Основа</div></div>'+
+    '<div class="mt-x mt-in" style="top:344px;">У каждого своё п/з · «Выполнение этапа» по сменам</div>'+
+    '<div class="mt-x mt-in" style="top:408px;"><b>Премикс — не слой.</b> Только по согласованию директора</div>'+
+    '<div class="mt-x mt-in mt-ln" style="top:458px;">Между уровнями — перемещения: выдача материалов, отправка на площадку</div>'+
+    n(1,'l',66)+n(2,'l',98)+n(3,'l',176)+n(4,'l',206)+n(5,'l',236)+n(6,'l',286)+
+    n(13,'r',0)+'<div class="mt-out"><b>Отгрузка — выход наружу</b><br><span>со склада площадки</span></div>'+
+    n(12,'r',176)+n('11а','r',206)+n(11,'r',236)+n(10,'r',274)+n(9,'r',306)+
+    '<div class="mt-bar"><span class="mt-n in">7</span><span class="t">'+mtTitle('7')+'</span><span class="ar">→</span><span class="mt-n in r">8</span><span class="t">'+mtTitle('8')+'</span></div>'+
+    '</div>';
+}
+function mtTitle(num){
+  for(const b of FLOW) for(const s of b.steps) if(s.n === num) return s.title;
+  return '';
+}
+function mtLegend(b, dir){
+  const first = b.steps[0].n, last = b.steps[b.steps.length-1].n;
+  return '<div class="mt-col"><div class="mt-pill '+dir+'">'+(dir === 'dn' ? '↓ Подготовка ' : '↑ Выполнение ')+first+'–'+last+'</div>'+
+    b.steps.map(s => '<div class="mt-li"><b>'+s.n+'</b><span>'+s.title+'</span></div>').join('')+'</div>';
+}
+function mtSheet(){
+  openSheet({cap:'Эталон п/з', title:'Что такое матрёшка?', icon:MT_ICON, sub:'Три уровня документов · шаги 1–13',
+    body: mtDraw()+
+      '<div class="mt-leg">'+mtLegend(FLOW[0],'dn')+mtLegend(FLOW[1],'up')+'</div>'+
+      '<div class="cz-note"><div class="cz-cap">Где граница половин</div><div class="cz-txt">Не «бумага против физики», а выданы материалы в производство или ещё нет. Концентрат и основа — каждый отдельным <span style="white-space:nowrap">п/з</span>, вместе в одном нельзя.</div></div>'});
 }
 
 function tkCard(t, canAct){
@@ -4424,6 +4564,7 @@ function applyRemote(d){
   window.DECK_REMOTE = d.deck || null;
   window.STREAK = d.streak || null;
   window.QUIZ = Array.isArray(d.quiz) ? d.quiz : null;
+  window.GUIDE = d.guide || null; // гид «Ваша роль изменена»: сервер отдаёт только в срок показа
   if(d.ops) OPS = d.ops;
 }
 
@@ -5078,6 +5219,80 @@ body:not(.is-director) .dept-only{display:none!important;}
 .fd-kv:first-child{border-top:0;}
 .fd-kv .k{font-size:14px;font-weight:800;margin-bottom:2px;color:#000;}
 .fd-kv .t{font-size:13px;line-height:1.45;color:#000;}
+
+/* Гид «Ваша роль изменена» (вариант B): оранжевая карточка в потоке, после отметки — белая строка. */
+.gd-bn{border-radius:24px;padding:14px;margin:0 0 12px;background:#E85002;color:#000;}
+.gd-bn .top{display:flex;align-items:center;gap:12px;}
+.gd-bn .bi,.gd-bnr .bi{width:40px;height:40px;border-radius:50%;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;flex:0 0 auto;}
+.gd-bn .top b{font-size:15px;font-weight:800;line-height:1.3;}
+.gd-bn .go{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;min-height:48px;margin-top:12px;border:0;border-radius:99px;background:#000;color:#fff;font:800 13px var(--font-body);cursor:pointer;}
+.gd-bnr{display:flex;align-items:center;gap:12px;min-height:60px;padding:8px 10px 8px 12px;margin:0 0 12px;border-radius:20px;border:1px solid rgba(0,0,0,.14);background:#fff;width:100%;text-align:left;color:#000;font:inherit;cursor:pointer;}
+.gd-bnr .bi{width:36px;height:36px;}
+.gd-bnr .rk{flex:1;min-width:0;}
+.gd-bnr .rk b{display:block;font-size:12.5px;font-weight:700;line-height:1.3;}
+.gd-bnr .rk span{display:block;font-size:11px;color:#646464;margin-top:2px;}
+.gd-jmp{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 6px;}
+.gd-jmp button{min-height:44px;display:inline-flex;align-items:center;gap:6px;padding:0 14px;border-radius:99px;border:1px solid rgba(0,0,0,.14);background:#fff;color:#000;font:700 12px var(--font-body);cursor:pointer;}
+.gd-jmp i,.gd-hd .ct{font-style:normal;font:700 10.5px var(--font-display);opacity:.75;}
+.gd-hd{display:flex;align-items:center;gap:8px;min-height:44px;margin:4px 0 0;scroll-margin-top:12px;}
+.gd-hd b{display:inline-flex;align-items:center;min-height:32px;padding:0 14px;border-radius:99px;background:#000;color:#fff;font:800 15px var(--font-body);}
+.gd-hd b.acc{background:#dbff3d;color:#0e1400;}
+.gd-hd .ct{font-size:13px;opacity:1;}
+.gd-src{font-size:11px;color:#646464;margin:-2px 0 4px 2px;}
+.gd-lst{border:1px solid rgba(0,0,0,.14);border-radius:20px;padding:2px 14px;background:#fff;color:#000;}
+.gd-rr{display:grid;grid-template-columns:28px minmax(0,1fr);column-gap:12px;padding:12px 0;}
+.gd-rr + .gd-rr{border-top:1px solid rgba(0,0,0,.08);}
+.gd-n{width:28px;height:28px;border-radius:50%;background:#000;color:#fff;font:700 12px var(--font-display);display:flex;align-items:center;justify-content:center;}
+.gd-ni{width:28px;height:28px;border-radius:50%;border:1px solid rgba(0,0,0,.14);display:flex;align-items:center;justify-content:center;}
+.gd-k{font-size:14px;font-weight:800;line-height:1.3;margin:4px 0 3px;color:#000;}
+.gd-ti{font-size:13px;font-weight:400;line-height:1.45;}
+.gd-t{font-size:13px;line-height:1.45;color:#000;}
+.gd-foot{margin-top:8px;}
+.gd-ok{width:100%;min-height:52px;border:0;border-radius:99px;background:#dbff3d;color:#0e1400;font:800 14px var(--font-body);display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;}
+.gd-hint{text-align:center;font-size:12px;color:#646464;margin-top:8px;}
+.gd-hint.bad{color:#c8331f;font-weight:700;}
+.gd-done,.gd-undo{display:flex;align-items:center;gap:12px;min-height:52px;padding:0 16px;border-radius:99px;background:#000;color:#fff;font:700 13px var(--font-body);}
+.gd-undo{padding:0 6px 0 16px;}
+.gd-undo .sec{font:700 12px var(--font-display);color:rgba(255,255,255,.78);}
+.gd-undo .u{margin-left:auto;min-height:44px;padding:0 16px;border-radius:99px;border:0;background:#dbff3d;color:#0e1400;font:800 13px var(--font-body);cursor:pointer;}
+/* «Что такое матрёшка?» (вариант А): рамки вложены, слева подготовка вниз, справа выполнение вверх.
+   Подписи не мельче 13 px: в узких колонках концентрата и основы документы вынесены под рамки. */
+.mt-open{display:inline-flex;align-items:center;min-height:44px;margin-top:10px;padding:0 16px;border:0;border-radius:99px;background:#E85002;color:#000;font:800 13px var(--font-body);cursor:pointer;}
+.mt-draw{position:relative;height:660px;color:#000;}
+.mt-rail{position:absolute;width:2.5px;}
+.mt-rail.l{left:16px;top:62px;height:514px;background:#000;}
+.mt-rail.r{right:16px;top:36px;height:546px;background:#E85002;}
+.mt-rail::after{content:"";position:absolute;left:50%;transform:translateX(-50%);border:6px solid transparent;}
+.mt-rail.l::after{bottom:-9px;border-top:9px solid #000;border-bottom:0;}
+.mt-rail.r::after{top:-9px;border-bottom:9px solid #E85002;border-top:0;}
+.mt-f{position:absolute;box-sizing:border-box;}
+.mt-f.o{left:42px;right:42px;top:60px;height:518px;border:2px solid #000;border-radius:26px;background:#fff;padding:12px 14px;}
+.mt-f.g{left:54px;right:54px;top:170px;height:396px;border-radius:20px;background:#FFB27A;padding:12px;}
+.mt-f.p{top:268px;height:66px;border-radius:16px;background:#E85002;padding:10px;}
+.mt-f.p.l{left:66px;right:calc(50% + 4px);}
+.mt-f.p.r{left:calc(50% + 4px);right:66px;}
+.mt-c{font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;line-height:1.25;}
+.mt-nm{font-size:14px;font-weight:800;margin-top:4px;}
+.mt-x{font-size:13px;line-height:1.38;margin-top:4px;}
+.mt-in{position:absolute;left:66px;right:66px;margin:0;}
+.mt-ln{border-top:1px solid rgba(0,0,0,.25);padding-top:8px;}
+.mt-n{position:absolute;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:700 11px var(--font-display);z-index:1;}
+.mt-n.l{left:4px;background:#000;color:#fff;}
+.mt-n.r{right:4px;background:#E85002;color:#000;font-size:10px;}
+.mt-out{position:absolute;right:42px;top:0;left:60px;text-align:right;font-size:13px;line-height:1.3;}
+.mt-out span{color:#646464;}
+.mt-bar{position:absolute;left:0;right:0;top:592px;min-height:64px;box-sizing:border-box;border-radius:18px;background:#000;color:#fff;padding:8px 12px;display:flex;align-items:center;gap:8px;}
+.mt-bar .mt-n{position:static;flex:0 0 auto;background:#fff;color:#000;}
+.mt-bar .mt-n.r{background:#E85002;color:#000;font-size:11px;}
+.mt-bar .t{flex:1 1 0;min-width:0;font-size:13px;line-height:1.3;}
+.mt-bar .ar{flex:0 0 auto;font-size:14px;color:rgba(255,255,255,.7);}
+.mt-leg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;color:#000;}
+.mt-col{display:flex;flex-direction:column;gap:8px;}
+.mt-pill{align-self:flex-start;border-radius:99px;padding:6px 12px;font-size:12px;font-weight:800;}
+.mt-pill.dn{background:#000;color:#fff;}
+.mt-pill.up{background:#E85002;color:#000;}
+.mt-li{display:flex;gap:8px;font-size:13px;line-height:1.3;}
+.mt-li b{font:700 11px/1.6 var(--font-display);width:24px;flex:0 0 auto;}
 </style>
 <script>
 (function(){
@@ -5148,6 +5363,9 @@ body:not(.is-director) .dept-only{display:none!important;}
     if(!el) return;
     const f = findings(), tk = tasksAll();
     const parts = [];
+    // Гид роли — первым в потоке, над «Находками» (решение директора 06.10).
+    const gb = gdBannerHtml();
+    if(gb) parts.push(gb);
     if(f.length){
       parts.push('<div class="td-bk dk"><div class="td-sh"><b class="acc">Находки</b><span class="ct">'+f.length+'</span></div>'+
         '<div class="td-src">предварительно · тап — что нарушено и как исправить</div>'+
@@ -5193,6 +5411,7 @@ body:not(.is-director) .dept-only{display:none!important;}
         '<span class="nums"><span><b>'+days+'</b><em>'+(days ? DAY_WORD(days) + ' серия' : 'серия не начата')+'</em></span><span class="pl">'+(done ? 'разминка ✓' : 'разминка')+'</span></span>'+
         '<span class="td-gate"><i style="width:'+(done ? 100 : 0)+'%"></i></span></button></div>');
     el.innerHTML = parts.join('');
+    gdBind(el);
     el.querySelectorAll('[data-f]').forEach(x => x.addEventListener('click', () => findingSheet(f[+x.dataset.f])));
     el.querySelectorAll('[data-go="tasks"]').forEach(x => x.addEventListener('click', () => document.querySelector('.nav-work .ni[data-s="tasks"]').click()));
     el.querySelectorAll('[data-fl]').forEach(x => x.addEventListener('click', () => { TD_FILTER = x.dataset.fl; renderToday(); }));
@@ -5202,6 +5421,7 @@ body:not(.is-director) .dept-only{display:none!important;}
     document.getElementById('tdLearn').onclick = () => document.querySelector('.eyebtn[data-to="learn"]').click();
     if(document.querySelector('.section.active') === el) heroToday();
   }
+  window.TD_RENDER = renderToday; // гид перерисовывает плашку после «Ознакомлен»
   function heroToday(){
     const f = findings(), tk = tasksAll();
     if(f.length) setHero(f.length+' '+plural(f.length,'находка','находки','находок'), 'Уровень 1–2 — без балла, если исправить в утреннее окно');
