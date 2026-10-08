@@ -1824,6 +1824,38 @@ const roleGlossary = r => (r.glossary && r.glossary.length) ?
   r.glossary.map(g=>'<div class="rl-gi"><b>'+g.t+'</b><span>'+g.d+'</span><small>'+g.w+'</small></div>').join('')+'</details>' : '';
 const roleMark = r => r && r.mark ? ' <span class="rl-mark">'+r.mark+'</span>' : '';
 
+// Карточка роли — одна разметка на «Профиль» производства и «Знания» бухгалтерии (08.10: «всё по аналогии»).
+function roleBlockHtml(r){
+  return `
+    <div class="glass col">
+      <div class="between"><span class="muted">Должность</span><b style="font-size:12.5px;text-align:right;">${r.position}</b></div>
+      <div class="between"><span class="muted">Подчиняется</span><b style="font-size:12.5px;">${r.reportsTo}</b></div>
+      <div class="between"><span class="muted">В подчинении</span><b style="font-size:12.5px;text-align:right;max-width:60%;">${r.reports}</b></div>
+      <hr class="sep">
+      <div class="muted" style="margin-bottom:4px;">Зона ответственности</div>
+      <div style="font-size:12.5px;line-height:1.4;">${r.scope}</div>
+      <hr class="sep">
+      <div class="row" style="justify-content:space-between;"><span class="muted">Пунктов роли</span><span class="tag">${r.stat}</span></div>
+    </div>
+    ${CZ_HEAD('Моя роль','Что делаю, за что отвечаю, что сверяю и контролирую, чего не делаю')}
+    ${r.stale ? `<div class="cz-note" style="margin-bottom:12px;"><div class="cz-cap">Чек-лист устарел</div><div class="cz-txt">${r.stale}</div></div>` : ''}
+    <div id="czRole"></div>
+    ${roleGlossary(r)}
+    <div class="attn col">
+      <div class="eb">Правила роли</div>
+      ${r.rules.map(x=>`<p style="margin:0;font-size:12px;line-height:1.5;">— ${x}</p>`).join('')}
+    </div>
+`;
+}
+function roleBlockBind(r){
+  const groups = ROLE_GROUPS(r);
+  makeCarousel(document.getElementById('czRole'), {
+    label:'Моя роль',
+    items: groups.map(g=>({title:g.t, sub:g.a.length+' '+(g.a.length===1?'пункт':g.a.length<5?'пункта':'пунктов'), icon:g.icon, peek:plain(g.a[0]||'',60)})),
+    list: i=>groups[i].a.map(t=>czItem(t, groups[i].bad)).join('')
+  });
+}
+
 function renderProfile(u){
   const el = document.getElementById('s-profile');
   if(!u){ el.innerHTML = `<div class="empty">Не удалось определить, кто вы.<br>Откройте кнопку бота внутри Telegram.</div>`; return; }
@@ -1878,38 +1910,12 @@ function renderProfile(u){
       </button>
       <div class="tm-w" id="teamBody"><div><div class="tm-in">${teamTree(u)}</div></div></div>
     </div>
-    ${r ? `
-    <div class="glass col">
-      <div class="between"><span class="muted">Должность</span><b style="font-size:12.5px;text-align:right;">${r.position}</b></div>
-      <div class="between"><span class="muted">Подчиняется</span><b style="font-size:12.5px;">${r.reportsTo}</b></div>
-      <div class="between"><span class="muted">В подчинении</span><b style="font-size:12.5px;text-align:right;max-width:60%;">${r.reports}</b></div>
-      <hr class="sep">
-      <div class="muted" style="margin-bottom:4px;">Зона ответственности</div>
-      <div style="font-size:12.5px;line-height:1.4;">${r.scope}</div>
-      <hr class="sep">
-      <div class="row" style="justify-content:space-between;"><span class="muted">Пунктов роли</span><span class="tag">${r.stat}</span></div>
-    </div>
-    ${CZ_HEAD('Моя роль','Что делаю, за что отвечаю, что сверяю и контролирую, чего не делаю')}
-    ${r.stale ? `<div class="cz-note" style="margin-bottom:12px;"><div class="cz-cap">Чек-лист устарел</div><div class="cz-txt">${r.stale}</div></div>` : ''}
-    <div id="czRole"></div>
-    ${roleGlossary(r)}
-    <div class="attn col">
-      <div class="eb">Правила роли</div>
-      ${r.rules.map(x=>`<p style="margin:0;font-size:12px;line-height:1.5;">— ${x}</p>`).join('')}
-    </div>
-    ` : ''}
+    ${r ? roleBlockHtml(r) : ''}
     <div class="glass row" style="justify-content:space-between;">
       <span style="font-size:12.5px;font-weight:600;">Telegram</span><span class="tag">${u.tg}</span>
     </div>
   `;
-  if(r){
-    const groups = ROLE_GROUPS(r);
-    makeCarousel(document.getElementById('czRole'), {
-      label:'Моя роль',
-      items: groups.map(g=>({title:g.t, sub:g.a.length+' '+(g.a.length===1?'пункт':g.a.length<5?'пункта':'пунктов'), icon:g.icon, peek:plain(g.a[0]||'',60)})),
-      list: i=>groups[i].a.map(t=>czItem(t, groups[i].bad)).join('')
-    });
-  }
+  if(r) roleBlockBind(r);
   // Сворачивание «Команды»: состояние держим в памяти вкладки, чтобы переход туда-обратно
   // не захлопывал раскрытое дерево.
   const th = document.getElementById('teamHd'), tb = document.getElementById('teamBody');
@@ -3014,7 +3020,7 @@ function renderProcess(u){
     window.scrollTo({top:Math.max(0, y), behavior:'smooth'});
   }));
   const t = PR_TABS.find(x=>x.k === PR_TAB) || PR_TABS[0];
-  body.innerHTML = CZ_HEAD(t.head, t.sub) + (t.draft ? PR_DRAFT : '') + t.body;
+  body.innerHTML = CZ_HEAD(t.head, t.sub) + (t.draft ? (t.draftNote || PR_DRAFT) : '') + t.body;
   t.mount(u);
 }
 
@@ -3022,7 +3028,7 @@ function renderRules(){
   const icons = ['<path d="M20 12l-8 8-9-9V3h8z"/><circle cx="7.5" cy="7.5" r="1.5"/>', '<rect x="3" y="5" width="18" height="16" rx="3"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/>', '<path d="M4 20l4-1 11-11-3-3L5 16z"/><line x1="13" y1="6" x2="17" y2="10"/>'];
   makeCarousel(document.getElementById('ruleAccordion'), {
     label:'Общие правила',
-    items: RULES.map((r,i)=>({title:r.title.replace(/^\d+\.\s*/,''), sub:'Для любого документа', icon:icons[i%icons.length], peek:plain(r.ok,60)})),
+    items: RULES.map((r,i)=>({title:r.title.replace(/^\d+\.\s*/,''), sub:r.sub || 'Для любого документа', icon:icons[i%icons.length], peek:plain(r.ok,60)})),
     list: i=>{
       const r = RULES[i];
       return czLabel('ok','Процесс')+czSentences(r.ok).map(t=>czItem(t,'ok')).join('')+
@@ -4083,20 +4089,21 @@ function myErrGroups(items){
     .map(g=>({ ...g, rows: g.rows.slice().sort((a,b)=> String(b.docDate||b.detectedOn||'').localeCompare(String(a.docDate||a.detectedOn||''))) }))
     .sort((a,b)=> b.rows.length - a.rows.length || a.what.localeCompare(b.what));
 }
+// h.fin — бухгалтерия (08.10): записи из «Учёта ошибок» без баллов и оспаривания, вместо типа документа — категория.
 function myErrorsHtml(h){
   const groups = myErrGroups(h.items);
   if(h.unavailable) return CZ_HEAD('Твои ошибки','')+
-    '<div class="cz-note"><div class="cz-txt">Список не прочитан: ежедневная проверка учёта не отвечает. Это сбой, а не «ошибок нет» — скажите директору.</div></div>';
-  if(!groups.length) return CZ_HEAD('Твои ошибки','За три месяца записей нет')+
-    '<div class="cz-note"><div class="cz-txt">Записей по вам нет. Появятся — окажутся здесь, с датой и баллом по каждой.</div></div>';
+    '<div class="cz-note"><div class="cz-txt">Список не прочитан: '+(h.fin ? '«Учёт ошибок» не ответил' : 'ежедневная проверка учёта не отвечает')+'. Это сбой, а не «ошибок нет» — скажите директору.</div></div>';
+  if(!groups.length) return CZ_HEAD('Твои ошибки', h.fin ? 'Открытых записей нет' : 'За три месяца записей нет')+
+    '<div class="cz-note"><div class="cz-txt">'+(h.fin ? 'Записей по вам нет. Появятся — окажутся здесь, с датой по каждой.' : 'Записей по вам нет. Появятся — окажутся здесь, с датой и баллом по каждой.')+'</div></div>';
   const repeated = groups.filter(g=>g.rows.length > 1).length;
   const cards = groups.map(g=>{
     const n = g.rows.length;
     const rows = g.rows.map(it=>{
-      const head = errType(it.docType)+(it.doc ? ' '+SQ_ESC(it.doc) : '');
+      const head = h.fin ? SQ_ESC(it.cat || 'Учёт ошибок') : errType(it.docType)+(it.doc ? ' '+SQ_ESC(it.doc) : '');
       const when = it.docDate ? AT_DM(it.docDate) : (it.detectedOn ? AT_DM(it.detectedOn) : '');
       // Балл 0 — это история до старта счёта 21.09, а не «начислили ноль». Пишем словами.
-      const pts = Number(it.points) > 0 ? AT_NEG(it.points) : 'без начисления';
+      const pts = h.fin ? (it.draft ? 'до правила' : 'без оценки') : Number(it.points) > 0 ? AT_NEG(it.points) : 'без начисления';
       return '<div class="gp-row"><span class="l">'+head+'</span><span class="m">'+when+'</span>'+
         '<span class="v"><span class="tag" style="background:#0e1400!important;color:#fff!important;border-color:#0e1400!important;">'+pts+'</span></span></div>';
     }).join('');
@@ -4111,7 +4118,9 @@ function myErrorsHtml(h){
   return CZ_HEAD('Твои ошибки', 'Эти ошибки у вас уже были')+
     '<div class="cz-note"><div class="cz-cap">'+groups.length+' '+AT_PL(groups.length,'вид нарушения','вида нарушений','видов нарушений')+
       (repeated ? ' · повторялось: '+repeated : '')+'</div>'+
-      '<div class="cz-txt">Список за три месяца, по видам. Записи до 21.09.2026 показаны историей: счёт стартовал 21.09 в 9:15, и балла по ним нет. Не согласны с начислением — напишите боту «оспорить N» с номером из утреннего письма.</div>'+
+      '<div class="cz-txt">'+(h.fin
+        ? 'Открытые записи из «Учёта ошибок», по видам. Без оценки: цель — не забыть. Фиксация → разбор → правило → исправление. «До правила» — записано раньше, чем появилось правило.'
+        : 'Список за три месяца, по видам. Записи до 21.09.2026 показаны историей: счёт стартовал 21.09 в 9:15, и балла по ним нет. Не согласны с начислением — напишите боту «оспорить N» с номером из утреннего письма.')+'</div>'+
       '<button class="at-cta" type="button" id="myErrOpen">Открыть список<span class="arr" style="display:inline-flex;margin-left:8px;">'+ic('<polyline points="9 6 15 12 9 18"/>',16)+'</span></button></div>';
 }
 // --- «Что считается ошибкой?» — свой перечень по роли (требование директора 30.09)
@@ -4201,12 +4210,15 @@ async function myErrorsMount(){
   const host = document.getElementById('myErrors');
   if(!host) return;
   let h;
-  try{ h = await myScore(); }
+  // Бухгалтерия: свой список приходит с /data (errorLog из «Учёта ошибок»), счёта /score у неё нет.
+  const fin = !!(currentUser && currentUser.role === 'finance');
+  if(fin) h = {fin:true, unavailable: !window.ERRLOG_OK, items: ERROR_LOG.map(e=>({what:e.title, cat:e.cat, docDate:e.dt, draft:e.draft}))};
+  else try{ h = await myScore(); }
   catch(e){ host.innerHTML = '<div class="cz-note"><div class="cz-txt">Свои ошибки не загрузились. Откройте экран ещё раз, а если не появятся — скажите директору.</div></div>'; return; }
   host.innerHTML = myErrorsHtml(h);
   const ob = document.getElementById('myErrOpen');
   if(ob) ob.addEventListener('click', ()=>openSheet({cap:'Мои ошибки', title:'Эти ошибки у вас уже были', icon:IC.flag,
-    sub:'За три месяца, по видам · не согласны — «оспорить N» боту', body: window.MY_ERR_SHEET || ''}));
+    sub: fin ? 'Открытые записи, по видам · без оценки' : 'За три месяца, по видам · не согласны — «оспорить N» боту', body: window.MY_ERR_SHEET || ''}));
 }
 // Директору — счета всех, он единственный, кто видит чужие.
 async function atMountScores(host){
@@ -4554,6 +4566,9 @@ function applyRemote(d){
   if(d.growth) GROWTH = d.growth;
   if(d.sharedTask) SHARED_TASK = d.sharedTask;
   if(d.errorLog) ERROR_LOG = d.errorLog;
+  // Бухгалтерия (08.10): errorLog нет — «Учёт ошибок» не ответил; пустой список — ошибок нет. Различаем.
+  window.ERRLOG_OK = Array.isArray(d.errorLog);
+  if(d.finRules) RULES.splice(0, RULES.length, ...d.finRules); // правила бухгалтерии вместо общих правил производства
   if(d.scen) SCEN = d.scen;
   if(d.docErrors) Object.keys(d.docErrors).forEach(k=>{ if(DOCS[k]) DOCS[k].errors = d.docErrors[k]; });
   ROSTER = d.roster || [];
@@ -4645,7 +4660,8 @@ document.querySelectorAll('.botnav .ni').forEach(btn=>{
     document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
     btn.classList.add('on');
     // Экран открывается всегда одинаково: выбранный режим и вкладка не запоминаются.
-    if(btn.dataset.s === 'process'){ PR_MODE = 'now'; PR_TAB = 'docs'; renderProcess(currentUser); }
+    // У бухгалтерии «Сейчас» нет (операции — производства): сразу справочник, первая вкладка.
+    if(btn.dataset.s === 'process'){ PR_MODE = currentUser && currentUser.role === 'finance' ? 'ref' : 'now'; PR_TAB = PR_TABS[0].k; renderProcess(currentUser); }
     document.getElementById('s-'+btn.dataset.s).classList.add('active');
     refreshCarousels();
   };
@@ -5219,7 +5235,9 @@ body:not(.is-director) .dept-only{display:none!important;}
 .td-ln .td-gate{background:rgba(0,0,0,.18);}.td-ln .td-gate i{background:#000;}
 .td-gate i{display:block;height:100%;border-radius:99px;}
 /* ===== Деньги на «Сегодня» (07.10): блок A, окно C3, форма F2. Цвет по состоянию, оранжевого нет. ===== */
-body.is-finance .botnav,body.is-finance #mSearch{display:none!important;}
+/* Бухгалтерия (08.10): меню то же, пункты производства скрыты атрибутом hidden в finBoot. Поиск индексирует
+   процесс производства — у бухгалтерии его нет. На «Знаниях» нет «Сейчас» и «Эталона п/з», на «Внимании» — только свои ошибки. */
+body.is-finance #mSearch,body.is-finance .kn-top,body.is-finance #prModes,body.is-finance #s-errors > :not(#myErrors){display:none!important;}
 .fin-bk{display:block;width:100%;border:0;text-align:left;font:inherit;cursor:pointer;}
 .fin-cap{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.72);margin:2px 2px 4px;}
 .fin-big{font:700 30px/1.05 var(--font-display);letter-spacing:-.01em;margin:0 2px;color:#fff;}
@@ -5369,7 +5387,7 @@ body.is-finance .botnav,body.is-finance #mSearch{display:none!important;}
     const toLearn = e.dataset.to === 'learn';
     const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
     sw.className = 'mswitch go ' + (toLearn ? 'to-learn' : 'to-work');
-    setTimeout(() => document.querySelector(toLearn ? '.nav-learn .ni' : '.nav-work .ni').click(), reduce ? 0 : 400);
+    setTimeout(() => document.querySelector(toLearn ? '.nav-learn .ni:not([hidden])' : '.nav-work .ni:not([hidden])').click(), reduce ? 0 : 400);
     setTimeout(() => { sw.className = 'mswitch'; }, reduce ? 0 : 720);
   }));
   // ===== «Сегодня» =====
@@ -5391,11 +5409,21 @@ body.is-finance .botnav,body.is-finance #mSearch{display:none!important;}
     hero.expl.hidden = !expl; hero.expl.textContent = expl || '';
   }
   function findings(){
+    // Бухгалтерия (08.10): записи «Учёта ошибок», ещё не разобранные на созвоне. Баллов и уровней у них нет.
+    if(isFinRole()) return ERROR_LOG.filter(e => e.status !== 'Обсуждено на созвоне')
+      .map(e => ({fin:true, what:e.title, cat:e.cat, desc:e.desc, draft:e.draft, detectedOn:e.dt}))
+      .sort((a, b) => (b.detectedOn || '').localeCompare(a.detectedOn || ''));
     if(!TD_FIND || !TD_FIND.items) return [];
     return TD_FIND.items.filter(x => x.status === 'new').sort((a, b) => (b.detectedOn || '').localeCompare(a.detectedOn || ''));
   }
-  function docHead(x){ return (typeof errType === 'function' ? errType(x.docType) : 'Документ') + (x.doc ? ' ' + x.doc : ''); }
+  function docHead(x){ if(x.fin) return x.cat || 'Учёт ошибок'; return (typeof errType === 'function' ? errType(x.docType) : 'Документ') + (x.doc ? ' ' + x.doc : ''); }
   function findingSheet(x){
+    if(x.fin) return openSheet({cap:'Ошибка', title: esc(x.what), icon: IC.flag, sub: esc(docHead(x)) + (x.draft ? ' · до правила' : ' · без оценки'),
+      body: '<div class="cz-fact">'+
+        (x.desc ? '<div class="fd-kv"><div class="k">Что произошло</div><div class="t">'+esc(x.desc)+'</div></div>' : '')+
+        '<div class="fd-kv"><div class="k">Зафиксировано</div><div class="t">'+(x.detectedOn ? AT_DM(x.detectedOn) : '—')+' · «Учёт ошибок»</div></div>'+
+        '<div class="fd-kv"><div class="k">Дальше</div><div class="t">'+(x.draft ? 'Правила ещё нет: запись — для разбора и правила.' : 'Разбор на созвоне.')+' Без оценки.</div></div>'+
+        '</div>'});
     const fixable = x.level && x.level < 3;
     openSheet({cap:'Находка', title: esc(x.what || docHead(x)), icon: IC.flag, sub: esc(docHead(x)) + ' · уровень ' + (x.level || '—'),
       body: '<div class="cz-fact">'+
@@ -5600,12 +5628,13 @@ body.is-finance .botnav,body.is-finance #mSearch{display:none!important;}
     const gb = gdBannerHtml();
     if(gb) parts.push(gb);
     if(f.length){
-      parts.push('<div class="td-bk dk"><div class="td-sh"><b class="acc">Находки</b><span class="ct">'+f.length+'</span></div>'+
-        '<div class="td-src">предварительно · тап — что нарушено и как исправить</div>'+
+      const fin = isFinRole();
+      parts.push('<div class="td-bk dk"><div class="td-sh"><b class="acc">'+(fin ? 'Ошибки' : 'Находки')+'</b><span class="ct">'+f.length+'</span></div>'+
+        '<div class="td-src">'+(fin ? 'без оценки · тап — подробности' : 'предварительно · тап — что нарушено и как исправить')+'</div>'+
         f.slice(0, 3).map((x, i) => '<button type="button" class="td-rw" data-f="'+i+'"><span class="td-ic'+(x.machine ? ' mc' : '')+'">'+(x.machine ? EYE_MC : FLAG_IC)+'</span>'+
-          '<span class="td-k"><b>'+esc(x.what || docHead(x))+'</b><span>'+esc(docHead(x))+' · уровень '+(x.level || '—')+(x.machine ? ' · нашла машина' : '')+'</span></span>'+
-          '<span class="td-v">'+AT_NEG(x.points)+'</span>'+CHEV+'</button>').join('')+
-        (f.length > 3 ? '<button type="button" class="td-rw" id="tdAllF"><span class="td-k"><b>Ещё '+(f.length-3)+'</b><span>все начисления — на «Росте»</span></span>'+CHEV+'</button>' : '')+
+          '<span class="td-k"><b>'+esc(x.what || docHead(x))+'</b><span>'+esc(docHead(x))+(fin ? (x.draft ? ' · до правила' : '')+(x.detectedOn ? ' · '+AT_DM(x.detectedOn) : '') : ' · уровень '+(x.level || '—')+(x.machine ? ' · нашла машина' : ''))+'</span></span>'+
+          (fin ? '' : '<span class="td-v">'+AT_NEG(x.points)+'</span>')+CHEV+'</button>').join('')+
+        (f.length > 3 ? '<button type="button" class="td-rw" id="tdAllF"><span class="td-k"><b>Ещё '+(f.length-3)+'</b><span>'+(fin ? 'все — на «Внимании»' : 'все начисления — на «Росте»')+'</span></span>'+CHEV+'</button>' : '')+
         '</div>');
     }
     const fb = finBlock();
@@ -5648,6 +5677,9 @@ body.is-finance .botnav,body.is-finance #mSearch{display:none!important;}
     if(isFinRole()){
       el.innerHTML = parts.join('');
       finBind(el);
+      el.querySelectorAll('[data-f]').forEach(x => x.addEventListener('click', () => findingSheet(f[+x.dataset.f])));
+      const allF = document.getElementById('tdAllF');
+      if(allF) allF.addEventListener('click', () => document.querySelector('.nav-learn .ni[data-s="errors"]').click()); // пункт меню сам переключает режим
       el.querySelectorAll('[data-url]').forEach(x => x.addEventListener('click', () => tkOpen(x.dataset.url)));
       heroToday();
       return;
@@ -5897,13 +5929,29 @@ body.is-finance .botnav,body.is-finance #mSearch{display:none!important;}
     _renderAll(u);
     afterData(u);
   };
-  // Лера и Марина: только «Сегодня» — без меню режимов, поиска, находок, баллов и производства.
-  // Что им можно, решает сервер; здесь только не рисуем того, чего у них нет.
+  // Лера и Марина (08.10, «всё по аналогии с производством, новое ничего не создаём»): те же экраны и меню.
+  // Работа — «Сегодня» (деньги, задачи, ошибки); обучение — «Знания» (своя роль и правила, проектом) и «Внимание»
+  // (свои ошибки без баллов). Что им можно, решает сервер; здесь только не рисуем того, чего у них нет.
+  const FIN_DRAFT = '<div class="cz-note" style="margin-bottom:12px;"><div class="cz-cap">Проект</div>'+
+    '<div class="cz-txt">База знаний бухгалтерии собрана из решений директора 05–08.10.2026 и ещё не объявлена правилом. Спорное — к директору.</div></div>';
   function finBoot(u){
     document.body.classList.add('is-finance');
     document.body.classList.remove('is-director');
     const w = document.getElementById('whoami');
     if(w) w.innerHTML = '<div class="av">'+esc(u.initials || '')+'</div><div class="nm">'+esc(String(u.name || '').split(' ')[0])+'</div>';
+    document.querySelectorAll('.botnav .ni').forEach(b => { if(['today', 'process', 'errors'].indexOf(b.dataset.s) < 0) b.hidden = true; });
+    const r = ROLES[u.key];
+    PR_TABS.splice(0, PR_TABS.length,
+      {k:'role', t:'Моя роль', draft:true, draftNote:FIN_DRAFT, head:'Карточка роли', sub: r ? r.position : '', body:'<div id="finRole"></div>', mount:()=>{
+        const h = document.getElementById('finRole');
+        if(!h) return;
+        if(!r){ h.innerHTML = '<div class="cz-note"><div class="cz-txt">Карточка роли не загрузилась. Откройте приложение ещё раз, а если не появится — скажите директору.</div></div>'; return; }
+        h.innerHTML = roleBlockHtml(r); roleBlockBind(r);
+      }},
+      {k:'rules', t:'Правила', draft:true, draftNote:FIN_DRAFT, head:'Правила бухгалтерии', sub:'Оплаты, счета, фонды, остатки, сверка', body:'<div id="ruleAccordion"></div>', mount:()=>renderRules()});
+    PR_MODE = 'ref'; PR_TAB = 'role';
+    renderProcess(u);
+    myErrorsMount();
     renderToday();
     loadTasks(true);
     finLoad();
