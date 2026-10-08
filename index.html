@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="theme-color" content="#F9F9F9">
 <title>OGGO — база знаний</title>
+<script>
+// Данные входа Telegram кладёт и в адрес страницы (#tgWebAppData=…). Запоминаем их до загрузки SDK:
+// если telegram.org у провайдера закрыт и SDK не загрузится, вход всё равно возможен (08.10, случай Леры).
+window.TG_HASH = location.hash;
+</script>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script>
 /* Версия картинок колоды. Имена файлов при замене колоды не меняются, поэтому WebView Telegram
@@ -2359,7 +2364,7 @@ function gdBindFoot(){
       if(left > 0) return;
       clearInterval(GD_TIMER);
       try{
-        const r = await fetch(apiBase()+'/guide/ack', {method:'POST', headers:{Authorization:'tma '+((tg && tg.initData) || ''), 'Content-Type':'application/json'}, body: JSON.stringify({version: window.GUIDE.version})});
+        const r = await fetch(apiBase()+'/guide/ack', {method:'POST', headers:{Authorization:'tma '+tgInit(), 'Content-Type':'application/json'}, body: JSON.stringify({version: window.GUIDE.version})});
         if(!r.ok) throw new Error('http '+r.status);
         const out = await r.json();
         window.GUIDE.ack = out.ack;
@@ -2521,7 +2526,7 @@ function tkPending(el, action){
   TK_TIMER = setTimeout(async ()=>{
     bar.classList.remove('on');
     try{
-      const r = await fetch(apiBase()+'/tasks/action', {method:'POST', headers:{Authorization:'tma '+((tg && tg.initData) || ''), 'Content-Type':'application/json'}, body: JSON.stringify({key, action})});
+      const r = await fetch(apiBase()+'/tasks/action', {method:'POST', headers:{Authorization:'tma '+tgInit(), 'Content-Type':'application/json'}, body: JSON.stringify({key, action})});
       if(!r.ok) throw new Error('http '+r.status);
       await loadTasks(true);
     }catch(e){
@@ -2536,9 +2541,9 @@ function tkPending(el, action){
 async function loadTasks(silent){
   const url = apiBase();
   let data = null;
-  if(url && tg && tg.initData){
+  if(url && tgInit()){
     try{
-      const r = await fetch(url+'/tasks', {headers:{Authorization:'tma '+tg.initData}});
+      const r = await fetch(url+'/tasks', {headers:{Authorization:'tma '+tgInit()}});
       if(r.ok) data = await r.json();
     }catch(e){}
   }
@@ -2777,7 +2782,7 @@ function maybeWhatsNew(){
 // Приложение — черновик; факт в Мой Склад вносит человек своей учёткой (решение 22.09).
 const pkApi = (path, body) => fetch(apiBase()+'/pick'+path, {
   method: body ? 'POST' : 'GET',
-  headers: Object.assign({Authorization:'tma '+((tg && tg.initData) || '')}, body ? {'Content-Type':'application/json'} : {}),
+  headers: Object.assign({Authorization:'tma '+tgInit()}, body ? {'Content-Type':'application/json'} : {}),
   body: body ? JSON.stringify(body) : undefined
 }).then(r=>{ if(!r.ok) throw new Error('http '+r.status); return r.json(); });
 
@@ -3195,11 +3200,11 @@ function renderGame(u){
   function sendDeck(){
     clearTimeout(deckSendTm);
     deckSendTm = setTimeout(function(){
-      if (!tg || !tg.initData) return;
+      if (!tgInit()) return;
       try {
         fetch(apiBase() + '/deck', {
           method: 'POST',
-          headers: {Authorization: 'tma ' + tg.initData, 'Content-Type': 'application/json'},
+          headers: {Authorization: 'tma ' + tgInit(), 'Content-Type': 'application/json'},
           body: JSON.stringify({known: knownCount(), total: ALL.length, ids: Array.from(knownIds)})
         }).catch(function(){});
       } catch(e) {}
@@ -3610,11 +3615,11 @@ function renderGame(u){
         : 'С первого раза ' + сПервого + ' из ' + всего + '. Ошибки разобраны и пройдены заново.';
       host.innerHTML = qdHead(st2) + '<p class="qd-r" style="margin:10px 0 0;">' + итог + '</p>';
       if (typeof streakPaint === 'function') streakPaint();
-      if (tg && tg.initData) {
+      if (tgInit()) {
         try {
           fetch(apiBase() + '/quiz', {
             method: 'POST',
-            headers: {Authorization: 'tma ' + tg.initData, 'Content-Type': 'application/json'},
+            headers: {Authorization: 'tma ' + tgInit(), 'Content-Type': 'application/json'},
             body: JSON.stringify({asked: всего, rightFirst: сПервого})
           }).catch(function(){});
         } catch(e) {}
@@ -3791,7 +3796,7 @@ function sqMount(hostId, u, o){
 
 // ===== Баллы за месяц, аттестация, тренажёр =====
 async function appApi(method, path, body){
-  const r = await fetch(API_URL.replace(/\/data$/, '') + path, {method, headers:Object.assign({Authorization:'tma '+((tg && tg.initData) || '')}, body ? {'Content-Type':'application/json'} : {}), body: body ? JSON.stringify(body) : undefined});
+  const r = await fetch(API_URL.replace(/\/data$/, '') + path, {method, headers:Object.assign({Authorization:'tma '+tgInit()}, body ? {'Content-Type':'application/json'} : {}), body: body ? JSON.stringify(body) : undefined});
   if(!r.ok){ const e = new Error('http '+r.status); e.status = r.status; throw e; }
   return r.json();
 }
@@ -4563,6 +4568,11 @@ function gmSummary(play, total, won, nextAt){
 
 // Загрузка данных с сервера. Личных данных в этом файле нет.
 const tg = window.Telegram && window.Telegram.WebApp;
+// Данные входа: из SDK, а если он не загрузился или отдал пусто — из адреса страницы.
+function tgInit(){
+  if(tg && tg.initData) return tg.initData;
+  try{ return new URLSearchParams(String(window.TG_HASH || '').replace(/^#/, '')).get('tgWebAppData') || ''; }catch(e){ return ''; }
+}
 let currentUser = null;
 const API_URL = 'https://oggo-ai-assistant-production.up.railway.app/api/app/data';
 
@@ -4611,7 +4621,9 @@ function showState(kind){
     const s = STATES[kind] || STATES.err;
     host.innerHTML = '<div class="st-card"><div class="st-ic">'+ic(s.icon,30)+'</div><div class="st-t">'+s.t+'</div><div class="st-p">'+s.p+'</div>'+
       (s.retry ? '<button class="st-btn" id="stRetry">Повторить</button>' : '')+
-      (s.bot ? '<a class="st-btn" href="https://t.me/oggo_prvo_bot" id="stBot">Открыть бота</a>' : '')+'</div>';
+      (s.bot ? '<a class="st-btn" href="https://t.me/oggo_prvo_bot" id="stBot">Открыть бота</a>' : '')+
+      // Служебная строка для директора: по скриншоту видно, что именно не пришло (08.10, случай Леры).
+      (kind === 'noinit' || kind === 401 ? '<div class="st-p" style="margin-top:12px;font-size:11px;opacity:.55;">код: sdk '+(window.Telegram && window.Telegram.WebApp ? 'да' : 'нет')+' · адрес '+(/tgWebAppData/.test(String(window.TG_HASH||'')) ? 'да' : 'нет')+' · '+(tg && tg.platform ? tg.platform : '—')+' '+(tg && tg.version ? tg.version : '')+'</div>' : '')+'</div>';
     const rb = document.getElementById('stRetry'); if(rb) rb.addEventListener('click', boot);
     const bb = document.getElementById('stBot'); if(bb) bb.addEventListener('click', e=>{ if(tg && tg.openTelegramLink){ e.preventDefault(); tg.openTelegramLink('https://t.me/oggo_prvo_bot'); } });
   }
@@ -4642,12 +4654,12 @@ async function boot(){
   tgChrome();
   // Перехват системной «Назад» ставим до загрузки данных: экран состояния тоже умеет открывать окна.
   atHookBack();
-  if(!(tg && tg.initData)){ showState('noinit'); return; }
+  if(!tgInit()){ showState('noinit'); return; }
   showState('loading');
   let r;
   try{
     const ctl = new AbortController(); const to = setTimeout(()=>ctl.abort(), 15000);
-    r = await fetch(API_URL, {headers:{Authorization:'tma '+tg.initData}, signal:ctl.signal});
+    r = await fetch(API_URL, {headers:{Authorization:'tma '+tgInit()}, signal:ctl.signal});
     clearTimeout(to);
   }catch(e){ showState('net'); return; }
   if(!r.ok){ showState(STATES[r.status] ? r.status : 'err'); return; }
@@ -5462,7 +5474,7 @@ body.is-finance #mSearch,body.is-finance .kn-top,body.is-finance #prModes,body.i
   // Тот же разбор, что на сервере: сервер всё равно проверит, здесь — чтобы не отправлять мусор.
   const parseRub = v => { const s = String(v == null ? '' : v).replace(/[\s  ]/g, '').replace(',', '.'); if(!/^\d{1,12}(\.\d{1,2})?$/.test(s)) return null; const [i, f = ''] = s.split('.'); return Number(i) * 100 + Number((f + '00').slice(0, 2)); };
   const ekbHm = () => new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(11, 16);
-  const finAuth = () => ({Authorization: 'tma ' + ((tg && tg.initData) || '')});
+  const finAuth = () => ({Authorization: 'tma ' + tgInit()});
   async function finLoad(){
     if(!finFor()) return;
     try{
