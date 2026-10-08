@@ -4092,9 +4092,9 @@ function myErrGroups(items){
 // h.fin — бухгалтерия (08.10): записи из «Учёта ошибок» без баллов и оспаривания, вместо типа документа — категория.
 function myErrorsHtml(h){
   const groups = myErrGroups(h.items);
-  if(h.unavailable) return CZ_HEAD('Твои ошибки','')+
+  if(h.unavailable) return CZ_HEAD(h.fin ? 'Ваши ошибки' : 'Твои ошибки','')+
     '<div class="cz-note"><div class="cz-txt">Список не прочитан: '+(h.fin ? '«Учёт ошибок» не ответил' : 'ежедневная проверка учёта не отвечает')+'. Это сбой, а не «ошибок нет» — скажите директору.</div></div>';
-  if(!groups.length) return CZ_HEAD('Твои ошибки', h.fin ? 'Открытых записей нет' : 'За три месяца записей нет')+
+  if(!groups.length) return CZ_HEAD(h.fin ? 'Ваши ошибки' : 'Твои ошибки', h.fin ? 'Открытых записей нет' : 'За три месяца записей нет')+
     '<div class="cz-note"><div class="cz-txt">'+(h.fin ? 'Записей по вам нет. Появятся — окажутся здесь, с датой по каждой.' : 'Записей по вам нет. Появятся — окажутся здесь, с датой и баллом по каждой.')+'</div></div>';
   const repeated = groups.filter(g=>g.rows.length > 1).length;
   const cards = groups.map(g=>{
@@ -4115,7 +4115,7 @@ function myErrorsHtml(h){
   // Формат «окно» (директор 02.10.2026): на экране — карточка со счётом и кнопка, список — в листе.
   // В светлом листе плашки счёта и баллов — чёрные: белая плашка на белом не читается (правило журнала вкуса).
   window.MY_ERR_SHEET = '<div class="ord-card myerr-sheet">'+cards+'</div>';
-  return CZ_HEAD('Твои ошибки', 'Эти ошибки у вас уже были')+
+  return CZ_HEAD(h.fin ? 'Ваши ошибки' : 'Твои ошибки', 'Эти ошибки у вас уже были')+
     '<div class="cz-note"><div class="cz-cap">'+groups.length+' '+AT_PL(groups.length,'вид нарушения','вида нарушений','видов нарушений')+
       (repeated ? ' · повторялось: '+repeated : '')+'</div>'+
       '<div class="cz-txt">'+(h.fin
