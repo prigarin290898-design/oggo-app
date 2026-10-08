@@ -5930,7 +5930,7 @@ body.is-finance #mSearch,body.is-finance .kn-top,body.is-finance #prModes,body.i
     afterData(u);
   };
   // Лера и Марина (08.10, «всё по аналогии с производством, новое ничего не создаём»): те же экраны и меню.
-  // Работа — «Сегодня» (деньги, задачи, ошибки); обучение — «Знания» (своя роль и правила, проектом) и «Внимание»
+  // Работа — «Сегодня» (деньги, задачи, ошибки) и «Задачи»; обучение — «Знания» (своя роль и правила, проектом) и «Внимание»
   // (свои ошибки без баллов). Что им можно, решает сервер; здесь только не рисуем того, чего у них нет.
   const FIN_DRAFT = '<div class="cz-note" style="margin-bottom:12px;"><div class="cz-cap">Проект</div>'+
     '<div class="cz-txt">База знаний бухгалтерии собрана из решений директора 05–08.10.2026 и ещё не объявлена правилом. Спорное — к директору.</div></div>';
@@ -5939,7 +5939,8 @@ body.is-finance #mSearch,body.is-finance .kn-top,body.is-finance #prModes,body.i
     document.body.classList.remove('is-director');
     const w = document.getElementById('whoami');
     if(w) w.innerHTML = '<div class="av">'+esc(u.initials || '')+'</div><div class="nm">'+esc(String(u.name || '').split(' ')[0])+'</div>';
-    document.querySelectorAll('.botnav .ni').forEach(b => { if(['today', 'process', 'errors'].indexOf(b.dataset.s) < 0) b.hidden = true; });
+    // «Задачи» — тот же экран и свайп, что у производства (директор 08.10: «задачи есть в Трекере»); счёта дисциплины сервер не отдаёт.
+    document.querySelectorAll('.botnav .ni').forEach(b => { if(['today', 'tasks', 'process', 'errors'].indexOf(b.dataset.s) < 0) b.hidden = true; });
     const r = ROLES[u.key];
     PR_TABS.splice(0, PR_TABS.length,
       {k:'role', t:'Моя роль', draft:true, draftNote:FIN_DRAFT, head:'Карточка роли', sub: r ? r.position : '', body:'<div id="finRole"></div>', mount:()=>{
