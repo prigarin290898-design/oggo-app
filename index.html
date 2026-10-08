@@ -5523,12 +5523,41 @@ body.is-finance #mSearch,body.is-finance .kn-top,body.is-finance #prModes,body.i
         (f.cash ? '<div class="fin-row"><span class="td-k"><b>Наличные ИП</b><span>только Мой Склад, банка нет</span></span><span class="td-v fin-v">' + rub(f.cash.value) + '</span></div>' : '') +
       '</div>' +
       (ni.length ? '<div class="fin-warn">' + esc(ni.join(', ')) + ' — сверка не независимая: остаток вносит тот же человек, что разносит платежи.</div>' : '') +
+      finLeaveRow(f) +
       '<div class="fin-note">Разница = банк на начало дня − Мой Склад по документам до 00:00 сегодня. Пересчитывается при каждом открытии: разнесли платёж — расхождение уходит.</div>' +
       (f.canEnter ? '<button type="button" class="fin-btn" id="finEnter2">Внести остатки</button>' : '');
     openSheet({cap: 'Деньги', icon: BANK_IC,
       title: bad.length ? bad.length + ' ' + plural(bad.length, 'расходится', 'расходятся', 'расходятся') : (f.main.source === 'ms' ? 'Банк ещё не внесён' : 'Всё сходится'),
       sub: 'Свободные ' + rub(f.main.value) + ' ₽' + (f.msFreeAtCutoff !== null ? ' · Мой Склад на 00:00 — ' + rub(f.msFreeAtCutoff) + ' ₽' : ''),
-      body, after: b => { const x = b.querySelector('#finEnter2'); if(x) x.onclick = finForm; }});
+      body, after: b => { const x = b.querySelector('#finEnter2'); if(x) x.onclick = finForm; const lv = b.querySelector('#finLeave'); if(lv) lv.onclick = finLeaveToggle; }});
+  }
+  // «Марина в отпуске» (08.10): строка только у директора — сервер отдаёт f.leave лишь ему и сам проверяет право.
+  // Пока включено, остатки Марины (Точка, фонды, Альфа) вносит Лера; у Леры и Марины строки счетов меняются сами.
+  function finLeaveRow(f){
+    const lv = f.leave; if(!lv) return '';
+    const who = lv.by ? ' · ' + (lv.on ? 'включил ' : 'выключил ') + esc(lv.by) + ' ' + esc(lv.when || '') : ' · кнопку ещё не нажимали';
+    return '<div class="fin-gh">Кто вносит</div><div class="fin-lst"><div class="fin-row"><span class="td-k"><b>Марина в отпуске</b><span>' +
+      (lv.on ? 'остатки Марины вносит Лера' : 'остатки Марина вносит сама') + who + '</span><span class="fin-st">' + pill(lv.on ? 'g' : 'o', lv.on ? 'включено' : 'выключено') + '</span></span>' +
+      '<button type="button" class="fin-edit" id="finLeave" aria-pressed="' + lv.on + '">' + (lv.on ? 'Выключить' : 'Включить') + '</button></div></div>';
+  }
+  function finLeaveToggle(){
+    const on = !(FIN && FIN.leave && FIN.leave.on);
+    const msg = on ? 'Марина в отпуске: Точку, фонды и Альфу вносит Лера, Альфа станет видна Лере. Включить?'
+      : 'Марина вернулась: Точку, фонды и Альфу снова вносит Марина, Альфа уйдёт от Леры. Выключить?';
+    const go = async () => {
+      const btn = document.getElementById('finLeave'); if(btn) btn.disabled = true;
+      try{
+        const r = await fetch(apiBase() + '/finance/leave', {method: 'POST', headers: Object.assign({'Content-Type': 'application/json'}, finAuth()), body: JSON.stringify({on})});
+        if(!r.ok) throw new Error('http ' + r.status);
+        FIN = await r.json();
+        renderToday(); finSheet();
+      }catch(e){
+        if(btn){ btn.disabled = false; btn.textContent = 'Не сохранено — ещё раз'; }
+      }
+    };
+    // Тот же порядок подтверждения, что у выхода из аттестации: окно Telegram, вне его — confirm браузера.
+    if(tg && tg.showConfirm) tg.showConfirm(msg, ok => { if(ok) go(); });
+    else if(confirm(msg)) go();
   }
   // Форма F2: каждый счёт своей кнопкой. «Отменить» — 5 секунд до отправки, дальше «Исправить» в любое время.
   let FIN_OPEN = null, FIN_PENDING = null;
