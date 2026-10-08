@@ -6046,13 +6046,13 @@ body.is-finance #mSearch,body.is-finance .kn-top,body.is-finance #prModes,body.i
     document.querySelectorAll('.botnav .ni').forEach(b => { if(['today', 'tasks', 'process', 'errors'].indexOf(b.dataset.s) < 0) b.hidden = true; });
     const r = ROLES[u.key];
     PR_TABS.splice(0, PR_TABS.length,
-      {k:'role', t:'Моя роль', draft:true, draftNote:FIN_DRAFT, head:'Карточка роли', sub: r ? r.position : '', body:'<div id="finRole"></div>', mount:()=>{
+      {k:'role', t:'Моя роль', head:'Карточка роли', sub: r ? r.position : '', body:'<div id="finRole"></div>', mount:()=>{
         const h = document.getElementById('finRole');
         if(!h) return;
         if(!r){ h.innerHTML = '<div class="cz-note"><div class="cz-txt">Карточка роли не загрузилась. Откройте приложение ещё раз, а если не появится — скажите директору.</div></div>'; return; }
         h.innerHTML = roleBlockHtml(r); roleBlockBind(r);
       }},
-      {k:'rules', t:'Правила', draft:true, draftNote:FIN_DRAFT, head:'Правила бухгалтерии', sub:'Оплаты, счета, фонды, остатки, сверка', body:'<div id="ruleAccordion"></div>', mount:()=>renderRules()});
+      {k:'rules', t:'Правила', head:'Правила бухгалтерии', sub:'Оплаты, счета, фонды, остатки, сверка', body:'<div id="ruleAccordion"></div>', mount:()=>renderRules()});
     PR_MODE = 'ref'; PR_TAB = 'role';
     renderProcess(u);
     myErrorsMount();
