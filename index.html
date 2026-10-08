@@ -5504,22 +5504,25 @@ body.is-finance .botnav,body.is-finance #mSearch{display:none!important;}
   }
   // Форма F2: каждый счёт своей кнопкой. «Отменить» — 5 секунд до отправки, дальше «Исправить» в любое время.
   let FIN_OPEN = null, FIN_PENDING = null;
+  const finEnt = b => b.ahead ? b.ahead.entry : b.entry;
   function finForm(){
     const f = FIN; if(!f) return;
     const mine = [];
     f.lines.forEach(l => l.banks.forEach(b => { if(b.canEdit) mine.push({l, b}); }));
-    const done = mine.filter(x => x.b.entry).length;
-    if(FIN_OPEN === null){ const first = mine.find(x => !x.b.entry); FIN_OPEN = first ? first.b.id : ''; }
+    const done = mine.filter(x => finEnt(x.b)).length;
+    if(FIN_OPEN === null){ const first = mine.find(x => !finEnt(x.b)); FIN_OPEN = first ? first.b.id : ''; }
     const card = ({l, b}) => {
-      const e = b.entry, pv = b.prev;
+      // Вечерний счёт (Сбер): после полудня вносится на утро следующего рабочего дня.
+      const am = b.ahead ? ' на утро ' + b.ahead.day : '';
+      const e = b.ahead ? b.ahead.entry : b.entry, pv = b.prev;
       if(FIN_OPEN !== b.id){
-        const st = e ? (l.of > 1 && l.entered < l.of ? pill('y', 'внесён ' + l.entered + ' из ' + l.of) : linePill(l, f)) : pill(f.late ? 'r' : 'y', 'не внесено');
-        return '<div class="fin-row fin-acc"><span class="td-k"><b>' + esc(b.label) + '</b><span>' + (e ? 'внесено ' + esc(e.who.split(' ').pop()) + ' · ' + rubK(e.fact) + (e.edits ? ' · исправлено ' + e.edits + ' раз' : '') : (pv ? 'вчера ' + rubK(pv.fact) : 'ещё не вносился')) + '</span><span class="fin-st">' + st + '</span></span>' +
+        const st = b.ahead && e ? pill('o', 'на утро ' + esc(b.ahead.day)) : e ? (l.of > 1 && l.entered < l.of ? pill('y', 'внесён ' + l.entered + ' из ' + l.of) : linePill(l, f)) : pill(f.late ? 'r' : 'y', 'не внесено');
+        return '<div class="fin-row fin-acc"><span class="td-k"><b>' + esc(b.label) + '</b><span>' + (e ? 'внесено' + am + ' ' + esc(e.who.split(' ').pop()) + ' · ' + rubK(e.fact) + (e.edits ? ' · исправлено ' + e.edits + ' раз' : '') : (pv ? 'вчера ' + rubK(pv.fact) : 'ещё не вносился')) + '</span><span class="fin-st">' + st + '</span></span>' +
           '<button type="button" class="fin-edit" data-open="' + esc(b.id) + '">' + (e ? EDIT_IC + 'Исправить' : 'Внести') + '</button></div>';
       }
       const dep = e ? rubK(e.deposit) : '', rest = e ? rubK(e.rest) : '0';
-      return '<div class="fin-fd" data-acc="' + esc(b.id) + '"><label class="fin-lb">' + esc(b.label) + (e ? (l.of > 1 && l.entered < l.of ? pill('y', 'внесён ' + l.entered + ' из ' + l.of) : linePill(l, f)) : pill(f.late ? 'r' : 'y', 'не внесено')) + '</label>' +
-        '<label class="fin-in"><span>' + (b.two ? 'Депозит' : 'Остаток') + '</span><input inputmode="decimal" autocomplete="off" name="deposit" value="' + dep + '" placeholder="0,00"></label>' +
+      return '<div class="fin-fd" data-acc="' + esc(b.id) + '"><label class="fin-lb">' + esc(b.label) + (b.ahead && e ? pill('o', 'на утро ' + esc(b.ahead.day)) : e ? (l.of > 1 && l.entered < l.of ? pill('y', 'внесён ' + l.entered + ' из ' + l.of) : linePill(l, f)) : pill(f.late ? 'r' : 'y', 'не внесено')) + '</label>' +
+        '<label class="fin-in"><span>' + (b.two ? 'Депозит' : 'Остаток' + (b.ahead ? ' вечером — на утро ' + esc(b.ahead.day) : '')) + '</span><input inputmode="decimal" autocomplete="off" name="deposit" value="' + dep + '" placeholder="0,00"></label>' +
         '<div class="fin-y">' + (pv ? 'вчера <b>' + rubK(pv.fact) + '</b>' : 'вчера не вносился') + '<span class="fin-delta"></span></div>' +
         (b.two ? '<label class="fin-sub"><span>Остаток на счёте</span><input inputmode="decimal" autocomplete="off" name="rest" value="' + rest + '" placeholder="0,00"></label>' : '') +
         '<div class="fin-err" role="alert" hidden></div>' +
@@ -5546,7 +5549,7 @@ body.is-finance .botnav,body.is-finance #mSearch{display:none!important;}
       const upd = () => { const d = parseRub(dep.value), r = rest ? parseRub(rest.value || '0') : 0;
         delta.textContent = d !== null && r !== null && b.prev ? ' · ' + sgn(d + r - b.prev.fact) : ''; };
       dep.addEventListener('input', upd); if(rest) rest.addEventListener('input', upd); upd();
-      if(!b.entry) setTimeout(() => dep.focus(), 80);
+      if(!finEnt(b)) setTimeout(() => dep.focus(), 80);
       card.querySelector('.fin-save').onclick = () => {
         const d = parseRub(dep.value), r = rest ? parseRub(rest.value || '0') : 0;
         if(d === null || r === null){ err.hidden = false; err.textContent = 'Введите сумму цифрами, например 2 106 900,00'; return; }
