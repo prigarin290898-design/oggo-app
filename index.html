@@ -2294,13 +2294,16 @@ function gdLead(x){
   if(/\.$/.test(x.b)) return '<div class="gd-k">'+gdEsc(x.b)+'</div><div class="gd-t">'+gdEsc(x.t)+'</div>';
   return '<div class="gd-k">'+gdEsc(x.b)+(/^[,.;:]/.test(x.t) ? '' : ' ')+'<span class="gd-ti">'+gdEsc(x.t)+'</span></div>';
 }
+// Заголовки и слово отметки может прислать сервер (гид «Марина в отпуске» для Леры, 08.10) — компонент тот же.
+const gdAckWord = g => g.ackWord || 'Ознакомлен';
 function gdBannerHtml(){
   const g = window.GUIDE;
   if(!g) return '';
+  const banner = gdEsc(g.banner || GD_BANNER);
   // После «Ознакомлен» плашка не уходит до конца срока — становится белой строкой с временем отметки.
   if(g.ack) return '<button type="button" class="gd-bnr" id="gdOpen"><span class="bi">'+ic(GD_IC.ok,18)+'</span>'+
-    '<span class="rk"><b>'+GD_BANNER+'</b><span>Ознакомлен '+gdEsc(g.ack.label)+'</span></span>'+ic('<polyline points="9 6 15 12 9 18"/>',16)+'</button>';
-  return '<div class="gd-bn"><div class="top"><span class="bi">'+ic(GD_IC.role,18)+'</span><b>'+GD_BANNER+'</b></div>'+
+    '<span class="rk"><b>'+banner+'</b><span>'+gdAckWord(g)+' '+gdEsc(g.ack.label)+'</span></span>'+ic('<polyline points="9 6 15 12 9 18"/>',16)+'</button>';
+  return '<div class="gd-bn"><div class="top"><span class="bi">'+ic(GD_IC.role,18)+'</span><b>'+banner+'</b></div>'+
     '<button type="button" class="go" id="gdOpen">Открыть '+ic('<polyline points="9 6 15 12 9 18"/>',16)+'</button></div>';
 }
 function gdBind(root){
@@ -2309,22 +2312,26 @@ function gdBind(root){
 }
 function gdFoot(){
   const g = window.GUIDE;
-  if(g.ack) return '<div class="gd-done">'+ic(GD_IC.ok,18)+' Ознакомлен '+gdEsc(g.ack.label)+'</div>';
-  return '<button type="button" class="gd-ok" id="gdAck">'+ic(GD_IC.ok,18)+' Ознакомлен</button><div class="gd-hint">Время отметки увидит директор</div>';
+  if(g.ack) return '<div class="gd-done">'+ic(GD_IC.ok,18)+' '+gdAckWord(g)+' '+gdEsc(g.ack.label)+'</div>';
+  return '<button type="button" class="gd-ok" id="gdAck">'+ic(GD_IC.ok,18)+' '+gdAckWord(g)+'</button><div class="gd-hint">Время отметки увидит директор</div>';
 }
 function gdSheet(){
   const g = window.GUIDE;
   if(!g) return;
-  const news = '<div class="gd-hd" id="gdNew"><b>Что нового</b><span class="ct">'+g.news.length+'</span></div><div class="gd-src">приложение · общее для всех</div>'+
+  const nh = gdEsc(g.newsHead || 'Что нового'), chh = gdEsc(g.changesHead || 'Что изменилось');
+  const news = '<div class="gd-hd" id="gdNew"><b>'+nh+'</b><span class="ct">'+g.news.length+'</span></div><div class="gd-src">'+gdEsc(g.newsSrc || 'приложение · общее для всех')+'</div>'+
     '<div class="gd-lst">'+g.news.map(x=>'<div class="gd-rr"><span class="gd-ni">'+ic(GD_IC[x.icon] || GD_IC.modes,14)+'</span><div>'+gdLead(x)+'</div></div>').join('')+'</div>';
   // Номера у «Что изменилось» — адреса пунктов («см. пункт 5»), а не порядок выполнения.
-  const changes = g.changes.length ? '<div class="gd-hd" id="gdRole"><b class="acc">Что изменилось</b><span class="ct">'+g.changes.length+'</span></div><div class="gd-src">правила вашей роли</div>'+
+  const changes = g.changes.length ? '<div class="gd-hd" id="gdRole"><b class="acc">'+chh+'</b><span class="ct">'+g.changes.length+'</span></div><div class="gd-src">'+gdEsc(g.changesSrc || 'правила вашей роли')+'</div>'+
     (g.scheme ? CHAIN_NOTE() : '')+
     '<div class="gd-lst">'+g.changes.map((x,i)=>'<div class="gd-rr"><span class="gd-n">'+(i+1)+'</span><div>'+gdLead(x)+'</div></div>').join('')+'</div>' : '';
-  const jump = g.changes.length ? '<div class="gd-jmp"><button type="button" data-to="gdNew">Что нового <i>'+g.news.length+'</i></button><button type="button" data-to="gdRole">Что изменилось <i>'+g.changes.length+'</i></button></div>' : '';
-  openSheet({cap:'Роль изменена', title:'Ваша роль изменена', icon:GD_IC.role,
-    sub: g.changes.length ? 'что нового и что изменилось' : 'что нового в приложении',
-    body: jump + news + changes + '<div class="gd-foot" id="gdFoot">'+gdFoot()+'</div>',
+  // Гид со своими заголовками (отпуск Марины) — сначала «что переходит», потом «не ваше».
+  const own = !!g.changesHead;
+  const jumpBtn = (to, t, n) => '<button type="button" data-to="'+to+'">'+t+' <i>'+n+'</i></button>';
+  const jump = g.changes.length ? '<div class="gd-jmp">'+(own ? jumpBtn('gdRole', chh, g.changes.length) + jumpBtn('gdNew', nh, g.news.length) : jumpBtn('gdNew', nh, g.news.length) + jumpBtn('gdRole', chh, g.changes.length))+'</div>' : '';
+  openSheet({cap: g.cap || 'Роль изменена', title: g.title || 'Ваша роль изменена', icon:GD_IC.role,
+    sub: g.sub || (g.changes.length ? 'что нового и что изменилось' : 'что нового в приложении'),
+    body: jump + (own ? changes + news : news + changes) + '<div class="gd-foot" id="gdFoot">'+gdFoot()+'</div>',
     after: body => {
       body.querySelectorAll('.gd-jmp button').forEach(b => b.addEventListener('click', () => {
         const t = document.getElementById(b.dataset.to);
@@ -5708,6 +5715,7 @@ body.is-finance #mSearch,body.is-finance .kn-top,body.is-finance #prModes,body.i
     // У финансов «Роста» и «Обучения» нет: только деньги и задачи (решение 07.10).
     if(isFinRole()){
       el.innerHTML = parts.join('');
+      gdBind(el); // гид «Марина в отпуске» — Лере, пока флаг включён
       finBind(el);
       el.querySelectorAll('[data-f]').forEach(x => x.addEventListener('click', () => findingSheet(f[+x.dataset.f])));
       const allF = document.getElementById('tdAllF');
