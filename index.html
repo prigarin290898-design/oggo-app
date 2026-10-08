@@ -5531,11 +5531,12 @@ body.is-finance #mSearch,body.is-finance .kn-top,body.is-finance #prModes,body.i
       sub: 'Свободные ' + rub(f.main.value) + ' ₽' + (f.msFreeAtCutoff !== null ? ' · Мой Склад на 00:00 — ' + rub(f.msFreeAtCutoff) + ' ₽' : ''),
       body, after: b => { const x = b.querySelector('#finEnter2'); if(x) x.onclick = finForm; const lv = b.querySelector('#finLeave'); if(lv) lv.onclick = finLeaveToggle; }});
   }
-  // «Марина в отпуске» (08.10): строка только у директора — сервер отдаёт f.leave лишь ему и сам проверяет право.
+  // «Марина в отпуске» (08.10): строка у директора и Леры — сервер отдаёт f.leave только им и сам проверяет право.
   // Пока включено, остатки Марины (Точка, фонды, Альфа) вносит Лера; у Леры и Марины строки счетов меняются сами.
   function finLeaveRow(f){
     const lv = f.leave; if(!lv) return '';
-    const who = lv.by ? ' · ' + (lv.on ? 'включил ' : 'выключил ') + esc(lv.by) + ' ' + esc(lv.when || '') : ' · кнопку ещё не нажимали';
+    const fem = lv.byKey && lv.byKey !== 'director'; // Лера — «включила», директор — «включил»
+    const who = lv.by ? ' · ' + (lv.on ? 'включил' : 'выключил') + (fem ? 'а ' : ' ') + esc(lv.by) + ' ' + esc(lv.when || '') : ' · кнопку ещё не нажимали';
     return '<div class="fin-gh">Кто вносит</div><div class="fin-lst"><div class="fin-row"><span class="td-k"><b>Марина в отпуске</b><span>' +
       (lv.on ? 'остатки Марины вносит Лера' : 'остатки Марина вносит сама') + who + '</span><span class="fin-st">' + pill(lv.on ? 'g' : 'o', lv.on ? 'включено' : 'выключено') + '</span></span>' +
       '<button type="button" class="fin-edit" id="finLeave" aria-pressed="' + lv.on + '">' + (lv.on ? 'Выключить' : 'Включить') + '</button></div></div>';
