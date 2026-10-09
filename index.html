@@ -934,6 +934,7 @@ window.ASSET_V = '20260923b';
   .pk-row.done{background:var(--glass-strong);}
   /* Наименование целиком, переносом — по нему собирают, обрезка многоточием прятала различие вкусов (09.10). */
   .pk-t{flex:1 1 auto;min-width:0;font-size:12.5px;font-weight:700;line-height:1.25;overflow-wrap:anywhere;}
+  .pk-code{margin-right:6px;font-family:var(--font-display);font-weight:700;color:var(--ink-dim);font-variant-numeric:tabular-nums;}
   .pk-plan{flex:0 0 auto;min-width:40px;padding:6px 8px;border-radius:8px;background:var(--glass-strong);font-family:var(--font-display);font-weight:700;font-size:13px;color:var(--ink-dim);text-align:center;}
   .pk-fact{flex:0 0 auto;min-width:48px;padding:6px 10px;border-radius:8px;background:var(--lime);color:var(--lime-ink);font-family:var(--font-display);font-size:13px;font-weight:700;text-align:center;}
   /* Факт против расчёта (директор 09.10): зелёный — ровно, красный — меньше, жёлтый — больше.
@@ -2854,7 +2855,8 @@ function pkRender(box, s){
   // Пока сборка открыта, каждая строка — поле: отмеченную можно исправить (Арсений 09.10).
   // После «Сборка закончена» строки только читаются — дальше правда в Мой Складе.
   const row = i => '<div class="pk-row'+(i.done ? ' done' : '')+'" data-pos="'+i.pos+'" data-plan="'+i.plan+'"'+(i.done ? ' data-fact="'+i.fact+'"' : '')+'>'+
-    '<span class="pk-t" title="'+tkEsc(i.name)+'">'+tkEsc(i.name)+'</span>'+
+    // Код товара — первым: по нему ищут на полке (директор 09.10). У сборки, начатой до выкатки, кода нет.
+    '<span class="pk-t" title="'+tkEsc(i.name)+'">'+(i.code ? '<span class="pk-code">'+tkEsc(i.code)+'</span>' : '')+tkEsc(i.name)+'</span>'+
     '<span class="pk-plan">'+i.plan+'</span>'+
     (!open
       ? '<span class="pk-fact '+pkTone(i.fact, i.plan)+'">'+i.fact+'</span>'
