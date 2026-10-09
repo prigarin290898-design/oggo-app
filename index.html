@@ -935,8 +935,15 @@ window.ASSET_V = '20260923b';
   .pk-t{flex:1 1 auto;min-width:0;font-size:12.5px;font-weight:700;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .pk-plan{flex:0 0 auto;min-width:40px;padding:6px 8px;border-radius:8px;background:var(--glass-strong);font-family:var(--font-display);font-weight:700;font-size:13px;color:var(--ink-dim);text-align:center;}
   .pk-fact{flex:0 0 auto;min-width:48px;padding:6px 10px;border-radius:8px;background:var(--lime);color:var(--lime-ink);font-family:var(--font-display);font-size:13px;font-weight:700;text-align:center;}
-  .pk-fact.bad{background:#ff5544;color:#1a0500;}
+  /* Факт против расчёта (директор 09.10): зелёный — ровно, красный — меньше, жёлтый — больше.
+     Больше — не ошибка, а кратность тары, поэтому жёлтый, а не красный. */
+  .pk-fact.ok{background:var(--ok);color:#fff;}
+  .pk-fact.short{background:var(--danger);color:#fff;}
+  .pk-fact.over{background:#ffcf33;color:#2a1f00;}
   .pk-in{flex:0 0 54px;width:54px;padding:6px 6px;border-radius:8px;border:1px solid var(--glass-border);background:#fff;font-family:var(--font-display);font-size:13px;font-weight:700;color:var(--ink);text-align:center;}
+  .pk-in.ok{border:2px solid var(--ok);background:var(--ok-bg);}
+  .pk-in.short{border:2px solid var(--danger);background:var(--danger-bg);}
+  .pk-in.over{border:2px solid #e0a800;background:#fff4c2;}
   .pk-go{flex:0 0 auto;padding:7px 10px;border:0;border-radius:8px;background:var(--glass-strong);color:var(--ink-dim);font-family:var(--font-body);font-weight:700;font-size:11px;cursor:pointer;}
   .pk-go.now{background:var(--lime);color:var(--lime-ink);}
   .pk-back{display:block;width:100%;margin-top:12px;padding:10px;border:0;background:transparent;color:var(--ink-dim);font-family:var(--font-body);font-size:12px;cursor:pointer;}
@@ -2823,18 +2830,33 @@ async function pkOpen(box, docId){
   pkRender(box, r.session);
 }
 
+// Факт против расчёта: ok — ровно, short — меньше, over — больше (кратность тары, не ошибка).
+const pkTone = (fact, plan) => Number(fact) === Number(plan) ? 'ok' : Number(fact) < Number(plan) ? 'short' : 'over';
+
 function pkRender(box, s){
   const left = s.total - s.done;
+  const open = s.state === 'picking';
+  const marked = s.items.filter(i=>i.done);
+  const short = marked.filter(i=>pkTone(i.fact, i.plan) === 'short').length;
+  const over = marked.filter(i=>pkTone(i.fact, i.plan) === 'over').length;
   const head = '<div class="cz-note" style="margin-bottom:12px;"><div class="cz-cap">'+tkEsc(s.docName)+' · '+(PK_STATE[s.state] || s.state)+'</div>'+
-    '<div class="now-sum"><span><b>'+s.done+'</b> из '+s.total+'</span>'+(s.diff ? '<span><b>'+s.diff+'</b> '+AT_PL(s.diff,'расхождение','расхождения','расхождений')+'</span>' : '<span>расхождений нет</span>')+'</div></div>';
+    '<div class="now-sum"><span><b>'+s.done+'</b> из '+s.total+'</span>'+
+    (short ? '<span><b>'+short+'</b> меньше расчёта</span>' : '')+
+    (over ? '<span><b>'+over+'</b> больше — по таре</span>' : '')+
+    (!short && !over ? '<span>всё по расчёту</span>' : '')+'</div>'+
+    (open && s.done ? '<div class="cz-txt" style="margin-top:6px;opacity:.75;">Количество в строке можно исправить, пока не нажата «Сборка закончена».</div>' : '')+'</div>';
   const next = s.items.find(i=>!i.done);
-  const row = i => '<div class="pk-row'+(i.done ? ' done' : '')+'" data-pos="'+i.pos+'">'+
+  // Пока сборка открыта, каждая строка — поле: отмеченную можно исправить (Арсений 09.10).
+  // После «Сборка закончена» строки только читаются — дальше правда в Мой Складе.
+  const row = i => '<div class="pk-row'+(i.done ? ' done' : '')+'" data-pos="'+i.pos+'" data-plan="'+i.plan+'"'+(i.done ? ' data-fact="'+i.fact+'"' : '')+'>'+
     '<span class="pk-t" title="'+tkEsc(i.name)+'">'+tkEsc(i.name)+'</span>'+
     '<span class="pk-plan">'+i.plan+'</span>'+
-    (i.done
-      ? '<span class="pk-fact'+(Number(i.fact) === Number(i.plan) ? '' : ' bad')+'">'+i.fact+'</span>'
-      : '<input class="pk-in" type="number" inputmode="decimal" min="0" step="any" aria-label="Сколько собрано '+tkEsc(i.name)+'">'+
-        '<button class="pk-go'+(next && next.pos === i.pos ? ' now' : '')+'" type="button">Собрать</button>')+
+    (!open
+      ? '<span class="pk-fact '+pkTone(i.fact, i.plan)+'">'+i.fact+'</span>'
+      : '<input class="pk-in'+(i.done ? ' '+pkTone(i.fact, i.plan) : '')+'" type="number" inputmode="decimal" min="0" step="any"'+(i.done ? ' value="'+i.fact+'"' : '')+' aria-label="Сколько собрано '+tkEsc(i.name)+'">'+
+        (i.done
+          ? '<button class="pk-go" type="button" hidden>Исправить</button>'
+          : '<button class="pk-go'+(next && next.pos === i.pos ? ' now' : '')+'" type="button">Собрать</button>'))+
     '</div>';
   const foot = s.state === 'picking'
     ? '<button class="pill lime pk-fin" type="button" style="justify-content:center;width:100%;margin-top:12px;'+(left ? 'opacity:.45;' : '')+'">'+(left ? 'Осталось '+left : 'Сборка закончена')+'</button>'
@@ -2842,22 +2864,43 @@ function pkRender(box, s){
       ? '<div class="cz-note" style="margin-top:12px;"><div class="cz-cap">Перенесите в Мой Склад</div><div class="cz-txt">Внесите собранное количество в документ своей учёткой и отметьте здесь. Пока не внесено, перемещение считается расчётным, а не фактическим.</div></div>'+
         '<button class="pill lime pk-ent" type="button" style="justify-content:center;width:100%;margin-top:10px;">Внёс в Мой Склад</button>'
       : '<div class="cz-fact" style="margin-top:12px;"><b style="font-size:12.5px;">'+(s.state === 'entered' ? 'Отмечено как внесённое.' : 'Документ проведён, перемещение уехало.')+'</b><div class="muted" style="margin-top:4px;">Аудитор сверит сборку с документом и напомнит, если что-то разошлось.</div></div>';
+  // Сохранение одной строки перерисовывает весь список: набранное в других строках переносим,
+  // иначе число, введённое и ещё не сохранённое, молча пропадёт.
+  const drafts = {};
+  box.querySelectorAll('.pk-row .pk-in').forEach(inp=>{
+    const r = inp.closest('.pk-row');
+    if(inp.value !== '' && (r.dataset.fact == null || Number(inp.value) !== Number(r.dataset.fact))) drafts[r.dataset.pos] = inp.value;
+  });
   box.innerHTML = head+'<div class="pk-list">'+s.items.map(row).join('')+'</div>'+foot+
     '<button class="pk-back" type="button">← К списку перемещений</button>';
 
-  box.querySelectorAll('.pk-row:not(.done)').forEach(r=>{
+  const dirty = r => r.dataset.fact != null && r.querySelector('.pk-in').value !== '' && Number(r.querySelector('.pk-in').value) !== Number(r.dataset.fact);
+  box.querySelectorAll('.pk-row').forEach(r=>{
     const inp = r.querySelector('.pk-in'), btn = r.querySelector('.pk-go');
+    if(!inp) return;
+    // Цвет — сразу по мере ввода, чтобы недобор был виден до нажатия.
+    inp.addEventListener('input', ()=>{
+      inp.classList.remove('ok','short','over');
+      if(inp.value !== '') inp.classList.add(pkTone(inp.value, r.dataset.plan));
+      if(r.dataset.fact != null){ btn.hidden = !dirty(r); btn.classList.toggle('now', dirty(r)); }
+    });
     const send = async ()=>{
       if(inp.value === ''){ inp.focus(); return; }
+      if(r.dataset.fact != null && !dirty(r)) return;
       btn.disabled = true;
       try{ const out = await pkApi('/mark', {docId:s.docId, pos:Number(r.dataset.pos), fact:Number(inp.value)}); pkRender(box, out.session); }
       catch(e){ btn.disabled = false; btn.textContent = 'Не сохранилось'; }
     };
     btn.addEventListener('click', send);
     inp.addEventListener('keydown', e=>{ if(e.key === 'Enter'){ e.preventDefault(); send(); } });
+    const kept = drafts[r.dataset.pos];
+    if(kept != null && Number(kept) !== Number(r.dataset.fact)){ inp.value = kept; inp.dispatchEvent(new Event('input')); }
   });
   const fin = box.querySelector('.pk-fin');
   if(fin) fin.addEventListener('click', async ()=>{
+    // Исправленное, но не сохранённое число иначе молча потерялось бы: документ закрылся бы со старым.
+    const unsaved = [...box.querySelectorAll('.pk-row')].filter(dirty);
+    if(unsaved.length){ unsaved[0].querySelector('.pk-in').focus(); fin.textContent = 'Нажмите «Исправить» в строке'; return; }
     try{ const out = await pkApi('/finish', {docId:s.docId}); pkRender(box, out.session); }
     catch(e){ fin.textContent = 'Отметьте все позиции'; }
   });
