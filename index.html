@@ -3231,6 +3231,8 @@ function renderGame(u){
   var ARTMAP = {"move1": "move", "move2": "phone", "move3": "laptop", "move4": "depot", "move5": "calc", "move6": "cart", "move7": "truck", "move8": "sign", "wo1": "stamp", "wo2": "call", "wo3": "lock", "wo4": "lens", "wo5": "cubes3", "wo6": "clock", "wo7": "emptybox", "wo8": "stairs", "dates1": "rule", "dates2": "hourglass", "dates3": "calendarlock", "dates4": "rule", "order1": "docplus", "order2": "tag", "order3": "lock", "tech1": "key", "tech2": "docpen", "tech3": "tech", "tech4": "copy", "tech5": "tag", "recv1": "scales", "recv2": "check2", "inv1": "pie", "inv2": "caliper", "inv3": "stop", "inv4": "lock", "inv5": "scanner", "disc1": "mega", "disc2": "clock", "disc3": "envelope", "disc4": "bubbles", "disc5": "tiles3", "move9": "move", "move10": "truck", "order4": "cart", "order5": "invoice", "disc6": "hourglass", "disc7": "scales", "disc8": "check2"};
   EXTRA.forEach(function(c){ var k = ARTMAP[c.id.replace(/^r-/, '')]; if(k) c.art = k; });
   ALL = ALL.concat(EXTRA);
+  // Изготовитель п/ф (директор 19.10.2026): своя колода — правила участка вместо колоды производства.
+  if (window.PF_DECK && window.PF_DECK.length) ALL = window.PF_DECK.map(function(c){ return Object.assign({}, c); });
 
   var IMG = {rule:'01-calendar', tech:'02-flask', wo:'03-clipboard', goods:'04-box', order:'05-order', invoice:'06-invoice', receipt:'07-receipt-box', move:'08-pallet', inv:'09-shelf', phone:'10-phone-photo', laptop:'11-laptop-table', depot:'12-depot-pin', calc:'13-calculator', cart:'14-cart-check', truck:'15-truck', sign:'16-doc-signature', stamp:'17-stamp-check', call:'18-call-bubble', lock:'19-padlock', lens:'20-lens-layers', cubes3:'21-cubes-three', clock:'22-alarm-clock', emptybox:'23-box-empty', stairs:'24-stairs-four', hourglass:'25-hourglass', calendarlock:'26-calendar-lock', docplus:'27-docs-plus', tag:'28-price-tag', key:'29-key', docpen:'30-doc-pencil', copy:'31-docs-copy', scales:'32-scales', check2:'33-checks-double', pie:'34-pie-chart', caliper:'35-caliper', stop:'36-stop-sign', scanner:'37-scanner', mega:'38-megaphone', envelope:'39-envelope', bubbles:'40-bubbles-two', tiles3:'41-tiles-three'};
   /* Колода 23.09.2026: все 41 объекта отрисованы с одной камерой и в одном кадре, поэтому подгонки
@@ -4662,6 +4664,7 @@ function applyRemote(d){
   window.BONUS = d.bonus || null;
   window.DISCIPLINE = d.discipline || null;
   window.DECK_REMOTE = d.deck || null;
+  window.PF_DECK = Array.isArray(d.pfDeck) ? d.pfDeck : null;
   window.STREAK = d.streak || null;
   window.QUIZ = Array.isArray(d.quiz) ? d.quiz : null;
   window.GUIDE = d.guide || null; // гид «Ваша роль изменена»: сервер отдаёт только в срок показа
@@ -6059,7 +6062,7 @@ body.is-pf .botnav .eyebtn{order:-1;}
   // «Аттестация» (блок «п/ф» и «Банк» без плюсов), «Внимание» (свои ошибки без баллов), «Профиль». Остального нет.
   function pfBoot(u){
     document.body.classList.add('is-pf');
-    const keep = {work:['profile'], learn:['process', 'errors', 'growth']};
+    const keep = {work:['profile'], learn:['game', 'process', 'errors', 'growth']};
     document.querySelectorAll('.botnav .nav-work .ni').forEach(b => { b.hidden = keep.work.indexOf(b.dataset.s) < 0; });
     document.querySelectorAll('.botnav .nav-learn .ni').forEach(b => { b.hidden = keep.learn.indexOf(b.dataset.s) < 0; });
     const r = ROLES[u.key];
