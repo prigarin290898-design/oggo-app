@@ -5328,10 +5328,8 @@ body.is-finance #mSearch,body.is-finance .kn-top,body.is-finance #prModes,body.i
 /* Изготовитель п/ф (19.10): по аналогии с бухгалтерией — «Знания» без «Сейчас», переключателя и «Эталона п/з»,
    на «Внимании» только свои ошибки. Поиск скрыт: он индексирует процесс производства, а не участок п/ф. */
 body.is-pf #mSearch,body.is-pf .kn-top,body.is-pf #prModes,body.is-pf #s-errors > :not(#myErrors){display:none!important;}
-/* Меню изготовителя: в «Работе» один «Профиль» — слева от глазков, на месте «Знаний» в «Обучении»;
-   справа пустое место на два пункта, чтобы глазки стояли там же, где в «Обучении» (директор 19.10). */
-body.is-pf .botnav .nav-work .ni[data-s="profile"]{order:-1;}
-body.is-pf .botnav .nav-work::after{content:"";flex:2 1 0;}
+/* Меню изготовителя (директор 19.10): глазки слева, с краю, в обоих режимах; в «Работе» «Профиль» — большой кнопкой на остальную ширину. */
+body.is-pf .botnav .eyebtn{order:-1;}
 .fin-bk{display:block;width:100%;border:0;text-align:left;font:inherit;cursor:pointer;}
 .fin-cap{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.72);margin:2px 2px 4px;}
 .fin-big{font:700 30px/1.05 var(--font-display);letter-spacing:-.01em;margin:0 2px;color:#fff;}
