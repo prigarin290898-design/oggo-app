@@ -3033,7 +3033,7 @@ const PR_MOVE_ALWAYS = '<div class="attn col"><div class="eb">Всегда, пр
 const PR_TABS = [
   {k:'docs',  t:'Документы',              head:'Памятка документы',        sub:'Правила, запреты и прошлые ошибки по каждому документу', body:'<div id="docBlocks"></div>',   mount:()=>renderDocBlocks()},
   {k:'flow',  t:'Эталон п/з',             head:'Эталонный процесс п/з',    sub:'Редакция 19.09.2026, правки 06.10 · шаги 1–13',            body:'<div id="flowBlocks"></div>',  mount:()=>renderFlow()},
-  {k:'sfp',   t:'Выпуск п/ф',             head:'Выпуск полуфабриката',     sub:'Шесть шагов · формулировка директора 30.09.2026',      body:'<div id="sfpBlocks"></div>', mount:()=>renderSfp()},
+  {k:'sfp',   t:'Выпуск п/ф',             head:'Выпуск полуфабриката',     sub:'Шесть шагов · формулировка директора 30.09.2026',      body:'<div id="sfpBlocks"></div><div id="sfpPhys"></div>', mount:()=>{ renderSfp(); sfpPhysMount(); }},
   {k:'move',  t:'Движение',               head:'Движение документов',      sub:'Откуда, куда, в чём работаем, что печатаем и когда',                   body:'<div id="moveMap"></div>'+PR_MOVE_ALWAYS, mount:()=>renderMoveMap()},
   {k:'rules', t:'Правила',                head:'Общие правила',            sub:'Действуют для любого документа',                       body:'<div id="ruleAccordion"></div>', mount:()=>renderRules()}
 ];
@@ -3091,13 +3091,22 @@ function renderProcess(u){
   t.mount(u);
 }
 
-function renderRules(){
+// «Выпуск п/ф» → «Физическое выполнение» (директор 19.10.2026): та же схема замеса и те же правила участка,
+// что у изготовителя п/ф. Тексты с сервера (appdata.pfScheme, pfRules) — одно место правки для обоих.
+function sfpPhysMount(){
+  const h = document.getElementById('sfpPhys');
+  if(!h || !(window.PF_RULES && window.PF_RULES.length)) return;
+  h.innerHTML = CZ_HEAD('Физическое выполнение', 'Как изготовитель п/ф делает концентрат: схема замеса и правила участка')+'<div id="pfSchemeNote"></div><div id="pfPhysAcc"></div>';
+  if(typeof window.pfSchemeMount === 'function') window.pfSchemeMount();
+  renderRules(window.PF_RULES, 'pfPhysAcc', 'Правила участка п/ф');
+}
+function renderRules(list = RULES, hostId = 'ruleAccordion', label = 'Общие правила'){
   const icons = ['<path d="M20 12l-8 8-9-9V3h8z"/><circle cx="7.5" cy="7.5" r="1.5"/>', '<rect x="3" y="5" width="18" height="16" rx="3"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/>', '<path d="M4 20l4-1 11-11-3-3L5 16z"/><line x1="13" y1="6" x2="17" y2="10"/>'];
-  makeCarousel(document.getElementById('ruleAccordion'), {
-    label:'Общие правила',
-    items: RULES.map((r,i)=>({title:r.title.replace(/^\d+\.\s*/,''), sub:r.sub || 'Для любого документа', icon:icons[i%icons.length], peek:plain(r.ok,60)})),
+  makeCarousel(document.getElementById(hostId), {
+    label: label,
+    items: list.map((r,i)=>({title:r.title.replace(/^\d+\.\s*/,''), sub:r.sub || 'Для любого документа', icon:icons[i%icons.length], peek:plain(r.ok,60)})),
     list: i=>{
-      const r = RULES[i];
+      const r = list[i];
       return czLabel('ok','Процесс')+czSentences(r.ok).map(t=>czItem(t,'ok')).join('')+
         czLabel('bad','Нельзя')+r.bad.map(b=>czItem(withRev(b),'bad')).join('')+
         (r.risk ? czLabel('risk','Риск')+czSentences(r.risk).map(t=>czItem(t,'risk')).join('') : '');
@@ -4653,7 +4662,7 @@ function applyRemote(d){
   // Бухгалтерия (08.10): errorLog нет — «Учёт ошибок» не ответил; пустой список — ошибок нет. Различаем.
   window.ERRLOG_OK = Array.isArray(d.errorLog);
   if(d.finRules) RULES.splice(0, RULES.length, ...d.finRules); // правила бухгалтерии вместо общих правил производства
-  if(d.pfRules) RULES.splice(0, RULES.length, ...d.pfRules); // правила участка п/ф вместо общих (изготовитель п/ф, 19.10)
+  window.PF_RULES = Array.isArray(d.pfRules) ? d.pfRules : null; // правила участка п/ф: у изготовителя — вместо общих, у остальных — в «Выпуске п/ф» (19.10)
   if(d.scen) SCEN = d.scen;
   if(d.docErrors) Object.keys(d.docErrors).forEach(k=>{ if(DOCS[k]) DOCS[k].errors = d.docErrors[k]; });
   ROSTER = d.roster || [];
@@ -6094,8 +6103,10 @@ body.is-pf .botnav .eyebtn{order:-1;}
     h.innerHTML = '<div class="cz-note" style="margin-bottom:12px;"><div class="cz-cap">'+esc(sc.cap)+'</div><div class="cz-chips">'+sc.chips.map(c => '<span>'+esc(c)+'</span>').join('<i>→</i>')+'</div><button type="button" class="mt-open" id="pfSchemeOpen">'+esc(sc.button)+'</button></div>';
     document.getElementById('pfSchemeOpen').addEventListener('click', () => openSheet({cap: esc(sc.sheetCap), title: esc(sc.title), sub: esc(sc.sub), body: pfSchemeHtml(sc)}));
   }
+  window.pfSchemeMount = pfSchemeMount;
   function pfBoot(u){
     document.body.classList.add('is-pf');
+    if(window.PF_RULES && window.PF_RULES.length) RULES.splice(0, RULES.length, ...window.PF_RULES);
     const keep = {work:['profile'], learn:['game', 'process', 'errors', 'growth']};
     document.querySelectorAll('.botnav .nav-work .ni').forEach(b => { b.hidden = keep.work.indexOf(b.dataset.s) < 0; });
     document.querySelectorAll('.botnav .nav-learn .ni').forEach(b => { b.hidden = keep.learn.indexOf(b.dataset.s) < 0; });
