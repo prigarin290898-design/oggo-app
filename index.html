@@ -2782,6 +2782,9 @@ function showWhatsNew(){
 // Открывается сама после обновления и по ссылке из письма бота (?new=1).
 function maybeWhatsNew(){
   const forced = /(\?|&)new=1/.test(location.search);
+  // Тур — «где теперь то, что было» для тех, кто знал прошлый вид. Изготовителю п/ф (новый человек,
+  // своих экранов меньше) он рассказывал бы про «Сегодня», «Задачи» и «Заказы», которых у него нет.
+  if(typeof currentUser !== 'undefined' && currentUser && currentUser.view === 'pf') return;
   if(forced || !newSeen()) setTimeout(showWhatsNew, 400);
 }
 
@@ -4159,7 +4162,7 @@ function myErrorsHtml(h){
   if(h.unavailable) return CZ_HEAD(h.fin ? 'Ваши ошибки' : 'Твои ошибки','')+
     '<div class="cz-note"><div class="cz-txt">Список не прочитан: '+(h.fin ? '«Учёт ошибок» не ответил' : 'ежедневная проверка учёта не отвечает')+'. Это сбой, а не «ошибок нет» — скажите директору.</div></div>';
   if(!groups.length) return CZ_HEAD(h.fin ? 'Ваши ошибки' : 'Твои ошибки', h.fin ? 'Открытых записей нет' : 'За три месяца записей нет')+
-    '<div class="cz-note"><div class="cz-txt">'+(h.fin ? 'Записей по вам нет. Появятся — окажутся здесь, с датой по каждой.' : 'Записей по вам нет. Появятся — окажутся здесь, с датой и баллом по каждой.')+'</div></div>';
+    '<div class="cz-note"><div class="cz-txt">'+(h.fin || (currentUser && currentUser.view === 'pf') ? 'Записей по вам нет. Появятся — окажутся здесь, с датой по каждой.' : 'Записей по вам нет. Появятся — окажутся здесь, с датой и баллом по каждой.')+'</div></div>';
   const repeated = groups.filter(g=>g.rows.length > 1).length;
   const cards = groups.map(g=>{
     const n = g.rows.length;
@@ -4240,7 +4243,8 @@ const ERR_CATALOG = {
 const ERR_ROLE = {
   anton:   {t:'Ваша зона: производственные задания, перемещения, контроль', k:['wo','move','order','inv','disc']},
   mihail:  {t:'Ваша зона: техкарты, номенклатура, закупки, цены, отгрузки со складов СТМ', k:['tech','recv','order','move','disc']},
-  arseniy: {t:'Ваша зона: приёмка, сборка перемещений, инвентаризации, Ответ-хранения', k:['recv','move','inv','disc']}
+  arseniy: {t:'Ваша зона: приёмка, сборка перемещений, инвентаризации, Ответ-хранения', k:['recv','move','inv','disc']},
+  nikita:  {t:'Ваша зона: участок полуфабрикатов — концентрат по листку партии', k:[]}
 };
 function catalogSheet(u){
   const role = ERR_ROLE[u && u.key];
@@ -4592,6 +4596,15 @@ async function gmStatus(play){
   else if(g.state === 'weekend') play.innerHTML = '<div class="at-card dk"><div class="cz-cap">Тренажёр</div><div class="at-h">Сейчас выходной</div><p class="at-p">Тренажёр открыт в рабочие дни, с понедельника по пятницу, один подход в неделю. Следующий: '+AT_DM(g.nextAt)+'.</p></div>'+info;
   else if(g.state === 'cap') play.innerHTML = '<div class="at-card dk"><div class="cz-cap">Тренажёр</div><div class="at-h">Лимит месяца набран</div><p class="at-p">В «Рост» засчитано +4, больше в этом месяце не добавится. Блоки аттестации тренажёр закрывает и после лимита: считаются верные ответы с первого раза, а не плюсы. Новый счёт с '+AT_DM(g.nextAt)+'.</p></div>'+info;
   else if(g.state === 'done') play.innerHTML = '<div class="at-card dk"><div class="cz-cap">Тренажёр</div><div class="at-h">На этой неделе подход уже был</div><p class="at-p">Следующий с '+AT_DM(g.nextAt)+'.</p></div>'+info;
+  else if(currentUser && currentUser.view === 'pf'){
+    // Изготовитель п/ф (директор 19.10.2026): тренажёр — подготовка к аттестации по своему участку, без баллов и плюсов.
+    play.innerHTML = '<div class="at-card dk"><div class="cz-cap">Тренажёр</div><div class="at-h">'+g.total+' '+AT_PL(g.total,'вопрос','вопроса','вопросов')+' к аттестации</div>'+
+      '<p class="at-p">Здесь спрашивают то же, что на аттестации по твоему участку: код и стоп, отвес и замес, листок партии, эталон, санитария. Неверный ответ ничего не отнимает, но покажет правильный.</p>'+
+      '<p class="at-p">Один подход в неделю, в рабочий день. Вопросы выбираются случайно, всего их '+g.bank+'.</p>'+
+      '<p class="at-sm">Баллов и плюсов тренажёр не даёт: это подготовка к аттестации.</p>'+
+      '<button class="at-cta" type="button" id="gmStart">Начать</button></div>';
+    document.getElementById('gmStart').addEventListener('click', async ()=>{ try{ const r = await appApi('POST','/game/start',{}); gmQuestion(play, r.question, r.n || 1, r.total, r.won || 0); }catch(e){ gmStatus(play); } });
+  }
   else { play.innerHTML = '<div class="at-card dk"><div class="cz-cap">Тренажёр</div><div class="at-h">'+g.total+' '+AT_PL(g.total,'вопрос','вопроса','вопросов')+' к аттестации</div><p class="at-p">Здесь спрашивают ровно то же, что на аттестации. Ответили верно с первого раза — блок закрывается, и на самой аттестации его спрашивать не будут. Занимаетесь — сдаёте меньше, быстрее снимаются ручные проверки и возвращаются забранные операции.</p>'+
     '<p class="at-p">Неверный ответ ничего не отнимает, но покажет правильный. Счёт «Ошибки» тренажёр не меняет. Один подход в рабочий день недели, вопросы каждый раз выбираются случайно, всего их '+g.bank+'.</p>'+
     '<p class="at-sm">Денег тренажёр не даёт и к премии не относится. Верные ответы идут в «Рост» (+1, не больше 4 в месяц), а плюсы — это права, а не рубли (решение 30.09).</p>'+
@@ -4638,6 +4651,7 @@ function applyRemote(d){
   // Бухгалтерия (08.10): errorLog нет — «Учёт ошибок» не ответил; пустой список — ошибок нет. Различаем.
   window.ERRLOG_OK = Array.isArray(d.errorLog);
   if(d.finRules) RULES.splice(0, RULES.length, ...d.finRules); // правила бухгалтерии вместо общих правил производства
+  if(d.pfRules) RULES.splice(0, RULES.length, ...d.pfRules); // правила участка п/ф вместо общих (изготовитель п/ф, 19.10)
   if(d.scen) SCEN = d.scen;
   if(d.docErrors) Object.keys(d.docErrors).forEach(k=>{ if(DOCS[k]) DOCS[k].errors = d.docErrors[k]; });
   ROSTER = d.roster || [];
@@ -4734,7 +4748,7 @@ document.querySelectorAll('.botnav .ni').forEach(btn=>{
     btn.classList.add('on');
     // Экран открывается всегда одинаково: выбранный режим и вкладка не запоминаются.
     // У бухгалтерии «Сейчас» нет (операции — производства): сразу справочник, первая вкладка.
-    if(btn.dataset.s === 'process'){ PR_MODE = currentUser && currentUser.role === 'finance' ? 'ref' : 'now'; PR_TAB = PR_TABS[0].k; renderProcess(currentUser); }
+    if(btn.dataset.s === 'process'){ PR_MODE = currentUser && (currentUser.role === 'finance' || currentUser.view === 'pf') ? 'ref' : 'now'; PR_TAB = PR_TABS[0].k; renderProcess(currentUser); }
     document.getElementById('s-'+btn.dataset.s).classList.add('active');
     refreshCarousels();
   };
@@ -5311,6 +5325,13 @@ body:not(.is-director) .dept-only{display:none!important;}
 /* Бухгалтерия (08.10): меню то же, пункты производства скрыты атрибутом hidden в finBoot. Поиск индексирует
    процесс производства — у бухгалтерии его нет. На «Знаниях» нет «Сейчас» и «Эталона п/з», на «Внимании» — только свои ошибки. */
 body.is-finance #mSearch,body.is-finance .kn-top,body.is-finance #prModes,body.is-finance #s-errors > :not(#myErrors){display:none!important;}
+/* Изготовитель п/ф (19.10): по аналогии с бухгалтерией — «Знания» без «Сейчас», переключателя и «Эталона п/з»,
+   на «Внимании» только свои ошибки. Поиск скрыт: он индексирует процесс производства, а не участок п/ф. */
+body.is-pf #mSearch,body.is-pf .kn-top,body.is-pf #prModes,body.is-pf #s-errors > :not(#myErrors){display:none!important;}
+/* Меню изготовителя: в «Работе» один «Профиль» — слева от глазков, на месте «Знаний» в «Обучении»;
+   справа пустое место на два пункта, чтобы глазки стояли там же, где в «Обучении» (директор 19.10). */
+body.is-pf .botnav .nav-work .ni[data-s="profile"]{order:-1;}
+body.is-pf .botnav .nav-work::after{content:"";flex:2 1 0;}
 .fin-bk{display:block;width:100%;border:0;text-align:left;font:inherit;cursor:pointer;}
 .fin-cap{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.72);margin:2px 2px 4px;}
 .fin-big{font:700 30px/1.05 var(--font-display);letter-spacing:-.01em;margin:0 2px;color:#fff;}
@@ -6033,7 +6054,30 @@ body.is-finance #mSearch,body.is-finance .kn-top,body.is-finance #prModes,body.i
     if(u && u.role === 'finance'){ finBoot(u); return; }
     _renderAll(u);
     afterData(u);
+    if(u && u.view === 'pf') pfBoot(u);
   };
+  // Изготовитель п/ф (Никита, директор 19.10.2026: «подход у всех стандартизирован — это эталон приложения»).
+  // По аналогии с бухгалтерией: те же экраны, своё содержимое. «Знания» — «Моя роль» и «Правила» участка,
+  // «Аттестация» (блок «п/ф» и «Банк» без плюсов), «Внимание» (свои ошибки без баллов), «Профиль». Остального нет.
+  function pfBoot(u){
+    document.body.classList.add('is-pf');
+    const keep = {work:['profile'], learn:['process', 'errors', 'growth']};
+    document.querySelectorAll('.botnav .nav-work .ni').forEach(b => { b.hidden = keep.work.indexOf(b.dataset.s) < 0; });
+    document.querySelectorAll('.botnav .nav-learn .ni').forEach(b => { b.hidden = keep.learn.indexOf(b.dataset.s) < 0; });
+    const r = ROLES[u.key];
+    PR_TABS.splice(0, PR_TABS.length,
+      {k:'role', t:'Моя роль', head:'Карточка роли', sub: r ? r.position : '', body:'<div id="pfRole"></div>', mount:()=>{
+        const h = document.getElementById('pfRole');
+        if(!h) return;
+        if(!r){ h.innerHTML = '<div class="cz-note"><div class="cz-txt">Карточка роли не загрузилась. Открой приложение ещё раз, а если не появится — скажи Антону.</div></div>'; return; }
+        h.innerHTML = roleBlockHtml(r); roleBlockBind(r);
+      }},
+      {k:'rules', t:'Правила', head:'Правила участка п/ф', sub:'Код и стоп, отвес и замес, листок партии, эталон, санитария', body:'<div id="ruleAccordion"></div>', mount:()=>renderRules()});
+    PR_MODE = 'ref'; PR_TAB = 'role';
+    renderProcess(u);
+    const kn = document.querySelector('.nav-learn .ni[data-s="process"]');
+    if(kn) kn.click();
+  }
   // Лера и Марина (08.10, «всё по аналогии с производством, новое ничего не создаём»): те же экраны и меню.
   // Работа — «Сегодня» (деньги, задачи, ошибки) и «Задачи»; обучение — «Знания» (своя роль и правила, проектом) и «Внимание»
   // (свои ошибки без баллов). Что им можно, решает сервер; здесь только не рисуем того, чего у них нет.
@@ -6072,7 +6116,10 @@ body.is-finance #mSearch,body.is-finance .kn-top,body.is-finance #prModes,body.i
     if(typeof myScore === 'function') myScore().then(h => { TD_FIND = h; renderToday(); knLast(); }).catch(() => {});
     if(u && u.key === 'director') finLoad();
   }
-  if(typeof currentUser !== 'undefined' && currentUser) (currentUser.role === 'finance' ? finBoot : afterData)(currentUser);
+  if(typeof currentUser !== 'undefined' && currentUser){
+    (currentUser.role === 'finance' ? finBoot : afterData)(currentUser);
+    if(currentUser.view === 'pf') pfBoot(currentUser);
+  }
 })();
 </script>
 <div class="bgfield" aria-hidden="true"></div>
