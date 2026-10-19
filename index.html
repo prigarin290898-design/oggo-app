@@ -4665,6 +4665,7 @@ function applyRemote(d){
   window.DISCIPLINE = d.discipline || null;
   window.DECK_REMOTE = d.deck || null;
   window.PF_DECK = Array.isArray(d.pfDeck) ? d.pfDeck : null;
+  window.PF_SCHEME = d.pfScheme || null;
   window.STREAK = d.streak || null;
   window.QUIZ = Array.isArray(d.quiz) ? d.quiz : null;
   window.GUIDE = d.guide || null; // гид «Ваша роль изменена»: сервер отдаёт только в срок показа
@@ -5333,6 +5334,26 @@ body.is-finance #mSearch,body.is-finance .kn-top,body.is-finance #prModes,body.i
 body.is-pf #mSearch,body.is-pf .kn-top,body.is-pf #prModes,body.is-pf #s-errors > :not(#myErrors){display:none!important;}
 /* Меню изготовителя (директор 19.10): глазки слева, с краю, в обоих режимах; в «Работе» «Профиль» — большой кнопкой на остальную ширину. */
 body.is-pf .botnav .eyebtn{order:-1;}
+/* Схема замеса изготовителя п/ф (директор 19.10.2026, вариант 1 «линия станций», макет Дизайнера). Приём матрёшки:
+   плашка с чипами и кнопкой, в шторке — рамки шагов на чёрной оси с номерами. Без значков и нарисованных предметов.
+   «Стоп, если:» — условие, а не шаг: пунктирная оранжевая рамка без номера, сдвинута с линии шагов. */
+.pz-flow{position:relative;padding:0 0 44px 40px;}
+.pz-flow::before{content:"";position:absolute;left:12px;top:14px;bottom:26px;width:2.5px;background:#000;}
+.pz-flow::after{content:"";position:absolute;left:13.25px;bottom:16px;transform:translateX(-50%);border:6px solid transparent;border-top:9px solid #000;border-bottom:0;}
+.pz-stp{position:relative;box-sizing:border-box;border:2px solid #000;border-radius:18px;background:#fff;color:#000;padding:12px 14px;font-size:13px;line-height:1.45;margin:0 0 12px;}
+.pz-n{position:absolute;left:-42px;top:10px;width:26px;height:26px;border-radius:50%;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Unbounded',sans-serif;font-weight:700;font-size:11px;}
+.pz-grp{position:relative;padding-right:22px;margin:0 0 12px;}
+.pz-grp::after{content:"";position:absolute;right:8px;top:22px;bottom:29px;width:2.5px;background:#E85002;}
+.pz-grp .pz-stp::after{content:"";position:absolute;right:-16px;top:22px;width:14px;height:2.5px;background:#E85002;}
+.pz-stop{position:relative;box-sizing:border-box;margin-left:28px;border:2px dashed #E85002;border-radius:18px;background:#fff;color:#000;padding:12px 14px;font-size:13px;line-height:1.45;}
+.pz-stop::after{content:"";position:absolute;right:-18px;bottom:28px;width:18px;height:2.5px;background:#E85002;}
+.pz-if{display:inline-block;background:#E85002;color:#000;border-radius:99px;padding:4px 10px;font-size:12px;font-weight:800;margin-bottom:6px;}
+.pz-stop ul{margin:0;padding:0;list-style:none;}
+.pz-stop li{position:relative;padding-left:16px;margin:2px 0;}
+.pz-stop li::before{content:"";position:absolute;left:2px;top:7px;width:7px;height:7px;border-radius:50%;background:#E85002;}
+.pz-do{margin-top:8px;padding-top:8px;border-top:1px solid rgba(0,0,0,.14);font-weight:700;}
+.pz-flow > .pz-stp:last-child{margin-bottom:0;}
+
 .fin-bk{display:block;width:100%;border:0;text-align:left;font:inherit;cursor:pointer;}
 .fin-cap{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.72);margin:2px 2px 4px;}
 .fin-big{font:700 30px/1.05 var(--font-display);letter-spacing:-.01em;margin:0 2px;color:#fff;}
@@ -6060,6 +6081,19 @@ body.is-pf .botnav .eyebtn{order:-1;}
   // Изготовитель п/ф (Никита, директор 19.10.2026: «подход у всех стандартизирован — это эталон приложения»).
   // По аналогии с бухгалтерией: те же экраны, своё содержимое. «Знания» — «Моя роль» и «Правила» участка,
   // «Аттестация» (блок «п/ф» и «Банк» без плюсов), «Внимание» (свои ошибки без баллов), «Профиль». Остального нет.
+  // Схема замеса: плашка над правилами и шторка «Как идёт замес?» — тексты с сервера (appdata.pfScheme), не копией.
+  function pfSchemeHtml(sc){
+    const st = (t, i) => '<div class="pz-stp"><span class="pz-n">'+(i + 1)+'</span>'+esc(t)+'</div>';
+    const k = sc.stopAfter || 0;
+    const stop = '<div class="pz-stop"><span class="pz-if">'+esc(sc.stop.if)+'</span><ul>'+sc.stop.items.map(x => '<li>'+esc(x)+'</li>').join('')+'</ul><div class="pz-do">'+esc(sc.stop.do)+'</div></div>';
+    return '<div class="pz-flow"><div class="pz-grp">'+sc.steps.slice(0, k).map(st).join('')+stop+'</div>'+sc.steps.slice(k).map((t, i) => st(t, i + k)).join('')+'</div>';
+  }
+  function pfSchemeMount(){
+    const h = document.getElementById('pfSchemeNote'), sc = window.PF_SCHEME;
+    if(!h || !sc) return;
+    h.innerHTML = '<div class="cz-note" style="margin-bottom:12px;"><div class="cz-cap">'+esc(sc.cap)+'</div><div class="cz-chips">'+sc.chips.map(c => '<span>'+esc(c)+'</span>').join('<i>→</i>')+'</div><button type="button" class="mt-open" id="pfSchemeOpen">'+esc(sc.button)+'</button></div>';
+    document.getElementById('pfSchemeOpen').addEventListener('click', () => openSheet({cap: esc(sc.sheetCap), title: esc(sc.title), sub: esc(sc.sub), body: pfSchemeHtml(sc)}));
+  }
   function pfBoot(u){
     document.body.classList.add('is-pf');
     const keep = {work:['profile'], learn:['game', 'process', 'errors', 'growth']};
@@ -6073,7 +6107,7 @@ body.is-pf .botnav .eyebtn{order:-1;}
         if(!r){ h.innerHTML = '<div class="cz-note"><div class="cz-txt">Карточка роли не загрузилась. Открой приложение ещё раз, а если не появится — скажи Антону.</div></div>'; return; }
         h.innerHTML = roleBlockHtml(r); roleBlockBind(r);
       }},
-      {k:'rules', t:'Правила', head:'Правила участка п/ф', sub:'Код и стоп, отвес и замес, листок партии, эталон, санитария', body:'<div id="ruleAccordion"></div>', mount:()=>renderRules()});
+      {k:'rules', t:'Правила', head:'Правила участка п/ф', sub:'Код и стоп, отвес и замес, листок партии, эталон, санитария', body:'<div id="pfSchemeNote"></div><div id="ruleAccordion"></div>', mount:()=>{ pfSchemeMount(); renderRules(); }});
     PR_MODE = 'ref'; PR_TAB = 'role';
     renderProcess(u);
     const kn = document.querySelector('.nav-learn .ni[data-s="process"]');
