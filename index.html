@@ -2989,7 +2989,7 @@ function opSheet(o, u){
     cap: o.gap ? 'Операция · чек-листа нет' : 'Операция',
     title: o.title,
     sub: (opMine(o,u) ? 'Делаете вы · ' : 'Делает: ')+o.who,
-    icon: IC.step,
+    icon: o.icon || IC.step, // своя иконка операции из данных (контрактное производство — рукопожатие, 28.10), иначе общая
     body: opSteps(o)+(docs.length ? czLabel('ok','Документы')+'<div class="cz-links">'+docs.map(k=>'<button class="cz-link" data-doc="'+k+'">'+DOCS[k].title+' '+ic('<polyline points="9 6 15 12 9 18"/>',13)+'</button>').join('')+'</div>' : '')+
       (o.key === 'give' ? '<button class="pk-start" id="pkStart" type="button">Приступить</button>' : ''),
     after: box => {
